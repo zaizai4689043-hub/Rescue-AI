@@ -15,7 +15,6 @@
 | P0–P3 救援优先级 | 按倒塌形态、失联规模与跨境影响排序，每档附社情证据链与依据 |
 | 社情热力图 | 帖量累计曲线、损毁类型分布、关键词与情感时间线可视化 |
 | 空中搜索 | 无人机全域扫描、被困人员点亮；遥测协议已预留真机接入接口（`POST /drone/telemetry`） |
-| Qwen-VL 结构研判 | 多模态四值输出：墙体匹配 / 承重构件 / 疑似空隙 / 结构完整度 |
 | 余震联动 | 弱余震不打断作业；强余震（mag≥5）自动暂停破拆支护后恢复 |
 | 历史事件回测 | `?replay=1` 真实时间轴 ×90 压缩回放，四段叙事全程可复现 |
 | 三级降级保险丝 | 真 AI → 预录兜底 → `?sim=1` 纯仿真，断网/断密钥全流程可演示 |
@@ -31,6 +30,7 @@
 │   └── requirements.txt
 ├── frontend/               标准平台前端（Vue3 + Vite + Element Plus，建设中）
 ├── work buddy接力/          平台化路线图补丁包（未合并，含架构设计与集成指南）
+├── GOAI复赛/               复赛交付：单文件指挥大屏 rescueai-dashboard.html + 提交附件
 ├── deploy/                 Vercel 在线版（配置 Key 后真 AI，未配置自动降级离线演示）
 ├── pw-test/                Playwright 验收测试脚本
 ├── outputs/                参赛文档：产品说明/商业计划书/路演讲稿等
@@ -39,12 +39,13 @@
 └── 数据来源与合规说明.md     数据来源与合规声明
 ```
 
-四块之间的关系：
+各块之间的关系：
 
 - **`backend/Qwen 初版`** —— 主演示载体，评委演示唯一入口，真 AI 全流程可跑（见下「快速开始」）。
 - **`backend/app` + `frontend`** —— 标准平台框架（建设中），把主演示能力逐步平台化。
 - **`work buddy接力`** —— 平台化路线图的补丁包（**未合并**），包含架构设计、集成指南与分工 prompt，供后续合入参考。
-- **`deploy`** —— Vercel 在线版，与主演示同源：在 Vercel 控制台配置 `DASHSCOPE_API_KEY` 后具备真实 AI 链路，未配置时自动降级为离线演示（预录兜底）。当前地址：https://deploy-eight-mocha-43.vercel.app
+- **`GOAI复赛`** —— 复赛交付载体：单文件指挥大屏 `rescueai-dashboard.html`（社媒线索核实闭环抽屉 + 属地公益救援队推送追踪），已同步部署为在线版 `/semifinal.html`。
+- **`deploy`** —— Vercel 在线版，与主演示同源：在 Vercel 控制台配置 `DASHSCOPE_API_KEY` 后具备真实 AI 链路，未配置时自动降级为离线演示（预录兜底）。当前地址：https://deploy-eight-mocha-43.vercel.app（复赛大屏：https://deploy-eight-mocha-43.vercel.app/semifinal.html）
 
 ---
 
@@ -101,10 +102,10 @@ cd frontend && npm install && npm run dev
 ```bash
 cd pw-test
 npm i && npx playwright install
-node t13-acceptance.mjs    # 逐个运行，或按脚本名执行
+node verify-ai.mjs         # 逐个运行，或按脚本名执行
 ```
 
-脚本覆盖：AI 调用链路（`verify-ai.mjs`）、结构研判与兜底（`t13-acceptance.mjs`）、余震联动与救援流程（`t15-acceptance.mjs`）、沙盘画布渲染（`t17-canvas-shot.mjs`）、回测剧场（`verify-replay.mjs`）、实时社情层冒烟（`verify-live.mjs`）、空中搜索/投放（`t26-acceptance.mjs`、`t27-acceptance.mjs`）及多轮对齐回归（`verify-*`）。
+脚本覆盖：AI 调用链路（`verify-ai.mjs`）、多模态兜底链路（`t13-acceptance.mjs`）、余震联动与救援流程（`t15-acceptance.mjs`）、沙盘画布渲染（`t17-canvas-shot.mjs`）、回测剧场（`verify-replay.mjs`）、实时社情层冒烟（`verify-live.mjs`）、空中搜索/投放（`t26-acceptance.mjs`、`t27-acceptance.mjs`）、复赛大屏核实闭环（`verify-drawer.mjs`、`verify-semifinal.mjs`、`verify-live-semifinal.mjs`）及多轮对齐回归（`verify-*`）。
 
 **[`screenshots/`](./screenshots/) 目录为各任务的运行证据截图**，与脚本一一对应。
 
