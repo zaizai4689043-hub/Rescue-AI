@@ -22,8 +22,13 @@ check('大屏标题渲染', /地 震 应 急 智 能 指 挥 中 心/.test(await
 check('预警横幅渲染', /地震预警/.test(await page.locator('#quake-banner').innerText()));
 check('顶栏仅地震模式+历史案例', JSON.stringify(await page.locator('.mode-btn').allInnerTexts()) === '["地震模式","📚 历史案例"]', JSON.stringify(await page.locator('.mode-btn').allInnerTexts()));
 check('台风模式已彻底移除', (await page.locator('.mode-btn[data-mode="typhoon"]').count()) === 0);
+check('左栏评估/简报面板存在', /快速评估结果|AI灾情简报/.test(await page.locator('#leftcol').innerText()));
+check('全文无台风字样', !/台风/.test(await page.content()));
 check('地图震中覆盖层存在', (await page.locator('#map-leaflet, #map-svg').count()) > 0);
 check('社媒情报流有卡片', (await page.locator('.feed-card').count()) > 0, `cards=${await page.locator('.feed-card').count()}`);
+await page.waitForTimeout(12000);
+check('Mock点位为缅甸真实地点', /曼德勒|实皆|内比都|仰光|缅甸/.test(await page.locator('#feed-list').innerText()) && !/宁波|鄞州|天一广场/.test(await page.locator('#feed-list').innerText()), (await page.locator('#feed-list').innerText()).slice(0, 40).replace(/\n/g, ' '));
+await page.screenshot({ path: path.join(shots, 'deploy_semifinal_03_feed.png') });
 await page.screenshot({ path: path.join(shots, 'deploy_semifinal_01_full.png') });
 
 await page.locator('.feed-card').first().click();

@@ -415,7 +415,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#050810;font-family:
   </div>
 </div>
 
-<!-- ===== 左栏：灾情概览 + AI灾情简报 + 社媒情报流 ===== -->
+<!-- ===== 左栏：灾情概览 + 快速评估结果 + 社媒情报流 ===== -->
 <div id="leftcol">
   <div class="side-panel brk">
     <div class="sec-title">灾情概览</div>
@@ -425,7 +425,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#050810;font-family:
     <div class="impact-row"><span>影响区县</span><b style="text-align:right;max-width:300px;white-space:normal;line-height:1.5;">曼德勒、实皆、内比都、马圭、掸邦、瑞丽市(有感)</b></div>
   </div>
   <div class="side-panel brk">
-    <div class="sec-title">AI灾情简报</div>
+    <div class="sec-title">快速评估结果</div>
     <div style="font-size:17px;color:#c8d6e5;line-height:1.9;">根据现有数据和模型，本次地震极震区烈度预计达到<b style="color:#fadb14;">IX度</b>，地震影响面积为 <b style="color:#fadb14;">12,400 km²</b>（缅甸中部），受影响人口 <b style="color:#fadb14;">385万人</b>。地震可能造成 <b style="color:#ff4d4f;">1800–3500人</b> 死亡、<b style="color:#ff4d4f;">5000–8000人</b> 受伤，直接经济损失约为 <b style="color:#fadb14;">82亿元</b>。</div>
     <div class="sec-title" style="margin-top:10px;">震区波及区域</div>
     <div class="impact-chips"><span>曼德勒</span><span>实皆</span><span>内比都</span><span>马圭</span><span>掸邦</span><span>瑞丽市</span></div>
@@ -849,7 +849,7 @@ function openCases() {
 }
 function closeCases() { document.getElementById('cases-modal').classList.remove('open'); }
 
-/** AI灾情简报：基于当前状态自动生成（每15s + 关键事件触发） */
+/** 快速评估结果：基于当前状态自动生成（每15s + 关键事件触发） */
 function genBrief() {
   const el = document.getElementById('brief-card');
   if (!el) return;
