@@ -1,0 +1,20 @@
+{
+  "raw_rows": 53340,
+  "noise_2025_01_09_removed": 2,
+  "duplicates_removed": 12743,
+  "after_dedup": 40595,
+  "after_keyword_filter": 9617,
+  "sampled": 100,
+  "llm_calls": 100,
+  "llm_failures": 0,
+  "substantive": 65,
+  "final": 52,
+  "damage_type_distribution": {
+    "人员伤亡": 13,
+    "房屋倒塌": 22,
+    "道路中断": 3,
+    "次生灾害": 4,
+    "救援进展": 3,
+    "震感反馈": 7
+  }
+}

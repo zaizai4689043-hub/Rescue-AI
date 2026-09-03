@@ -1,0 +1,163 @@
+<template>
+  <el-container style="height: 100vh">
+    <el-aside :width="isCollapse ? '64px' : '220px'" style="background-color: #304156; transition: width 0.3s">
+      <div class="logo-container" :class="{ collapsed: isCollapse }">
+        <el-icon :size="24"><MapLocation /></el-icon>
+        <span v-show="!isCollapse" class="logo-title">AI地震救援平台</span>
+      </div>
+      <el-menu
+        :default-active="route.path"
+        background-color="#304156"
+        text-color="#bfcbd9"
+        active-text-color="#409EFF"
+        :collapse="isCollapse"
+        router
+        :collapse-transition="false"
+      >
+        <el-menu-item index="/dashboard">
+          <el-icon><Odometer /></el-icon>
+          <template #title>仪表盘</template>
+        </el-menu-item>
+        <el-menu-item index="/disaster-map">
+          <el-icon><MapLocation /></el-icon>
+          <template #title>灾情地图</template>
+        </el-menu-item>
+        <el-menu-item index="/disaster-report">
+          <el-icon><EditPen /></el-icon>
+          <template #title>灾情上报</template>
+        </el-menu-item>
+        <el-menu-item index="/disaster-list">
+          <el-icon><List /></el-icon>
+          <template #title>灾情列表</template>
+        </el-menu-item>
+        <el-menu-item index="/resource-center">
+          <el-icon><Box /></el-icon>
+          <template #title>资源调度</template>
+        </el-menu-item>
+        <el-menu-item index="/volunteer-manage">
+          <el-icon><UserFilled /></el-icon>
+          <template #title>志愿者管理</template>
+        </el-menu-item>
+        <el-menu-item index="/assessment-report">
+          <el-icon><DataAnalysis /></el-icon>
+          <template #title>评估报告</template>
+        </el-menu-item>
+        <el-menu-item index="/trapped-persons">
+          <el-icon><Position /></el-icon>
+          <template #title>受困者追踪</template>
+        </el-menu-item>
+        <el-menu-item index="/ai-assistant">
+          <el-icon><ChatDotRound /></el-icon>
+          <template #title>AI助手</template>
+        </el-menu-item>
+        <el-menu-item index="/user-manage">
+          <el-icon><Setting /></el-icon>
+          <template #title>用户管理</template>
+        </el-menu-item>
+      </el-menu>
+    </el-aside>
+
+    <el-container>
+      <el-header class="app-header">
+        <div class="header-left">
+          <el-icon class="collapse-btn" @click="isCollapse = !isCollapse" :size="20">
+            <Fold v-if="!isCollapse" />
+            <Expand v-else />
+          </el-icon>
+          <span class="header-title">AI 地震救援指挥中心</span>
+        </div>
+        <div class="header-right">
+          <span class="header-clock">{{ currentTime }}</span>
+          <span class="welcome-text">欢迎, {{ userStore.username || '用户' }}</span>
+          <el-dropdown @command="handleCommand">
+            <el-icon :size="18" style="cursor: pointer; margin-left: 12px"><ArrowDown /></el-icon>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
+      </el-header>
+
+      <el-main class="app-main">
+        <router-view />
+      </el-main>
+    </el-container>
+  </el-container>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { useUserStore } from '../stores/user'
+
+const route = useRoute()
+const userStore = useUserStore()
+const isCollapse = ref(false)
+const currentTime = ref('')
+
+const updateTime = () => {
+  const now = new Date()
+  currentTime.value = now.getFullYear() + '-' +
+    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+    String(now.getDate()).padStart(2, '0') + ' ' +
+    String(now.getHours()).padStart(2, '0') + ':' +
+    String(now.getMinutes()).padStart(2, '0') + ':' +
+    String(now.getSeconds()).padStart(2, '0')
+}
+updateTime()
+setInterval(updateTime, 1000)
+
+const handleCommand = (command) => {
+  if (command === 'logout') userStore.logout()
+}
+
+onMounted(() => {
+  if (userStore.isLoggedIn && !userStore.userInfo) {
+    userStore.fetchUserInfo().catch(() => {})
+  }
+})
+</script>
+
+<style scoped>
+.logo-container {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.logo-container.collapsed { gap: 0; }
+.logo-title { font-size: 15px; }
+
+.app-header {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  padding: 0 20px;
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+.header-title { font-size: 18px; font-weight: 600; color: #303133; }
+.header-right { display: flex; align-items: center; gap: 16px; }
+.header-clock { font-size: 14px; color: #606266; font-variant-numeric: tabular-nums; }
+.collapse-btn { cursor: pointer; color: #333; }
+.welcome-text { font-size: 14px; color: #555; }
+
+.app-main {
+  background: #f0f2f5;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.el-menu { border-right: none; }
+</style>

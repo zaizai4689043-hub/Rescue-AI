@@ -1,0 +1,14 @@
+# 版本锁定于 2026-08-28（本机环境）：本机未预装以下依赖，按 PyPI 当前稳定版锁定，
+# 并已实测逐包导入与 uvicorn 启动通过；bcrypt 保留原锁定 4.0.1（与 passlib 1.7.4 兼容）。
+fastapi==0.141.1
+uvicorn[standard]==0.52.4
+sqlalchemy==2.0.52
+alembic==1.19.1
+pydantic[email]==2.13.4
+pydantic-settings==2.15.0
+python-jose[cryptography]==3.5.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+python-multipart==0.0.32
+aiofiles==25.1.0
+httpx==0.28.1

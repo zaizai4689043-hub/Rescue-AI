@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.db
+# 示例数据库为交付演示数据，需入库（根目录任务 #3 基建要求）
+!aidisaster.db
+.env
+venv/
+.venv/
+*.egg-info/
+dist/
+build/

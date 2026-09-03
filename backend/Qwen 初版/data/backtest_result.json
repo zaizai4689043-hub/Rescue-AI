@@ -1,0 +1,782 @@
+{
+  "generated_at": "2026-08-29T00:30:43+08:00",
+  "task": "WP6 分类回测 + WP8 定位覆盖率（口径见 outputs/评委建议优化方案.md 措施 2.a/2.c）",
+  "nlp_source": "/Users/zaizai/Downloads/AI地震救援/work buddy接力/backend/services/nlp_service.py",
+  "nlp_load_mode": "importlib(路径加载) + services.ai_client 最小 stub",
+  "labels_source": "/Users/zaizai/Downloads/AI地震救援/backend/Qwen 初版/data/labels.json",
+  "posts_source": "/Users/zaizai/Downloads/AI地震救援/backend/Qwen 初版/data/social_posts.json",
+  "n_posts": 52,
+  "boundary_note": "样本量 52、历史数据集、非独立测试集（标签与演示数据同源），不构成泛化性能承诺",
+  "damage_type": {
+    "confusion_matrix": {
+      "人员伤亡": {
+        "人员伤亡": 10,
+        "房屋倒塌": 0,
+        "道路中断": 0,
+        "次生灾害": 0,
+        "救援进展": 1,
+        "震感反馈": 2
+      },
+      "房屋倒塌": {
+        "人员伤亡": 2,
+        "房屋倒塌": 11,
+        "道路中断": 3,
+        "次生灾害": 2,
+        "救援进展": 3,
+        "震感反馈": 1
+      },
+      "道路中断": {
+        "人员伤亡": 0,
+        "房屋倒塌": 1,
+        "道路中断": 2,
+        "次生灾害": 0,
+        "救援进展": 0,
+        "震感反馈": 0
+      },
+      "次生灾害": {
+        "人员伤亡": 0,
+        "房屋倒塌": 0,
+        "道路中断": 1,
+        "次生灾害": 3,
+        "救援进展": 0,
+        "震感反馈": 0
+      },
+      "救援进展": {
+        "人员伤亡": 1,
+        "房屋倒塌": 0,
+        "道路中断": 0,
+        "次生灾害": 0,
+        "救援进展": 1,
+        "震感反馈": 1
+      },
+      "震感反馈": {
+        "人员伤亡": 0,
+        "房屋倒塌": 0,
+        "道路中断": 0,
+        "次生灾害": 2,
+        "救援进展": 1,
+        "震感反馈": 4
+      }
+    },
+    "per_class": {
+      "人员伤亡": {
+        "precision": 0.7692,
+        "recall": 0.7692,
+        "f1": 0.7692,
+        "support": 13
+      },
+      "房屋倒塌": {
+        "precision": 0.9167,
+        "recall": 0.5,
+        "f1": 0.6471,
+        "support": 22
+      },
+      "道路中断": {
+        "precision": 0.3333,
+        "recall": 0.6667,
+        "f1": 0.4444,
+        "support": 3
+      },
+      "次生灾害": {
+        "precision": 0.4286,
+        "recall": 0.75,
+        "f1": 0.5455,
+        "support": 4
+      },
+      "救援进展": {
+        "precision": 0.1667,
+        "recall": 0.3333,
+        "f1": 0.2222,
+        "support": 3
+      },
+      "震感反馈": {
+        "precision": 0.5,
+        "recall": 0.5714,
+        "f1": 0.5333,
+        "support": 7
+      }
+    },
+    "macro": {
+      "precision": 0.5191,
+      "recall": 0.5984,
+      "f1": 0.527
+    },
+    "accuracy": 0.5962,
+    "n": 52
+  },
+  "sentiment": {
+    "confusion_matrix": {
+      "urgent": {
+        "urgent": 10,
+        "negative": 1,
+        "neutral": 18,
+        "hopeful": 3
+      },
+      "negative": {
+        "urgent": 2,
+        "negative": 3,
+        "neutral": 5,
+        "hopeful": 1
+      },
+      "neutral": {
+        "urgent": 0,
+        "negative": 0,
+        "neutral": 6,
+        "hopeful": 0
+      },
+      "hopeful": {
+        "urgent": 1,
+        "negative": 1,
+        "neutral": 1,
+        "hopeful": 0
+      }
+    },
+    "per_class": {
+      "urgent": {
+        "precision": 0.7692,
+        "recall": 0.3125,
+        "f1": 0.4444,
+        "support": 32
+      },
+      "negative": {
+        "precision": 0.6,
+        "recall": 0.2727,
+        "f1": 0.375,
+        "support": 11
+      },
+      "neutral": {
+        "precision": 0.2,
+        "recall": 1.0,
+        "f1": 0.3333,
+        "support": 6
+      },
+      "hopeful": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "support": 3
+      }
+    },
+    "macro": {
+      "precision": 0.3923,
+      "recall": 0.3963,
+      "f1": 0.2882
+    },
+    "accuracy": 0.3654,
+    "n": 52
+  },
+  "location_coverage": {
+    "total": 52,
+    "hit": 41,
+    "coverage": 0.7885,
+    "per_name_hit_count": {
+      "曼德勒": 18,
+      "瑞丽": 12,
+      "实皆": 10,
+      "瑞丽市": 8,
+      "曼谷": 8,
+      "内比都": 8,
+      "实皆省": 8,
+      "德宏": 7,
+      "保山": 7,
+      "昆明": 6,
+      "西双版纳": 6,
+      "仰光": 5,
+      "大理": 4,
+      "临沧": 2,
+      "保山市": 1,
+      "清迈": 1,
+      "德宏州": 1,
+      "普洱": 1,
+      "勃固": 1,
+      "皎施": 1
+    },
+    "missed_post_ids": [
+      "wb-cklno22eo8lv",
+      "wb-b96p4ufwczqp",
+      "wb-cw4ycjwtpam7",
+      "wb-cjk1o2iranht",
+      "wb-d0aw7559ksww",
+      "wb-cowvmo0qzlnn",
+      "wb-c0ruiwk73xag",
+      "wb-ehfjynnq9sto",
+      "wb-4xd4b5r8f8f4",
+      "wb-bq6i9zk9r7o9",
+      "wb-r23or6xvwbti"
+    ]
+  },
+  "per_post": [
+    {
+      "post_id": "wb-dlfsfp90elh5",
+      "damage_true": "人员伤亡",
+      "damage_pred": "人员伤亡",
+      "sentiment_true": "neutral",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "瑞丽",
+        "德宏",
+        "瑞丽市"
+      ]
+    },
+    {
+      "post_id": "wb-bfs5zafatko8",
+      "damage_true": "震感反馈",
+      "damage_pred": "次生灾害",
+      "sentiment_true": "neutral",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "仰光",
+        "曼谷"
+      ]
+    },
+    {
+      "post_id": "wb-bkhqeld7mhnc",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "人员伤亡",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "hopeful",
+      "location_names_hit": [
+        "瑞丽",
+        "德宏",
+        "保山",
+        "昆明",
+        "大理",
+        "西双版纳",
+        "曼谷"
+      ]
+    },
+    {
+      "post_id": "wb-cklno22eo8lv",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "道路中断",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": []
+    },
+    {
+      "post_id": "wb-cbz96a4df39m",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "房屋倒塌",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "曼德勒"
+      ]
+    },
+    {
+      "post_id": "wb-d1wddqornxuy",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "房屋倒塌",
+      "sentiment_true": "negative",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "曼谷"
+      ]
+    },
+    {
+      "post_id": "wb-ctkl5nqsef27",
+      "damage_true": "人员伤亡",
+      "damage_pred": "人员伤亡",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "瑞丽",
+        "瑞丽市"
+      ]
+    },
+    {
+      "post_id": "wb-cd2b4oko6198",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "房屋倒塌",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "urgent",
+      "location_names_hit": [
+        "曼谷"
+      ]
+    },
+    {
+      "post_id": "wb-biewflss02ob",
+      "damage_true": "震感反馈",
+      "damage_pred": "震感反馈",
+      "sentiment_true": "negative",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "保山",
+        "保山市"
+      ]
+    },
+    {
+      "post_id": "wb-dubq8w8hxqiv",
+      "damage_true": "道路中断",
+      "damage_pred": "房屋倒塌",
+      "sentiment_true": "negative",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "内比都",
+        "仰光"
+      ]
+    },
+    {
+      "post_id": "wb-b0vszxwql1e8",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "救援进展",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "urgent",
+      "location_names_hit": [
+        "曼德勒",
+        "实皆",
+        "实皆省",
+        "内比都",
+        "仰光",
+        "德宏",
+        "昆明",
+        "西双版纳",
+        "曼谷"
+      ]
+    },
+    {
+      "post_id": "wb-b96p4ufwczqp",
+      "damage_true": "道路中断",
+      "damage_pred": "道路中断",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": []
+    },
+    {
+      "post_id": "wb-cw4ycjwtpam7",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "道路中断",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "hopeful",
+      "location_names_hit": []
+    },
+    {
+      "post_id": "wb-cjk1o2iranht",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "房屋倒塌",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": []
+    },
+    {
+      "post_id": "wb-c0wt8v7r7xk8",
+      "damage_true": "震感反馈",
+      "damage_pred": "震感反馈",
+      "sentiment_true": "neutral",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "曼谷",
+        "清迈"
+      ]
+    },
+    {
+      "post_id": "wb-star80m8z5bk",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "房屋倒塌",
+      "sentiment_true": "negative",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "曼德勒"
+      ]
+    },
+    {
+      "post_id": "wb-bcj8n5vfy1n0",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "房屋倒塌",
+      "sentiment_true": "negative",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "曼德勒",
+        "实皆",
+        "实皆省"
+      ]
+    },
+    {
+      "post_id": "wb-d0aw7559ksww",
+      "damage_true": "次生灾害",
+      "damage_pred": "次生灾害",
+      "sentiment_true": "negative",
+      "sentiment_pred": "urgent",
+      "location_names_hit": []
+    },
+    {
+      "post_id": "wb-cowvmo0qzlnn",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "道路中断",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": []
+    },
+    {
+      "post_id": "wb-b4u2z56p8hiz",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "救援进展",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "瑞丽",
+        "瑞丽市"
+      ]
+    },
+    {
+      "post_id": "wb-dlslw6j7pk53",
+      "damage_true": "人员伤亡",
+      "damage_pred": "救援进展",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "urgent",
+      "location_names_hit": [
+        "瑞丽",
+        "德宏",
+        "德宏州",
+        "保山",
+        "昆明",
+        "大理",
+        "西双版纳"
+      ]
+    },
+    {
+      "post_id": "wb-1vf2see5dlco",
+      "damage_true": "次生灾害",
+      "damage_pred": "道路中断",
+      "sentiment_true": "neutral",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "保山",
+        "昆明",
+        "普洱",
+        "西双版纳"
+      ]
+    },
+    {
+      "post_id": "wb-4a31ji36omd0",
+      "damage_true": "震感反馈",
+      "damage_pred": "震感反馈",
+      "sentiment_true": "neutral",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "实皆"
+      ]
+    },
+    {
+      "post_id": "wb-b4whh3ikhaf9",
+      "damage_true": "道路中断",
+      "damage_pred": "道路中断",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "曼德勒",
+        "仰光"
+      ]
+    },
+    {
+      "post_id": "wb-cc3m03h40wd2",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "次生灾害",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "urgent",
+      "location_names_hit": [
+        "曼德勒",
+        "实皆",
+        "实皆省"
+      ]
+    },
+    {
+      "post_id": "wb-cuahy6qip92q",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "人员伤亡",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "瑞丽",
+        "瑞丽市"
+      ]
+    },
+    {
+      "post_id": "wb-d2cyytupcv6g",
+      "damage_true": "震感反馈",
+      "damage_pred": "救援进展",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "urgent",
+      "location_names_hit": [
+        "德宏",
+        "保山",
+        "临沧"
+      ]
+    },
+    {
+      "post_id": "wb-c0ruiwk73xag",
+      "damage_true": "次生灾害",
+      "damage_pred": "次生灾害",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "urgent",
+      "location_names_hit": []
+    },
+    {
+      "post_id": "wb-18rvoyntr153",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "房屋倒塌",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "曼德勒",
+        "内比都"
+      ]
+    },
+    {
+      "post_id": "wb-drxgsrjznd2t",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "房屋倒塌",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "曼德勒"
+      ]
+    },
+    {
+      "post_id": "wb-dqmom02bm6ac",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "房屋倒塌",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "urgent",
+      "location_names_hit": [
+        "曼谷"
+      ]
+    },
+    {
+      "post_id": "wb-bsair3s1ylsz",
+      "damage_true": "次生灾害",
+      "damage_pred": "次生灾害",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "urgent",
+      "location_names_hit": [
+        "曼德勒",
+        "实皆",
+        "实皆省"
+      ]
+    },
+    {
+      "post_id": "wb-ehfjynnq9sto",
+      "damage_true": "震感反馈",
+      "damage_pred": "震感反馈",
+      "sentiment_true": "negative",
+      "sentiment_pred": "urgent",
+      "location_names_hit": []
+    },
+    {
+      "post_id": "wb-bdcy6eoeyet9",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "房屋倒塌",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "曼德勒"
+      ]
+    },
+    {
+      "post_id": "wb-c9197gfc2qyz",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "次生灾害",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "urgent",
+      "location_names_hit": [
+        "曼德勒",
+        "实皆",
+        "实皆省"
+      ]
+    },
+    {
+      "post_id": "wb-4xd4b5r8f8f4",
+      "damage_true": "人员伤亡",
+      "damage_pred": "人员伤亡",
+      "sentiment_true": "negative",
+      "sentiment_pred": "hopeful",
+      "location_names_hit": []
+    },
+    {
+      "post_id": "wb-c3ex0jzj5wq4",
+      "damage_true": "人员伤亡",
+      "damage_pred": "人员伤亡",
+      "sentiment_true": "negative",
+      "sentiment_pred": "negative",
+      "location_names_hit": [
+        "曼德勒",
+        "内比都"
+      ]
+    },
+    {
+      "post_id": "wb-crrkqvtij04i",
+      "damage_true": "人员伤亡",
+      "damage_pred": "人员伤亡",
+      "sentiment_true": "negative",
+      "sentiment_pred": "negative",
+      "location_names_hit": [
+        "曼德勒",
+        "内比都"
+      ]
+    },
+    {
+      "post_id": "wb-dr8w129ail8v",
+      "damage_true": "人员伤亡",
+      "damage_pred": "人员伤亡",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "曼德勒"
+      ]
+    },
+    {
+      "post_id": "wb-c3gw7y6wuqdh",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "震感反馈",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "瑞丽",
+        "瑞丽市"
+      ]
+    },
+    {
+      "post_id": "wb-bm1fj36m9w4m",
+      "damage_true": "人员伤亡",
+      "damage_pred": "人员伤亡",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "urgent",
+      "location_names_hit": [
+        "曼德勒",
+        "实皆",
+        "实皆省",
+        "内比都",
+        "勃固"
+      ]
+    },
+    {
+      "post_id": "wb-cv2xhxvc6tko",
+      "damage_true": "救援进展",
+      "damage_pred": "人员伤亡",
+      "sentiment_true": "hopeful",
+      "sentiment_pred": "negative",
+      "location_names_hit": [
+        "瑞丽"
+      ]
+    },
+    {
+      "post_id": "wb-c6s4re3if7ij",
+      "damage_true": "人员伤亡",
+      "damage_pred": "震感反馈",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "瑞丽",
+        "德宏",
+        "瑞丽市",
+        "保山",
+        "昆明",
+        "大理",
+        "西双版纳"
+      ]
+    },
+    {
+      "post_id": "wb-binlu9642h3g",
+      "damage_true": "震感反馈",
+      "damage_pred": "次生灾害",
+      "sentiment_true": "neutral",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "实皆",
+        "瑞丽",
+        "德宏",
+        "瑞丽市",
+        "保山",
+        "昆明",
+        "大理",
+        "临沧",
+        "西双版纳",
+        "曼谷"
+      ]
+    },
+    {
+      "post_id": "wb-bq6i9zk9r7o9",
+      "damage_true": "人员伤亡",
+      "damage_pred": "人员伤亡",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": []
+    },
+    {
+      "post_id": "wb-d56w9sus51ig",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "房屋倒塌",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "hopeful",
+      "location_names_hit": [
+        "实皆",
+        "实皆省",
+        "瑞丽",
+        "瑞丽市"
+      ]
+    },
+    {
+      "post_id": "wb-bq7zenye7kdz",
+      "damage_true": "人员伤亡",
+      "damage_pred": "人员伤亡",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "negative",
+      "location_names_hit": [
+        "实皆",
+        "实皆省",
+        "内比都",
+        "皎施"
+      ]
+    },
+    {
+      "post_id": "wb-r23or6xvwbti",
+      "damage_true": "人员伤亡",
+      "damage_pred": "人员伤亡",
+      "sentiment_true": "negative",
+      "sentiment_pred": "negative",
+      "location_names_hit": []
+    },
+    {
+      "post_id": "wb-c6p0y6sghase",
+      "damage_true": "房屋倒塌",
+      "damage_pred": "救援进展",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "曼德勒"
+      ]
+    },
+    {
+      "post_id": "wb-be56rh29bayw",
+      "damage_true": "救援进展",
+      "damage_pred": "震感反馈",
+      "sentiment_true": "hopeful",
+      "sentiment_pred": "urgent",
+      "location_names_hit": [
+        "瑞丽"
+      ]
+    },
+    {
+      "post_id": "wb-dpou8sa3kxfh",
+      "damage_true": "人员伤亡",
+      "damage_pred": "震感反馈",
+      "sentiment_true": "urgent",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "曼德勒"
+      ]
+    },
+    {
+      "post_id": "wb-d0zyjiq6xsev",
+      "damage_true": "救援进展",
+      "damage_pred": "救援进展",
+      "sentiment_true": "hopeful",
+      "sentiment_pred": "neutral",
+      "location_names_hit": [
+        "曼德勒",
+        "内比都",
+        "仰光"
+      ]
+    }
+  ]
+}

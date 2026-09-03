@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/ai/proxy", "destination": "/api/ai-proxy" },
+    { "source": "/icl/warnings", "destination": "/api/icl-warnings" },
+    { "source": "/seismic/feed", "destination": "/api/seismic-feed" }
+  ]
+}

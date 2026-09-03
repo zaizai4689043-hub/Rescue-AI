@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@weibo-ai/weibo-cli": "^0.9.1"
+  }
+}

@@ -1,0 +1,45 @@
+weibo-cli — Open-source CLI for Weibo Open Platform.
+
+USAGE:
+    weibo-cli <group> <action> [options]
+
+EXAMPLES:
+    # Batch lookup users by nickname
+    weibo-cli users show_batch/other --screen_name 阑夕
+
+    # Home timeline (you + people you follow)
+    weibo-cli statuses friends_timeline/biz
+
+    # Batch fetch posts by ID
+    weibo-cli statuses show_batch/biz --ids 1234567890
+
+    # List accounts you follow
+    weibo-cli friendships friends/biz
+
+    # Output as JSON for piping
+    weibo-cli statuses friends_timeline/biz --output json
+
+    # Browse available platform commands
+    weibo-cli commands list
+
+FLAGS:
+    --output <format>              Output format: json | table | yaml | raw; command default when omitted; ignored with --help
+    -h, --help                     Show help
+
+More help: weibo-cli <command> --help
+
+Available Commands:
+  me                            Show your account info, plan, and usage
+  doctor                        Check login, verification, and service readiness
+  auth                          Authentication and token management
+  commands                      Browse platform command definitions
+  version                       Show current version
+  check_update                  Check for updates without auto banner
+  upgrade                       Check and install updates
+
+  (Log in with `weibo-cli auth login` or `weibo-cli auth login --device` to see platform commands)
+
+Flags:
+  -h, --help                     help for weibo-cli
+
+Use "weibo-cli [command] --help" for more information about a command.

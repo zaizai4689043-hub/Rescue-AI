@@ -1,0 +1,48 @@
+# ===== 密钥与环境配置（红线：绝不入库） =====
+.env
+.env.local
+.env.*.local
+
+# ===== 依赖与构建产物 =====
+node_modules/
+dist/
+__pycache__/
+*.pyc
+*.pyo
+
+# ===== 工作区临时 / 工具产物 =====
+.venv-ppt/
+.venv-verify/
+.vercel-tmp/
+.workbuddy/
+.ppt_build/assets/
+.qoder/
+
+# ===== 运行日志与测试产物（不入库）=====
+*.log
+*.out
+pw-test/logs/
+.slidep/
+
+# ===== 原始个人数据（合规红线，禁止入库）=====
+temp_myquake/
+
+# ===== 第三方原始数据集（体积巨大且非本项目产出，禁止入库）=====
+GOAI复赛/台风数据集*/
+*.rar
+
+# ===== 录屏与媒体素材 =====
+录屏/
+*.mov
+
+# ===== 二进制归档（PPT / PDF / 压缩包） =====
+*.zip
+*.pptx
+*.pdf
+
+# ===== 旧版代码 dump（历史留档，不入库） =====
+backend/Qwen 初版/代码1.0
+backend/Qwen 初版/代码1.1
+
+# ===== 系统杂项 =====
+.DS_Store

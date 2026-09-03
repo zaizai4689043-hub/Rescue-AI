@@ -1,0 +1,337 @@
+[
+  {
+    "case_id": "C-01",
+    "name": "汶川地震",
+    "magnitude": 8.0,
+    "depth_km": 14,
+    "location": "四川省汶川县",
+    "latitude": 31.0,
+    "longitude": 103.4,
+    "occurred_at": "2008-05-12",
+    "casualties": 87587,
+    "affected_population": 46250000,
+    "terrain": "山区",
+    "building_type": "混合",
+    "population_density": "中",
+    "season": "春",
+    "weather": "阴雨，余震频发，堰塞湖35处",
+    "infrastructure": "薄弱",
+    "secondary_hazard": "堰塞湖,滑坡,泥石流",
+    "warning_capability": "无",
+    "occurrence_time": "午间",
+    "timeline": [
+      {"time": "T+0", "event": "主震", "description": "M8.0，震中映秀镇，烈度XI度"},
+      {"time": "T+2h", "event": "首批救援", "description": "武警部队徒步突进汶川"},
+      {"time": "T+14h", "event": "空降兵", "description": "15勇士盲降茂县"},
+      {"time": "T+24h", "event": "大规模增援", "description": "13万官兵投入救援"},
+      {"time": "T+72h", "event": "黄金窗口", "description": "救出大量幸存者"},
+      {"time": "T+7d", "event": "堰塞湖排险", "description": "唐家山堰塞湖泄流"}
+    ],
+    "strategies": [
+      {"strategy": "徒步突进", "description": "道路全断时以徒步+直升机投送方式进入震中"},
+      {"strategy": "空降奇兵", "description": "在无气象资料情况下盲降茂县建立通信中继"},
+      {"strategy": "堰塞湖排险", "description": "工程爆破+开挖泄流槽，化解35处堰塞湖威胁"},
+      {"strategy": "全国动员", "description": "13万官兵+20万志愿者，史上最大规模救援"}
+    ],
+    "lessons": [
+      "通信中断是最大瓶颈，应预置卫星通信设备",
+      "堰塞湖等次生灾害需提前排查",
+      "志愿者管理需有序化，避免无序涌入影响救援",
+      "催生国家应急管理体制改革",
+      "建筑抗震标准需大幅提升"
+    ],
+    "tags": ["巨灾", "山区", "断路", "堰塞湖", "催生应急体系"]
+  },
+  {
+    "case_id": "C-02",
+    "name": "玉树地震",
+    "magnitude": 7.1,
+    "depth_km": 14,
+    "location": "青海省玉树藏族自治州",
+    "latitude": 33.2,
+    "longitude": 96.6,
+    "occurred_at": "2010-04-14",
+    "casualties": 2968,
+    "affected_population": 200000,
+    "terrain": "高原",
+    "building_type": "土石",
+    "population_density": "低",
+    "season": "春",
+    "weather": "高原寒冷，氧气稀薄",
+    "infrastructure": "薄弱",
+    "secondary_hazard": "滑坡",
+    "warning_capability": "无",
+    "occurrence_time": "晨间",
+    "timeline": [
+      {"time": "T+0", "event": "主震", "description": "M7.1，震中结古镇"},
+      {"time": "T+4h", "event": "部队出发", "description": "兰州军区部队急行军"},
+      {"time": "T+12h", "event": "救援抵达", "description": "首批救援队抵达结古"},
+      {"time": "T+48h", "event": "大规模搜救", "description": "数千救援人员投入"},
+      {"time": "T+7d", "event": "转入安置", "description": "原址重建+局部避让"}
+    ],
+    "strategies": [
+      {"strategy": "高原适应", "description": "救援人员需高原适应，预配氧气设备"},
+      {"strategy": "原址重建", "description": "地质评估后原址重建，局部地质灾害点避让"},
+      {"strategy": "民族地区保障", "description": "尊重民族习俗，藏语翻译协助"}
+    ],
+    "lessons": [
+      "高原救援需特殊装备和适应训练",
+      "土石结构建筑倒塌率高，伤亡集中",
+      "民族地区需文化敏感性和语言支持",
+      "汲取汶川经验，响应速度显著提升"
+    ],
+    "tags": ["高原", "民族地区", "土石建筑", "原址重建"]
+  },
+  {
+    "case_id": "C-03",
+    "name": "芦山地震",
+    "magnitude": 7.0,
+    "depth_km": 13,
+    "location": "四川省雅安市芦山县",
+    "latitude": 30.3,
+    "longitude": 103.0,
+    "occurred_at": "2013-04-20",
+    "casualties": 196,
+    "affected_population": 2184000,
+    "terrain": "山区",
+    "building_type": "砖混",
+    "population_density": "中",
+    "season": "春",
+    "weather": "阴天，余震不断",
+    "infrastructure": "一般",
+    "secondary_hazard": "滑坡",
+    "warning_capability": "有",
+    "occurrence_time": "晨间",
+    "timeline": [
+      {"time": "T+0", "event": "主震", "description": "M7.0，周末晨间"},
+      {"time": "T+30min", "event": "快速集结", "description": "半小时内救援队集结出发"},
+      {"time": "T+2h", "event": "抵达灾区", "description": "首批救援队抵达芦山"},
+      {"time": "T+6h", "event": "全面展开", "description": "搜救+医疗+安置全面铺开"},
+      {"time": "T+72h", "event": "黄金窗口", "description": "成功救出多名幸存者"}
+    ],
+    "strategies": [
+      {"strategy": "响应提速", "description": "半小时集结，对比汶川响应速度大幅提升"},
+      {"strategy": "卫星+社媒研判", "description": "利用卫星遥感和社交媒体快速研判灾情"},
+      {"strategy": "专业爆破", "description": "对危房进行专业爆破拆除，确保安全"},
+      {"strategy": "有序志愿者", "description": "设立物资接收站，志愿者有序分派"}
+    ],
+    "lessons": [
+      "汶川后应急体系改革成效显著",
+      "社交媒体首次成为灾情感知重要渠道",
+      "卫星遥感技术助力快速研判",
+      "建筑加固改造减轻了伤亡"
+    ],
+    "tags": ["浅源", "周末晨间", "响应提速", "卫星研判"]
+  },
+  {
+    "case_id": "C-04",
+    "name": "鲁甸地震",
+    "magnitude": 6.5,
+    "depth_km": 12,
+    "location": "云南省昭通市鲁甸县",
+    "latitude": 27.1,
+    "longitude": 103.3,
+    "occurred_at": "2014-08-03",
+    "casualties": 617,
+    "affected_population": 440000,
+    "terrain": "山区",
+    "building_type": "土石",
+    "population_density": "中",
+    "season": "夏",
+    "weather": "雨季，暴雨频发，滑坡风险高",
+    "infrastructure": "薄弱",
+    "secondary_hazard": "滑坡,泥石流",
+    "warning_capability": "有",
+    "occurrence_time": "午间",
+    "timeline": [
+      {"time": "T+0", "event": "主震", "description": "M6.5，震中龙头山镇"},
+      {"time": "T+1h", "event": "救援出发", "description": "消防、武警紧急出发"},
+      {"time": "T+3h", "event": "抵达灾区", "description": "首批救援队抵达鲁甸"},
+      {"time": "T+24h", "event": "大规模搜救", "description": "数千人投入搜救"},
+      {"time": "T+72h", "event": "黄金窗口", "description": "救出幸存者"}
+    ],
+    "strategies": [
+      {"strategy": "徒步突进", "description": "山区道路中断，徒步进入偏远村落"},
+      {"strategy": "直升机投送", "description": "直升机投送救援人员和物资到断路区域"},
+      {"strategy": "村级医务全覆盖", "description": "每个村设置医疗点，确保伤员及时救治"},
+      {"strategy": "次生灾害排查", "description": "雨季滑坡风险高，持续排查地质灾害隐患"}
+    ],
+    "lessons": [
+      "中等震级在贫困山区可造成高伤亡",
+      "土石建筑抗震能力极差",
+      "雨季救援需特别关注次生灾害",
+      "村级医疗点模式有效降低死亡率"
+    ],
+    "tags": ["中等震级", "贫困山区", "雨季", "高伤亡", "土石建筑"]
+  },
+  {
+    "case_id": "C-05",
+    "name": "泸定地震",
+    "magnitude": 6.8,
+    "depth_km": 16,
+    "location": "四川省甘孜州泸定县",
+    "latitude": 29.6,
+    "longitude": 102.1,
+    "occurred_at": "2022-09-05",
+    "casualties": 93,
+    "affected_population": 540000,
+    "terrain": "山区",
+    "building_type": "混合",
+    "population_density": "低",
+    "season": "秋",
+    "weather": "秋季，山区气温骤降",
+    "infrastructure": "一般",
+    "secondary_hazard": "滑坡",
+    "warning_capability": "有",
+    "occurrence_time": "午间",
+    "timeline": [
+      {"time": "T+0", "event": "主震", "description": "M6.8，震中海螺沟"},
+      {"time": "T+30min", "event": "预警触发", "description": "ICL预警系统提前6秒预警成都"},
+      {"time": "T+1h", "event": "无人机出动", "description": "翼龙-2H无人机提供通信中继"},
+      {"time": "T+3h", "event": "水陆空联动", "description": "直升机+冲锋舟+徒步三路并进"},
+      {"time": "T+24h", "event": "大规模搜救", "description": "救援队全面展开"},
+      {"time": "T+72h", "event": "黄金窗口", "description": "成功救出多名幸存者"}
+    ],
+    "strategies": [
+      {"strategy": "翼龙-2H通信保障", "description": "大型无人机提供应急通信中继和实时画面"},
+      {"strategy": "水陆空联动", "description": "直升机空中投送+冲锋舟水上转运+徒步地面搜救"},
+      {"strategy": "实时画面搜索", "description": "无人机实时传回画面，AI辅助识别幸存者"},
+      {"strategy": "三断应对", "description": "断路、断电、断网情况下无人机维持通信"}
+    ],
+    "lessons": [
+      "无人机技术是灾区通信保障的关键突破",
+      "三断场景下的应急通信是核心能力",
+      "水陆空联动成为标配",
+      "ICL预警为成都等城市争取了宝贵时间"
+    ],
+    "tags": ["三断", "水陆空联动", "无人机", "翼龙-2H", "ICL预警"]
+  },
+  {
+    "case_id": "C-06",
+    "name": "尼泊尔地震",
+    "magnitude": 7.8,
+    "depth_km": 8,
+    "location": "尼泊尔加德满都西北",
+    "latitude": 28.2,
+    "longitude": 84.7,
+    "occurred_at": "2015-04-25",
+    "casualties": 8800,
+    "affected_population": 8000000,
+    "terrain": "山区",
+    "building_type": "土石",
+    "population_density": "高",
+    "season": "春",
+    "weather": "山区气候，余震频发",
+    "infrastructure": "薄弱",
+    "secondary_hazard": "滑坡,雪崩",
+    "warning_capability": "无",
+    "occurrence_time": "午间",
+    "timeline": [
+      {"time": "T+0", "event": "主震", "description": "M7.8，震中距加德满都80km"},
+      {"time": "T+4h", "event": "国际响应", "description": "联合国启动跨国救援协调"},
+      {"time": "T+21h", "event": "中国救援队抵达", "description": "中国国际救援队抵达加德满都"},
+      {"time": "T+27h", "event": "首例救出", "description": "救出第一名幸存者"},
+      {"time": "T+72h", "event": "大规模搜救", "description": "多国救援队联合搜救"}
+    ],
+    "strategies": [
+      {"strategy": "UN协调", "description": "联合国OCHA协调各国救援队，INSARAG分级调度"},
+      {"strategy": "跨国投送", "description": "中国救援队21小时抵达，展现跨国投送能力"},
+      {"strategy": "文化遗产保护", "description": "加德满都谷地世界遗产损毁严重，需专项保护"},
+      {"strategy": "高原山地搜救", "description": "山区村落分散，直升机投送+徒步搜救"}
+    ],
+    "lessons": [
+      "跨国救援需统一协调机制（INSARAG）",
+      "浅源大震在人口密集区伤亡极高",
+      "土石建筑倒塌是主要伤亡原因",
+      "雪崩和滑坡等次生灾害扩大了影响范围"
+    ],
+    "tags": ["跨国救援", "UN协调", "INSARAG", "浅源大震", "文化遗产"]
+  },
+  {
+    "case_id": "C-07",
+    "name": "土耳其-叙利亚地震",
+    "magnitude": 7.8,
+    "depth_km": 18,
+    "location": "土耳其加济安泰普省",
+    "latitude": 37.2,
+    "longitude": 37.0,
+    "occurred_at": "2023-02-06",
+    "casualties": 59259,
+    "affected_population": 24000000,
+    "terrain": "平原",
+    "building_type": "混合",
+    "population_density": "高",
+    "season": "冬",
+    "weather": "冬季严寒，暴雪，-5°C至-10°C",
+    "infrastructure": "一般",
+    "secondary_hazard": "滑坡",
+    "warning_capability": "无",
+    "occurrence_time": "晨间",
+    "timeline": [
+      {"time": "T+0", "event": "第一次主震", "description": "M7.8，凌晨4:17"},
+      {"time": "T+9h", "event": "第二次主震", "description": "M7.7，同日13:24"},
+      {"time": "T+12h", "event": "国际响应", "description": "91国266支队伍响应"},
+      {"time": "T+48h", "event": "大规模搜救", "description": "INSARAG史上最大行动"},
+      {"time": "T+72h", "event": "黄金窗口", "description": "严寒条件下救援持续"},
+      {"time": "T+14d", "event": "持续搜救", "description": "超长救援周期"}
+    ],
+    "strategies": [
+      {"strategy": "INSARAG协调", "description": "史上最大规模国际救援协调行动"},
+      {"strategy": "双主震应对", "description": "9小时内双主震叠加，救援力量需分散部署"},
+      {"strategy": "严寒救援", "description": "-10°C环境下幸存者生存时间缩短，加速搜救"},
+      {"strategy": "建筑质量审计", "description": "大量建筑因施工质量不达标倒塌，事后追责"}
+    ],
+    "lessons": [
+      "双主震叠加使灾情成倍恶化",
+      "冬季严寒大幅缩短幸存者生存窗口",
+      "建筑质量是决定伤亡的关键因素",
+      "INSARAG国际协调机制在大规模灾害中至关重要",
+      "城市搜救（USAR）需要专业化的重型救援队"
+    ],
+    "tags": ["双主震", "INSARAG", "冬季严寒", "城市搜救", "建筑质量"]
+  },
+  {
+    "case_id": "C-08",
+    "name": "缅甸地震",
+    "magnitude": 7.7,
+    "depth_km": 10,
+    "location": "缅甸曼德勒省",
+    "latitude": 22.0,
+    "longitude": 95.9,
+    "occurred_at": "2025-03-28",
+    "casualties": 3300,
+    "affected_population": 5000000,
+    "terrain": "平原",
+    "building_type": "混合",
+    "population_density": "中",
+    "season": "春",
+    "weather": "干热季，高温30°C+",
+    "infrastructure": "薄弱",
+    "secondary_hazard": "滑坡",
+    "warning_capability": "无",
+    "occurrence_time": "午间",
+    "timeline": [
+      {"time": "T-1min46s", "event": "首条涉震微博", "description": "社媒补充感知"},
+      {"time": "T+0", "event": "主震", "description": "M7.7，震中曼德勒附近"},
+      {"time": "T+11min", "event": "首次余震", "description": "M6.7余震"},
+      {"time": "T+5h", "event": "官方首报", "description": "官方通报迟于社媒5小时"},
+      {"time": "T+18h", "event": "云南医疗队首入", "description": "中国云南医疗队率先进入灾区"},
+      {"time": "T+40h", "event": "首例救援", "description": "首例成功救援"},
+      {"time": "T+72h", "event": "黄金窗口", "description": "持续搜救"}
+    ],
+    "strategies": [
+      {"strategy": "社媒感知", "description": "利用社交媒体作为第一手灾情信息源"},
+      {"strategy": "AI灾情简报", "description": "AI自动生成灾情简报，抢回信息时差"},
+      {"strategy": "跨境救援", "description": "中国云南医疗队率先跨境进入缅甸"},
+      {"strategy": "AI优先级排序", "description": "基于社媒NER地名聚合，动态生成救援优先级"}
+    ],
+    "lessons": [
+      "无预警体系国家灾情信息严重滞后",
+      "社交媒体是灾情感知的第一道防线",
+      "AI能在官方通报到达前生成初步研判",
+      "跨境救援需要高效的国际协调",
+      "信息时差（社媒vs官方）直接关系到救援效率"
+    ],
+    "tags": ["跨境救援", "无预警", "社媒补充感知", "AI简报", "信息时差"]
+  }
+]

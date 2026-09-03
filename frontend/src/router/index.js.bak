@@ -1,0 +1,46 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import MainLayout from '../layouts/MainLayout.vue'
+
+const routes = [
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('../views/Login.vue'),
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/',
+    component: MainLayout,
+    redirect: '/dashboard',
+    children: [
+      { path: 'dashboard', name: 'Dashboard', component: () => import('../views/Dashboard.vue') },
+      { path: 'disaster-map', name: 'DisasterMap', component: () => import('../views/DisasterMap.vue') },
+      { path: 'disaster-report', name: 'DisasterReport', component: () => import('../views/DisasterReport.vue') },
+      { path: 'disaster-list', name: 'DisasterList', component: () => import('../views/DisasterList.vue') },
+      { path: 'resource-center', name: 'ResourceCenter', component: () => import('../views/ResourceCenter.vue') },
+      { path: 'volunteer-manage', name: 'VolunteerManage', component: () => import('../views/VolunteerManage.vue') },
+      { path: 'assessment-report', name: 'AssessmentReport', component: () => import('../views/AssessmentReport.vue') },
+      { path: 'trapped-persons', name: 'TrackedPersons', component: () => import('../views/TrackedPersons.vue'), meta: { title: '受困者追踪' } },
+      { path: 'ai-assistant', name: 'AIAssistant', component: () => import('../views/AIAssistant.vue') },
+      { path: 'user-manage', name: 'UserManage', component: () => import('../views/UserManage.vue') },
+    ]
+  }
+]
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+})
+
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('token')
+  if (to.path === '/login') {
+    token ? next('/dashboard') : next()
+  } else if (to.meta.requiresAuth === false) {
+    next()
+  } else {
+    token ? next() : next('/login')
+  }
+})
+
+export default router

@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RescueAI 指挥中心</title>
+<style>
+/* ========== 全局重置与基础样式 ========== */
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#050810;font-family:'PingFang SC','Microsoft YaHei',sans-serif;color:#c8d6e5;}
+/* 等宽字体用于数字 */
+.mono{font-family:'Courier New',Consolas,'Liberation Mono',monospace;letter-spacing:1px;}
+
+/* ========== 缩放容器：基准2560×1440 ========== */
+#app-root{width:2560px;height:1440px;position:absolute;top:50%;left:50%;transform-origin:center center;background:#0a0e14;overflow:hidden;}
+
+/* ========== CSS Grid 总体布局 ========== */
+#layout{display:grid;width:100%;height:100%;grid-template-columns:520px 1fr 560px;grid-template-rows:34px 70px 1fr 340px;grid-template-areas:"banner banner banner" "header header header" "left center right" "kanban kanban kanban";}
+
+/* ========== 参考图UI：预警横幅/居中标题/角标面板 ========== */
+#quake-banner{grid-area:banner;background:linear-gradient(90deg,#3a0d0f,#5a1414 50%,#3a0d0f);color:#ff9c9e;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;gap:8px;border-bottom:1px solid rgba(255,77,79,.3);white-space:nowrap;overflow:hidden;}
+#center-title{font-size:28px;font-weight:800;letter-spacing:6px;color:#e8f0fe;text-shadow:0 0 14px rgba(47,127,255,.55);white-space:nowrap;flex-shrink:0;}
+.hdr-zone{display:flex;align-items:center;gap:14px;flex:1;min-width:0;}
+.hdr-zone.right{justify-content:flex-end;}
+#leftcol{grid-area:left;display:flex;flex-direction:column;gap:10px;padding:10px;overflow:hidden;}
+#centercol{grid-area:center;display:flex;flex-direction:column;gap:10px;padding:10px 0;overflow:hidden;}
+#rightcol{grid-area:right;display:flex;flex-direction:column;gap:10px;padding:10px;overflow:hidden;}
+.side-panel{padding:12px 14px;flex-shrink:0;}
+/* 四角蓝色角标（参考图面板风格） */
+.brk{background-color:#0d1526;background-image:linear-gradient(#2f7fff,#2f7fff),linear-gradient(#2f7fff,#2f7fff),linear-gradient(#2f7fff,#2f7fff),linear-gradient(#2f7fff,#2f7fff),linear-gradient(#2f7fff,#2f7fff),linear-gradient(#2f7fff,#2f7fff),linear-gradient(#2f7fff,#2f7fff),linear-gradient(#2f7fff,#2f7fff);background-repeat:no-repeat;background-size:16px 2px,2px 16px,16px 2px,2px 16px,16px 2px,2px 16px,16px 2px,2px 16px;background-position:top left,top left,top right,top right,bottom left,bottom left,bottom right,bottom right;}
+.sec-title{display:flex;align-items:center;gap:8px;font-size:19px;font-weight:700;color:#dce8ff;margin-bottom:8px;}
+.sec-title::before{content:'';width:8px;height:8px;background:#2f7fff;box-shadow:0 0 6px #2f7fff;flex-shrink:0;}
+.brief-inline{padding:2px;}
+#quake-info{display:flex;gap:26px;align-items:center;padding:10px 18px;flex-wrap:wrap;}
+.qi-item{font-size:17px;color:#8899aa;white-space:nowrap;}
+.qi-item b{color:#e8f0fe;font-size:18px;margin-left:6px;}
+.qi-item .hl{color:#fadb14;font-size:26px;font-weight:800;}
+#stats-row{display:flex;gap:10px;}
+.stat-cell{flex:1;text-align:center;padding:10px;}
+.stat-num{font-size:44px;font-weight:800;}
+.stat-num.cyan{color:#13c2c2;}.stat-num.yellow{color:#fadb14;}.stat-num.red{color:#ff4d4f;}
+.stat-label{font-size:17px;color:#8899aa;margin-top:2px;}
+.impact-row{display:flex;justify-content:space-between;font-size:17px;padding:5px 2px;border-bottom:1px dashed #1e2630;color:#8899aa;}
+.impact-row:last-child{border-bottom:none;}
+.impact-row b{color:#fadb14;font-size:19px;}
+.impact-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.impact-chips span{font-size:16px;background:#111a2e;border:1px solid #1e2630;border-radius:4px;padding:3px 10px;color:#c8d6e5;}
+.dist-row{display:flex;justify-content:space-between;font-size:17px;padding:5px 2px;border-bottom:1px dashed #1e2630;color:#c8d6e5;}
+.dist-row:last-child{border-bottom:none;}
+.dist-row .km{color:#13c2c2;font-weight:700;}
+
+/* ========== 参考图UI：顶栏细节/专题图/追踪时间线/推送卡 ========== */
+#header{position:relative;}
+.logo-block{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.logo-icon{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#13c2c2,#2f7fff);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 0 10px rgba(19,194,194,.4);}
+.logo-main{font-size:20px;font-weight:700;color:#e8f0fe;line-height:1.2;}
+.logo-sub{font-size:15px;color:#13c2c2;font-weight:600;line-height:1.2;}
+.hdr-right{margin-left:12px;display:flex;align-items:center;gap:14px;font-size:16px;color:#8899aa;white-space:nowrap;flex-shrink:0;}
+.hdr-right .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#52c41a;box-shadow:0 0 6px #52c41a;margin-right:6px;}
+.hdr-right .lv{color:#ff4d4f;font-weight:800;}
+#real-clock{font-size:30px;font-weight:800;color:#e8f0fe;letter-spacing:2px;line-height:1.1;}
+#real-date{font-size:14px;color:#8899aa;text-align:right;}
+.track-item{display:flex;gap:10px;font-size:16px;color:#c8d6e5;padding:7px 2px;border-bottom:1px dashed #1e2630;line-height:1.6;}
+.track-item:last-child{border-bottom:none;}
+.track-item .tt{color:#5a6a7a;font-size:14px;white-space:nowrap;padding-top:3px;font-family:'Courier New',monospace;}
+.track-item b{color:#52c41a;}
+.dw-team{background:#111a2e;border:1px solid rgba(82,196,26,.35);border-radius:6px;padding:10px 12px;font-size:16px;color:#c8d6e5;line-height:1.8;}
+.dw-team .tn{font-size:18px;font-weight:700;color:#7fe0a0;}
+.dw-team .tg{color:#8899aa;font-size:14px;border:1px solid #1e2630;border-radius:3px;padding:1px 6px;margin-left:8px;font-weight:400;}
+
+/* ========== 核实闭环抽屉 ========== */
+#drawer-mask{position:fixed;inset:0;background:rgba(4,8,18,.6);backdrop-filter:blur(3px);z-index:10000;display:none;}
+#drawer-mask.open{display:block;}
+#drawer{position:fixed;top:0;right:0;width:820px;height:100%;background:#0b1322;border-left:2px solid rgba(47,127,255,.5);z-index:10001;transform:translateX(102%);transition:transform .3s;overflow-y:auto;padding:18px 26px 40px;}
+#drawer.open{transform:none;}
+.dw-head{display:flex;justify-content:space-between;align-items:center;font-size:22px;font-weight:800;color:#dce8ff;padding:6px 0 14px;border-bottom:1px solid rgba(47,127,255,.3);margin-bottom:14px;}
+.dw-head span:first-child::before{content:'';display:inline-block;width:9px;height:9px;background:#2f7fff;box-shadow:0 0 6px #2f7fff;margin-right:10px;}
+.dw-close{cursor:pointer;color:#8899aa;font-size:16px;padding:4px 12px;border:1px solid #1e2630;border-radius:4px;}
+.dw-close:hover{color:#e8f0fe;border-color:#2f7fff;}
+.dw-sec{margin-bottom:14px;padding:12px 14px;}
+.dw-clue{display:flex;gap:12px;align-items:flex-start;}
+.dw-avatar{width:44px;height:44px;border-radius:50%;background:#13c2c2;color:#0a0e14;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;flex-shrink:0;}
+.dw-avatar.sat{background:#b37feb;}
+.dw-meta{font-size:16px;color:#8899aa;line-height:1.6;}
+.dw-text{font-size:18px;color:#e8f0fe;line-height:1.7;margin:8px 0;}
+.dw-tags{display:flex;gap:8px;flex-wrap:wrap;}
+.vhead{display:flex;justify-content:space-between;align-items:center;font-size:19px;font-weight:700;margin-bottom:8px;color:#dce8ff;}
+.vstatus{font-size:14px;padding:3px 10px;border-radius:4px;font-weight:600;}
+.vstatus.done{background:rgba(82,196,26,.15);color:#52c41a;}
+.vstatus.doing{background:rgba(250,140,22,.15);color:#fa8c16;}
+.vstatus.wait{background:rgba(90,106,122,.15);color:#8899aa;}
+.vgrid{display:flex;gap:10px;margin:8px 0;}
+.vbox{flex:1;background:#111a2e;border:1px solid #1e2630;padding:8px 10px;}
+.vbox .l{font-size:14px;color:#5a6a7a;}
+.vbox .v{font-size:18px;font-weight:700;color:#e8f0fe;margin-top:2px;}
+.vring-row{display:flex;gap:14px;align-items:center;background:#111a2e;border:1px solid #1e2630;padding:10px 12px;margin-bottom:10px;}
+.vring{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#13c2c2;flex-shrink:0;background:radial-gradient(closest-side,#111a2e 78%,transparent 79%),conic-gradient(#13c2c2 var(--p,0%),#1e2630 0);}
+.vitem{display:flex;gap:10px;background:#111a2e;border:1px solid #1e2630;border-left:3px solid #2f7fff;padding:10px 12px;margin-bottom:8px;align-items:flex-start;}
+.vitem .ico{width:34px;height:34px;border-radius:50%;background:#1a2540;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.vitem .t{font-size:17px;font-weight:700;color:#fa8c16;}
+.vitem.done .t{color:#52c41a;}
+.vitem.wait .t{color:#8899aa;}
+.vitem .d{font-size:15px;color:#8899aa;margin-top:2px;}
+.vitem .st{margin-left:auto;font-size:15px;font-weight:600;white-space:nowrap;padding-top:2px;}
+.vpush{width:100%;padding:12px;border-radius:4px;font-size:18px;font-weight:700;cursor:pointer;background:#1d4d2b;color:#7fe0a0;border:1px solid rgba(82,196,26,.4);margin-top:4px;}
+.vpush:disabled{opacity:.45;cursor:not-allowed;}
+.vpush.ready{background:#256b39;color:#c9f7d4;animation:sla-flash 1.6s infinite;}
+.dw-lock{font-size:16px;color:#8899aa;padding:4px 2px;line-height:1.7;}
+.dw-pos{font-size:16px;color:#c8d6e5;background:rgba(179,127,235,.07);border:1px solid rgba(179,127,235,.3);border-radius:6px;padding:10px 12px;line-height:1.8;margin-top:10px;}
+.dw-pos b{color:#b37feb;}
+.dw-pos .g{color:#52c41a;font-weight:700;}
+.dw-pos .y{color:#fadb14;font-weight:700;}
+
+/* ========== 通用面板样式 ========== */
+.panel{background:#11161d;border:1px solid #1e2630;position:relative;overflow:hidden;}
+.panel-title{font-size:19px;color:#5a6a7a;text-transform:uppercase;letter-spacing:2px;padding:10px 16px 6px;border-bottom:1px solid #1e2630;display:flex;align-items:center;gap:8px;}
+.glow-border{box-shadow:0 0 8px rgba(19,194,194,.08),inset 0 0 12px rgba(0,0,0,.4);}
+
+/* 滚动条 */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:#0a0e14;}
+::-webkit-scrollbar-thumb{background:#1e2630;border-radius:2px;}
+
+/* ========== 顶栏 HEADER ========== */
+#header{grid-area:header;display:flex;align-items:center;padding:0 24px;gap:20px;border-bottom:1px solid #1e2630;background:linear-gradient(180deg,#11161d 0%,#0d1117 100%);z-index:100;}
+.logo{font-size:30px;font-weight:700;color:#e8f0fe;letter-spacing:2px;white-space:nowrap;}
+.logo span{color:#13c2c2;}
+.mode-btns{display:flex;gap:6px;margin-left:20px;}
+.mode-btn{padding:7px 18px;border:1px solid #1e2630;background:transparent;color:#5a6a7a;border-radius:4px;cursor:pointer;font-size:17px;transition:all .3s;white-space:nowrap;}
+.mode-btn.active{background:#13c2c2;color:#0a0e14;border-color:#13c2c2;font-weight:600;}
+.mode-btn:hover:not(.active){border-color:#13c2c2;color:#13c2c2;}
+#task-clock{font-size:28px;color:#fa8c16;font-weight:700;white-space:nowrap;}
+.agents-bar{display:flex;gap:10px;align-items:center;}
+.agent-badge{display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:20px;background:rgba(255,255,255,.04);border:1px solid #1e2630;position:relative;}
+.agent-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;background:#1a2030;}
+.agent-status-dot{width:7px;height:7px;border-radius:50%;position:absolute;top:2px;right:6px;}
+.agent-status-dot.green{background:#52c41a;box-shadow:0 0 6px #52c41a;}
+.agent-status-dot.yellow{background:#fadb14;box-shadow:0 0 6px #fadb14;}
+.agent-status-dot.blue{background:#13c2c2;box-shadow:0 0 6px #13c2c2;}
+.agent-label{font-size:15px;color:#8899aa;white-space:nowrap;}
+.agent-name{font-size:16px;color:#c8d6e5;font-weight:600;white-space:nowrap;}
+@keyframes agent-flash{0%,100%{box-shadow:none;}50%{box-shadow:0 0 16px 4px rgba(19,194,194,.6);}}
+.agent-badge.flash{animation:agent-flash .5s ease;}
+.commander-badge{margin-left:16px;padding:7px 16px;border-radius:4px;background:rgba(82,196,26,.1);border:1px solid rgba(82,196,26,.3);color:#52c41a;font-size:17px;font-weight:600;white-space:nowrap;}
+
+/* ========== 左栏 FEED ========== */
+#feed{display:flex;flex-direction:column;border:1px solid #1e2630;}
+#feed.side-feed{flex:1;min-height:0;}
+.feed-stats{padding:10px 16px;font-size:16px;color:#5a6a7a;border-bottom:1px solid #1e2630;display:flex;gap:12px;}
+.feed-stats b{color:#c8d6e5;}
+#feed-list{flex:1;overflow-y:auto;padding:8px;}
+.feed-card{background:#0d1117;border:1px solid #1e2630;border-radius:6px;padding:12px;margin-bottom:8px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;}
+.feed-card:hover{border-color:#13c2c2;}
+.feed-card.selected{border-color:#b37feb;box-shadow:0 0 12px rgba(179,127,235,.2);}
+.feed-card.entering{animation:slideInTop .4s ease-out;}
+@keyframes slideInTop{from{opacity:0;transform:translateY(-30px);}to{opacity:1;transform:translateY(0);}}
+.feed-source{font-size:18px;color:#8899aa;line-height:1.6;margin-bottom:8px;min-height:52px;}
+.feed-badges{display:flex;gap:6px;flex-wrap:wrap;opacity:0;transition:opacity .4s;}
+.feed-badges.visible{opacity:1;}
+.badge{padding:3px 10px;border-radius:3px;font-size:15px;font-weight:600;}
+.badge-type{background:rgba(179,127,235,.15);color:#b37feb;border:1px solid rgba(179,127,235,.3);}
+.badge-loc{background:rgba(19,194,194,.1);color:#13c2c2;border:1px solid rgba(19,194,194,.3);}
+.badge-score{background:rgba(250,140,22,.1);color:#fa8c16;border:1px solid rgba(250,140,22,.3);}
+.feed-marks{font-size:15px;color:#52c41a;margin-top:6px;opacity:0;transition:opacity .4s;}
+.feed-marks.visible{opacity:1;}
+/* 打字机光标 */
+.typewriter-cursor::after{content:'▌';color:#b37feb;animation:blink .6s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+/* AI萃取扫描线 */
+.scan-line{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#b37feb,transparent);animation:scanDown 1.5s linear infinite;pointer-events:none;}
+@keyframes scanDown{from{top:0;}to{top:100%;}}
+/* 拦截区 */
+.intercept-toggle{padding:8px 16px;font-size:16px;color:#5a6a7a;cursor:pointer;border-top:1px solid #1e2630;user-select:none;}
+.intercept-toggle:hover{color:#c8d6e5;}
+#intercept-list{max-height:0;overflow:hidden;transition:max-height .3s;border-top:1px solid #1e2630;}
+#intercept-list.open{max-height:200px;overflow-y:auto;}
+.intercept-item{padding:8px 16px;font-size:16px;color:#ff4d4f;border-bottom:1px solid rgba(255,77,79,.1);line-height:1.5;}
+.intercept-reason{color:#5a6a7a;font-size:14px;margin-top:2px;}
+
+/* ========== 中部 MAP ========== */
+#map{grid-area:auto;flex:1;min-height:0;position:relative;overflow:hidden;background:#0a0e14;}
+#map-svg{width:100%;height:100%;}
+/* 真实底图容器（Leaflet），加载失败时回退SVG示意图 */
+#map-leaflet{position:absolute;inset:0;z-index:1;display:none;background:#0a0e14;}
+/* 亮色瓦片 → 暗色大屏风格 */
+#map-leaflet .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.82) contrast(.92) saturate(.6);}
+.map-layer-control{position:absolute;bottom:12px;left:12px;display:flex;gap:10px;background:rgba(17,22,29,.9);padding:6px 12px;border-radius:4px;border:1px solid #1e2630;z-index:10;}
+.map-layer-control label{font-size:15px;color:#8899aa;cursor:pointer;display:flex;align-items:center;gap:4px;user-select:none;}
+.map-layer-control input{accent-color:#13c2c2;}
+.map-coord{position:absolute;font-size:14px;color:#2a3a4a;font-family:'Courier New',monospace;z-index:5;}
+.map-coord.tl{top:8px;left:8px;}
+.map-coord.br{bottom:40px;right:8px;}
+/* 灾情点 */
+.disaster-point{cursor:pointer;transition:all .3s;}
+.disaster-point circle.core{transition:fill .3s;}
+@keyframes pulse-ring{0%{r:6;opacity:.8;}100%{r:20;opacity:0;}}
+.pulse-circle{animation:pulse-ring 1.5s ease-out infinite;}
+/* 地图选中高亮 */
+.disaster-point.selected circle.core{stroke:#fff;stroke-width:2;}
+/* 队伍图标 */
+.team-icon{font-size:14px;fill:#13c2c2;}
+/* 地震叠加 */
+.quake-center{fill:#ff4d4f;stroke:#ff4d4f;stroke-width:2;}
+.iso-seismic{fill:none;stroke:#fa8c16;stroke-width:1;opacity:.3;}
+
+/* ========== 右栏 DESK ========== */
+#desk{display:flex;flex-direction:column;flex:1;min-height:0;border:1px solid #1e2630;}
+#desk-content{flex:1;overflow-y:auto;padding:16px;}
+/* KPI 概览 */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.kpi-card{background:#0d1117;border:1px solid #1e2630;border-radius:6px;padding:16px;text-align:center;}
+.kpi-value{font-size:42px;font-weight:700;margin-bottom:4px;}
+.kpi-label{font-size:16px;color:#5a6a7a;}
+.kpi-value.cyan{color:#13c2c2;}
+.kpi-value.green{color:#52c41a;}
+.kpi-value.orange{color:#fa8c16;}
+.kpi-value.red{color:#ff4d4f;}
+.agent-status-card{background:#0d1117;border:1px solid #1e2630;border-radius:6px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.agent-status-card .emoji{font-size:30px;}
+.agent-status-card .info{flex:1;}
+.agent-status-card .name{font-size:17px;font-weight:600;color:#c8d6e5;}
+.agent-status-card .status{font-size:15px;color:#5a6a7a;}
+/* 任务详情 */
+.detail-section{margin-bottom:16px;}
+.detail-label{font-size:15px;color:#5a6a7a;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;}
+.detail-value{font-size:18px;color:#c8d6e5;line-height:1.6;}
+.detail-source{background:#0d1117;border:1px solid #1e2630;border-radius:4px;padding:10px;font-size:17px;color:#8899aa;line-height:1.6;margin-bottom:12px;}
+.credibility-bars{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.cred-row{display:flex;align-items:center;gap:8px;}
+.cred-label{font-size:15px;color:#5a6a7a;width:80px;text-align:right;}
+.cred-bar-bg{flex:1;height:6px;background:#1a2030;border-radius:3px;overflow:hidden;}
+.cred-bar-fill{height:100%;border-radius:3px;transition:width .6s ease;}
+.plan-box{background:#0d1117;border:1px solid #1e2630;border-radius:6px;padding:12px;margin-bottom:10px;}
+.plan-box.recommended{border-color:rgba(82,196,26,.3);}
+.plan-title{font-size:17px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.plan-title .rec-tag{font-size:13px;padding:1px 8px;border-radius:2px;background:rgba(82,196,26,.15);color:#52c41a;}
+.plan-evidence{font-size:15px;color:#5a6a7a;line-height:1.6;padding-left:12px;border-left:2px solid #1e2630;}
+.sla-countdown{font-size:24px;font-weight:700;text-align:center;padding:8px;border-radius:4px;margin-bottom:12px;}
+.sla-countdown.normal{color:#13c2c2;background:rgba(19,194,194,.08);}
+.sla-countdown.urgent{color:#ff4d4f;background:rgba(255,77,79,.08);animation:sla-flash 1s infinite;}
+@keyframes sla-flash{0%,100%{opacity:1;}50%{opacity:.5;}}
+.desk-actions{display:flex;gap:8px;margin-top:12px;}
+.desk-btn{flex:1;padding:12px;border:none;border-radius:4px;font-size:17px;font-weight:600;cursor:pointer;transition:all .2s;}
+.desk-btn.approve{background:#52c41a;color:#0a0e14;}
+.desk-btn.approve:hover{background:#6dd42a;}
+.desk-btn.approve:disabled{background:#1a2030;color:#3a4a5a;cursor:not-allowed;}
+.desk-btn.relevel{background:transparent;border:1px solid #fa8c16;color:#fa8c16;}
+.desk-btn.relevel:hover{background:rgba(250,140,22,.1);}
+.desk-btn.reject{background:transparent;border:1px solid #ff4d4f;color:#ff4d4f;}
+.desk-btn.reject:hover{background:rgba(255,77,79,.1);}
+.approval-stamp{text-align:center;padding:12px;margin-top:12px;color:#52c41a;font-size:17px;border:1px dashed rgba(82,196,26,.3);border-radius:4px;background:rgba(82,196,26,.05);}
+
+/* ========== 底栏 KANBAN ========== */
+#kanban{grid-area:kanban;display:flex;border-top:1px solid #1e2630;background:#0d1117;}
+.kanban-col{flex:1;border-right:1px solid #1e2630;display:flex;flex-direction:column;min-width:0;}
+.kanban-col:last-child{border-right:none;}
+.kanban-col-header{padding:10px 12px;font-size:17px;font-weight:600;border-bottom:1px solid #1e2630;display:flex;align-items:center;justify-content:space-between;white-space:nowrap;}
+.kanban-col-header .count{font-size:15px;background:#1a2030;padding:2px 10px;border-radius:10px;color:#5a6a7a;}
+.kanban-col.human-zone .kanban-col-header{border-bottom:2px solid #fa8c16;color:#fa8c16;}
+.kanban-col.overload .kanban-col-header{color:#ff4d4f;background:rgba(255,77,79,.05);}
+.kanban-col-body{flex:1;overflow-y:auto;padding:6px;}
+.kanban-card{background:#11161d;border:1px solid #1e2630;border-radius:4px;padding:8px 10px;margin-bottom:6px;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:8px;font-size:16px;position:relative;overflow:hidden;}
+.kanban-card:hover{border-color:#13c2c2;}
+.kanban-card.selected{border-color:#b37feb;box-shadow:0 0 8px rgba(179,127,235,.2);}
+.kanban-card.entering{animation:flyInLeft .4s ease-out;}
+@keyframes flyInLeft{from{opacity:0;transform:translateX(-40px);}to{opacity:1;transform:translateX(0);}}
+.kanban-priority{width:3px;height:30px;border-radius:2px;flex-shrink:0;}
+.kanban-info{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#8899aa;}
+.kanban-sla{font-size:15px;white-space:nowrap;}
+.kanban-agent{font-size:18px;flex-shrink:0;}
+.overload-toast{position:absolute;top:40px;left:50%;transform:translateX(-50%);background:rgba(255,77,79,.9);color:#fff;padding:6px 16px;border-radius:4px;font-size:16px;font-weight:600;white-space:nowrap;z-index:20;pointer-events:none;animation:fadeInOut 3s forwards;}
+@keyframes fadeInOut{0%{opacity:0;transform:translateX(-50%) translateY(-10px);}10%{opacity:1;transform:translateX(-50%) translateY(0);}80%{opacity:1;}100%{opacity:0;}}
+
+/* ========== 一键演示按钮 ========== */
+#demo-btn{position:fixed;bottom:20px;right:20px;z-index:9999;padding:12px 24px;border:1px solid #13c2c2;background:rgba(19,194,194,.1);color:#13c2c2;border-radius:6px;font-size:18px;font-weight:600;cursor:pointer;transition:all .3s;backdrop-filter:blur(8px);}
+#demo-btn:hover{background:rgba(19,194,194,.2);}
+#demo-btn.playing{border-color:#fa8c16;color:#fa8c16;background:rgba(250,140,22,.1);}
+
+/* ========== 联动高亮脉冲 ========== */
+@keyframes link-pulse{0%{box-shadow:0 0 0 0 rgba(179,127,235,.4);}70%{box-shadow:0 0 0 10px rgba(179,127,235,0);}100%{box-shadow:0 0 0 0 rgba(179,127,235,0);}}
+.link-highlight{animation:link-pulse .8s ease-out;}
+
+/* ========== 研判 · 伤亡动态估计卡 ========== */
+.agent-status-dot.purple{background:#b37feb;box-shadow:0 0 6px #b37feb;}
+.casualty-box{background:#0d1117;border:1px solid #1e2630;border-radius:6px;padding:14px;margin-bottom:14px;}
+.casualty-box.level-red{border-color:rgba(255,77,79,.45);box-shadow:0 0 10px rgba(255,77,79,.12);}
+.casualty-box.level-orange{border-color:rgba(250,140,22,.45);}
+.casualty-box.level-yellow{border-color:rgba(250,219,20,.35);}
+.casualty-title{font-size:17px;font-weight:600;color:#c8d6e5;display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.casualty-level{font-size:13px;padding:2px 10px;border-radius:3px;font-weight:600;}
+.casualty-level.red{background:rgba(255,77,79,.15);color:#ff4d4f;}
+.casualty-level.orange{background:rgba(250,140,22,.15);color:#fa8c16;}
+.casualty-level.yellow{background:rgba(250,219,20,.12);color:#fadb14;}
+.casualty-level.green{background:rgba(82,196,26,.15);color:#52c41a;}
+.casualty-nums{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;margin-bottom:10px;}
+.cnum{font-size:34px;font-weight:700;color:#c8d6e5;}
+.cnum.cyan{color:#13c2c2;}.cnum.orange{color:#fa8c16;}
+.clabel{font-size:14px;color:#5a6a7a;margin-top:2px;}
+.casualty-note{font-size:13px;color:#5a6a7a;line-height:1.6;border-top:1px dashed #1e2630;padding-top:8px;}
+.casualty-empty{font-size:16px;color:#5a6a7a;padding:8px 0;}
+
+/* ========== 情报通道标签（微博/北斗卫星） ========== */
+.feed-chan{margin-bottom:6px;}
+.chan-badge{font-size:13px;padding:2px 8px;border-radius:3px;font-weight:600;}
+.chan-weibo{background:rgba(19,194,194,.1);color:#13c2c2;border:1px solid rgba(19,194,194,.25);}
+.chan-sat{background:rgba(179,127,235,.15);color:#b37feb;border:1px solid rgba(179,127,235,.35);}
+
+/* ========== 通讯员 · 救援对接工单 ========== */
+.ticket-box{background:#0d1117;border:1px solid rgba(19,194,194,.25);border-radius:6px;padding:12px;}
+.ticket-head{font-size:17px;font-weight:600;color:#13c2c2;margin-bottom:4px;}
+.ticket-meta{font-size:15px;color:#8899aa;line-height:1.6;margin-bottom:8px;}
+.ticket-steps{display:flex;align-items:center;flex-wrap:wrap;gap:4px;font-size:15px;margin-bottom:8px;}
+.tstep{color:#5a6a7a;white-space:nowrap;}
+.tstep.done{color:#52c41a;}
+.tsep{color:#2a3a4a;}
+.ticket-report{font-size:16px;color:#c8d6e5;background:rgba(82,196,26,.06);border-left:2px solid #52c41a;padding:8px;line-height:1.6;margin-bottom:8px;border-radius:0 4px 4px 0;}
+.ticket-compliance{font-size:13px;color:#5a6a7a;border-top:1px dashed #1e2630;padding-top:6px;line-height:1.5;}
+.back-link{font-size:16px;color:#5a6a7a;cursor:pointer;margin-bottom:10px;display:inline-block;user-select:none;}
+.back-link:hover{color:#13c2c2;}
+
+/* ========== 旧版拉齐：ICL预警/简报/助手/案例库/余震 ========== */
+.icl-strip{background:rgba(255,77,79,.08);border:1px solid rgba(255,77,79,.3);border-radius:6px;padding:10px 12px;font-size:14px;color:#ff9c9e;line-height:1.6;margin-bottom:12px;}
+.icl-strip b{color:#ff4d4f;}
+.brief-card{background:#0d1117;border:1px solid rgba(19,194,194,.25);border-radius:6px;padding:12px;margin-bottom:12px;}
+.brief-title{font-size:15px;font-weight:600;color:#13c2c2;margin-bottom:6px;display:flex;justify-content:space-between;}
+.brief-text{font-size:15px;color:#c8d6e5;line-height:1.7;}
+.assistant-box{background:#0d1117;border:1px solid rgba(179,127,235,.3);border-radius:6px;padding:14px;margin-top:12px;}
+.assistant-title{font-size:19px;font-weight:600;color:#b37feb;margin-bottom:8px;}
+.assistant-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.assistant-chips span{font-size:16px;padding:5px 12px;border:1px solid rgba(179,127,235,.35);border-radius:12px;color:#b37feb;cursor:pointer;}
+.assistant-chips span:hover{background:rgba(179,127,235,.12);}
+.assistant-input{display:flex;gap:6px;margin-bottom:8px;}
+.assistant-input input{flex:1;background:#11161d;border:1px solid #1e2630;border-radius:4px;padding:9px 12px;color:#c8d6e5;font-size:17px;outline:none;}
+.assistant-input button{padding:9px 16px;background:#b37feb;border:none;border-radius:4px;color:#0a0e14;font-weight:600;font-size:17px;cursor:pointer;}
+.assistant-answer{font-size:17px;color:#8899aa;line-height:1.8;background:#11161d;border-radius:4px;padding:10px 12px;min-height:40px;}
+.modal-overlay{position:fixed;inset:0;background:rgba(5,8,16,.75);backdrop-filter:blur(4px);z-index:10000;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{width:1100px;max-height:80%;background:#11161d;border:1px solid #1e2630;border-radius:8px;display:flex;flex-direction:column;}
+.modal-head{padding:14px 20px;font-size:19px;font-weight:700;color:#e8f0fe;border-bottom:1px solid #1e2630;display:flex;justify-content:space-between;align-items:center;}
+.modal-close{cursor:pointer;color:#5a6a7a;font-size:18px;}
+.modal-body{overflow-y:auto;padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.case-card{background:#0d1117;border:1px solid #1e2630;border-radius:6px;padding:12px;}
+.case-card.current{border-color:rgba(82,196,26,.4);}
+.case-head{font-size:17px;font-weight:700;color:#e8f0fe;margin-bottom:4px;}
+.case-head .m{color:#ff4d4f;margin-left:8px;}
+.case-meta{font-size:13px;color:#5a6a7a;margin-bottom:6px;}
+.case-loss{font-size:14px;color:#fa8c16;margin-bottom:6px;}
+.case-social{font-size:13px;color:#8899aa;line-height:1.6;margin-bottom:6px;}
+.case-lesson{font-size:13px;color:#52c41a;line-height:1.5;border-top:1px dashed #1e2630;padding-top:6px;}
+.toast-banner{position:fixed;top:90px;left:50%;transform:translateX(-50%);z-index:9998;padding:10px 28px;border-radius:6px;font-size:17px;font-weight:700;color:#fff;animation:fadeInOut 6s forwards;pointer-events:none;}
+.force-board{background:#0d1117;border:1px solid rgba(19,194,194,.2);border-radius:6px;padding:10px 12px;margin-bottom:12px;}
+.force-title{font-size:15px;font-weight:600;color:#13c2c2;margin-bottom:6px;}
+.force-row{display:flex;align-items:center;gap:8px;font-size:14px;padding:5px 0;border-bottom:1px dashed #1e2630;color:#c8d6e5;}
+.force-row:last-child{border-bottom:none;}
+.force-org{font-size:11px;color:#5a6a7a;border:1px solid #1e2630;border-radius:3px;padding:1px 6px;}
+.force-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.force-status{font-size:12px;padding:2px 8px;border-radius:3px;font-weight:600;white-space:nowrap;}
+.force-status.s-onduty{background:rgba(90,106,122,.15);color:#8899aa;}
+.force-status.s-assembling{background:rgba(250,140,22,.15);color:#fa8c16;}
+.force-status.s-enroute{background:rgba(19,194,194,.15);color:#13c2c2;}
+.force-status.s-onsite{background:rgba(82,196,26,.15);color:#52c41a;}
+</style>
+</head>
+<body>
+<div id="app-root">
+<div id="layout">
+
+<!-- ===== 地震预警横幅（参考图顶部） ===== -->
+<div id="quake-banner">⚠️ 地震预警：缅甸曼德勒地区（实皆断裂带）发生 M 7.9 地震，震源深度 30km，请关注灾情信息并听从指挥中心统一调度</div>
+
+<!-- ===== 顶栏 ===== -->
+<div id="header" class="panel">
+  <div class="hdr-zone">
+  <div class="logo-block">
+    <div class="logo-icon">⚡</div>
+    <div><div class="logo-main">Rescue AI</div><div class="logo-sub">智能救援指挥平台</div></div>
+  </div>
+  <div class="mode-btns">
+    <button class="mode-btn active" data-mode="earthquake" onclick="switchMode('earthquake')">地震模式</button>
+    <button class="mode-btn" onclick="openCases()">📚 历史案例</button>
+  </div>
+  <div class="agents-bar">
+    <div class="agent-badge" id="agent-sentinel">
+      <div class="agent-avatar">🛰</div>
+      <div><div class="agent-name">哨兵</div><div class="agent-label" id="sentinel-status">监听中</div></div>
+      <div class="agent-status-dot green"></div>
+    </div>
+    <div class="agent-badge" id="agent-advisor">
+      <div class="agent-avatar">🧠</div>
+      <div><div class="agent-name">参谋</div><div class="agent-label">待命</div></div>
+      <div class="agent-status-dot yellow"></div>
+    </div>
+    <div class="agent-badge" id="agent-comms">
+      <div class="agent-avatar">📡</div>
+      <div><div class="agent-name">通讯员</div><div class="agent-label">跟踪中</div></div>
+      <div class="agent-status-dot blue"></div>
+    </div>
+    <div class="agent-badge" id="agent-analyst">
+      <div class="agent-avatar">⚖️</div>
+      <div><div class="agent-name">研判</div><div class="agent-label">伤亡估计</div></div>
+      <div class="agent-status-dot purple"></div>
+    </div>
+  </div>
+  </div>
+  <div id="center-title">地 震 应 急 智 能 指 挥 中 心</div>
+  <div class="hdr-zone right">
+  <div class="hdr-right">
+    <span class="commander-badge" style="margin-left:0;">👨‍✈️ 指挥长在线</span>
+    <span><span class="dot"></span>系统在线</span>
+    <span>响应级别：<span class="lv" id="resp-level">I级</span></span>
+    <span id="task-clock" class="mono" style="font-size:15px;color:#fa8c16;">T+00:00:00</span>
+    <div><div id="real-clock" class="mono">--:--:--</div><div id="real-date">----------</div></div>
+    <div id="data-source-badge" style="padding:6px 14px;border-radius:4px;font-size:15px;font-weight:600;background:rgba(90,106,122,.15);color:#5a6a7a;border:1px solid #1e2630;">⏳ 检测数据源...</div>
+  </div>
+  </div>
+</div>
+
+<!-- ===== 左栏：灾情概览 + 快速评估 + 社媒情报流 ===== -->
+<div id="leftcol">
+  <div class="side-panel brk">
+    <div class="sec-title">灾情概览</div>
+    <div class="impact-row"><span>烈度面积</span><b>12,400 km²</b></div>
+    <div class="impact-row"><span>地震影响面积</span><b>12,400 km²</b></div>
+    <div class="impact-row"><span>受影响人口</span><b>385 万人</b></div>
+    <div class="impact-row"><span>影响区县</span><b style="text-align:right;max-width:300px;white-space:normal;line-height:1.5;">曼德勒、实皆、内比都、马圭、掸邦、瑞丽市(有感)</b></div>
+  </div>
+  <div class="side-panel brk">
+    <div class="sec-title">快速评估结果</div>
+    <div style="font-size:17px;color:#c8d6e5;line-height:1.9;">根据现有数据和模型，本次地震极震区烈度预计达到<b style="color:#fadb14;">IX度</b>，地震影响面积为 <b style="color:#fadb14;">12,400 km²</b>（缅甸中部），受影响人口 <b style="color:#fadb14;">385万人</b>。地震可能造成 <b style="color:#ff4d4f;">1800–3500人</b> 死亡、<b style="color:#ff4d4f;">5000–8000人</b> 受伤，直接经济损失约为 <b style="color:#fadb14;">82亿元</b>。</div>
+    <div class="sec-title" style="margin-top:10px;">震区波及区域</div>
+    <div class="impact-chips"><span>曼德勒</span><span>实皆</span><span>内比都</span><span>马圭</span><span>掸邦</span><span>瑞丽市</span></div>
+  </div>
+  <div id="feed" class="side-panel brk side-feed">
+    <div class="sec-title">社媒情报流 · 实时</div>
+    <div class="feed-stats">
+      原始 <b id="stat-raw" class="mono">0</b> ·
+      萃取 <b id="stat-extracted" class="mono">0</b> ·
+      拦截 <b id="stat-intercepted" class="mono">0</b>
+    </div>
+    <div id="feed-list"></div>
+    <div class="intercept-toggle" onclick="toggleIntercept()">▼ 拦截区 (<span id="intercept-count">0</span>)</div>
+    <div id="intercept-list"></div>
+  </div>
+</div>
+
+<!-- ===== 中栏：主震信息 + 地图 + 影响统计 ===== -->
+<div id="centercol">
+  <div class="brk" id="quake-info">
+    <div class="sec-title" style="margin-bottom:0;">主震信息</div>
+    <div class="qi-item">日期：<b>2025年03月28日</b></div>
+    <div class="qi-item">时间：<b>14时20分34秒</b></div>
+    <div class="qi-item">地点：<b>缅甸曼德勒（实皆断裂带）</b></div>
+    <div class="qi-item">经度：<b style="color:#13c2c2;">95.95°E</b></div>
+    <div class="qi-item">纬度：<b style="color:#13c2c2;">21.85°N</b></div>
+    <div class="qi-item">深度：<b>30 千米</b></div>
+    <div class="qi-item">震级：<span class="hl">M 7.9</span></div>
+  </div>
+  <div id="map" class="panel">
+    <div id="map-leaflet"></div>
+    <svg id="map-svg" viewBox="0 0 1000 700" preserveAspectRatio="xMidYMid slice"></svg>
+    <div class="map-coord tl mono">N21.9° E95.9°</div>
+    <div class="map-coord br mono">N21.7° E96.3°</div>
+    <div class="map-layer-control">
+      <label><input type="checkbox" checked onchange="toggleLayer('points',this.checked)">灾情点</label>
+      <label><input type="checkbox" checked onchange="toggleLayer('wind',this.checked)">风圈/等震线</label>
+      <label><input type="checkbox" checked onchange="toggleLayer('teams',this.checked)">队伍</label>
+      <label><input type="checkbox" checked onchange="toggleLayer('intercept',this.checked)">拦截点</label>
+    </div>
+  </div>
+  <div id="stats-row">
+    <div class="stat-cell brk"><div class="stat-num cyan">6 个</div><div class="stat-label">影响区县</div></div>
+    <div class="stat-cell brk"><div class="stat-num yellow">385 万人</div><div class="stat-label">影响人数</div></div>
+    <div class="stat-cell brk"><div class="stat-num red">82 亿元</div><div class="stat-label">经济损失</div></div>
+  </div>
+</div>
+
+<!-- ===== 右栏：决策桌 + 震中距离 + 专题图 ===== -->
+<div id="rightcol">
+  <div id="desk" class="brk">
+    <div class="sec-title" style="padding:12px 14px 0;margin-bottom:0;">🧠 参谋 · 决策桌</div>
+    <div id="desk-content"></div>
+  </div>
+</div>
+
+<!-- ===== 底栏：任务看板 ===== -->
+<div id="kanban" class="panel">
+  <div class="kanban-col" data-status="new"><div class="kanban-col-header">📥 新情报 <span class="count" id="kc-new">0</span></div><div class="kanban-col-body" id="kb-new"></div></div>
+  <div class="kanban-col human-zone" data-status="pending"><div class="kanban-col-header">⚠ 待批准·人类权力区 <span class="count" id="kc-pending">0</span></div><div class="kanban-col-body" id="kb-pending"></div></div>
+  <div class="kanban-col" data-status="dispatched" id="col-dispatched"><div class="kanban-col-header">📡 已派遣 <span class="count" id="kc-dispatched">0</span></div><div class="kanban-col-body" id="kb-dispatched"></div></div>
+  <div class="kanban-col" data-status="verify"><div class="kanban-col-header">🔍 待核验 <span class="count" id="kc-verify">0</span></div><div class="kanban-col-body" id="kb-verify"></div></div>
+  <div class="kanban-col" data-status="closed"><div class="kanban-col-header">✅ 已闭环 <span class="count" id="kc-closed">0</span></div><div class="kanban-col-body" id="kb-closed"></div></div>
+</div>
+
+</div><!-- /layout -->
+</div><!-- /app-root -->
+
+<button id="demo-btn" onclick="toggleDemo()">▶ 一键演示</button>
+
+<!-- ===== 核实闭环抽屉（点击社媒卡片弹出） ===== -->
+<div id="drawer-mask" onclick="closeDrawer()"></div>
+<div id="drawer">
+  <div class="dw-head"><span>灾情详情与线索核实闭环</span><span class="dw-close" onclick="closeDrawer()">✕</span></div>
+  <div id="drawer-body"></div>
+</div>
+
+<!-- ===== 历史地震案例库 ===== -->
+<div id="cases-modal" class="modal-overlay" onclick="if(event.target===this)closeCases()">
+  <div class="modal-box">
+    <div class="modal-head">📚 历史地震案例库 · 经验映射到本产品能力 <span class="modal-close" onclick="closeCases()">✕</span></div>
+    <div class="modal-body" id="cases-body"></div>
+  </div>
+</div>
+
+<!-- ===== 真实底图 Leaflet（CDN加载失败自动回退SVG示意图） ===== -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" onerror="window._leafletFail=1">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" onerror="window._leafletFail=1"></script>
+
+<script>
+/* ================================================================
+   RescueAI 指挥中心 — 单文件 Demo（路径C：接入真实数据源）
+   数据源优先级：内嵌真实数据(social_posts.json) → live_feed.py轮询(weibo模式) → Mock降级
+   ================================================================ */
+
+// ==================== 零、内嵌真实社媒数据（52条缅甸地震微博） ====================
+// 来源：backend/Qwen初版/data/social_posts.json，含完整字段（extracted_location/severity_vote/damage_type/sentiment）
+// live_feed.py的mock模式会剥离这些字段，因此大屏直接内嵌完整数据作为主数据源
+const REAL_SOCIAL_POSTS = [{"post_id":"wb-dlfsfp90elh5","text":"#缅甸7.9级地震# 【：一名为划伤，一名为扭伤】中国地震台网正式测定：03月28日14时20分在缅甸（北纬21.85度，东经95.95度）发生7.9级地震，震源深度30千米。28日下午3时许，极目新闻记者从云南德宏瑞丽市人民医院了解到，该院已收到两名地震伤者，一名为划伤，一名为扭伤，“暂时没有收到特别严重的，都是轻伤。” （极目新闻）","time":"2025-03-28T15:27:40","offset_after_quake_min":67,"extracted_location":{"name":"云南德宏瑞丽市","longitude":97.85,"latitude":24.01,"entity":"GPE","confidence":0.85},"damage_type":"人员伤亡","keywords_matched":["医院"],"sentiment":"neutral","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-bfs5zafatko8","text":"#云南多地有震感# 【缅甸发生7.9级地震，】中国地震台网正式测定：3月28日14时20分，在缅甸（北纬21.85度，东经95.95度）发生7.9级地震，震源深度30公里。 缅甸最大城市仰光震感强烈。 云南多地有震感。泰国全国有震感，曼谷震感持续数分钟，民众纷纷离开高层建筑，涌到街上。 自然资源部海啸预警中心根据初步地震参数判断，地震可能会在震源周围引发局地海啸，但由于震源位于太平洋范围之外，不会对我国沿岸造成影响。（每日经济新闻）","time":"2025-03-28T15:32:00","offset_after_quake_min":72,"extracted_location":{"name":"仰光","longitude":96.2,"latitude":16.87,"entity":"GPE","confidence":0.85},"damage_type":"震感反馈","keywords_matched":["海啸","震感"],"sentiment":"neutral","severity_vote":1,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-bkhqeld7mhnc","text":"#云南瑞丽已组织救援人员集结# ｜ 今天下午14点20分，缅甸发生7.9级地震，本次地震导致云南省多地有震感。 14点50左右，受地震影响，瑞丽当地有房屋受损、人员受伤，当地已经组织救援人员集结，各项救援工作正在进行中。 这次地震，泰国全国各地也都有震感，曼谷市中心高层建筑内震感明显，震感持续数分钟，民众纷纷离开高层建筑涌到街上。 在咱们家，与缅甸接壤的云南省多地震感非常强烈，西双版纳、德宏、昆明、丽江、保山、大理等地很有友友都表示震感明显。 此外，贵州、广西等地亦有震感的反馈。 希望大家平安🙏 ｜","time":"2025-03-28T15:34:35","offset_after_quake_min":74,"extracted_location":{"name":"瑞丽","longitude":97.85,"latitude":24.01,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["受伤","救援","震感"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-cklno22eo8lv","text":"#缅甸华人讲述地震瞬间# 【】中国地震台网正式测定：03月28日14时20分在缅甸（北纬21.85度，东经95.95度）发生7.9级地震，震源深度30千米。据悉，地震致缅甸当地桥梁、房屋等建筑受损严重，一位在缅华人称，“桥断了，自己只差100米上桥。”","time":"2025-03-28T15:39:35","offset_after_quake_min":79,"extracted_location":{"name":"缅甸","longitude":95.84,"latitude":22.05,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["桥断"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-cbz96a4df39m","text":"#缅甸7.9级地震# 缅甸曼德勒附近发生强烈地震，当地桥梁坍塌，多处建筑物倒塌。已经开展救助工作。🙏🙏🙏","time":"2025-03-28T15:40:14","offset_after_quake_min":80,"extracted_location":{"name":"曼德勒","longitude":96.08,"latitude":21.97,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["倒塌","坍塌"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-d1wddqornxuy","text":"#曼谷一在建高楼地震中坍塌# 在缅甸发生7.9级地震，震源深度30千米。泰国首都发生7.3级强烈地震，造成建筑物倒塌。目前尚无人员伤亡信息。(视频来源：社交媒体)","time":"2025-03-28T15:41:06","offset_after_quake_min":81,"extracted_location":{"name":"缅甸","longitude":95.84,"latitude":22.05,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["倒塌","伤亡"],"sentiment":"negative","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-ctkl5nqsef27","text":"#缅甸7.9级地震# 【 】 （编辑：123）记者了解到，本次地震导致云南省多地有震感。14时50分许，记者从云南省瑞丽市应急管理局了解到，受地震影响，当地有房屋受损、人员受伤。当地已组织救援人员集结，各项工作正在进行中。","time":"2025-03-28T15:44:06","offset_after_quake_min":84,"extracted_location":{"name":"瑞丽市","longitude":97.85,"latitude":24.01,"entity":"GPE","confidence":0.85},"damage_type":"人员伤亡","keywords_matched":["受伤","救援","震感"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-cd2b4oko6198","text":"#缅甸7.9级地震# 缅甸7.9级强震，泰国曼谷震撼强烈，曼谷一在建高楼地震中坍塌 泰国证券交易所称地震后股票交易暂停。 泰国总理中断会议紧急商讨地震应对措施。","time":"2025-03-28T15:46:04","offset_after_quake_min":86,"extracted_location":{"name":"缅甸震中区域","longitude":95.84,"latitude":22.05,"entity":"GPE","confidence":0.4},"damage_type":"房屋倒塌","keywords_matched":["坍塌"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-biewflss02ob","text":"#缅甸7.9级地震# 【】据中国地震台网正式测定：2025年3月28日14时20分在缅甸（北纬22.05度，东经95.84度）发生7.9级左右地震。28日下午， 记者联系上云南保山市一名网友。他在社交平台发布的视频显示，地震发生时，某台球厅内天花板出现剧烈晃动，台球桌上的数盏吊灯不时和天花板相撞，哐哐作响，吓得顾客们躲在角落里。有网友留言表示，“这个视频是我看到震感最强的。”还有人质疑，“为何不跑？没有安全意识”，该网友回复，“24楼，要怎么跑？”随后，该网友告诉记者，这是他开台球厅的朋友发给他的视频，“天花板吊顶可能有点受损，其他还好，也没有人受伤。”地震发生时，自己也在店里上班，“当时震感非常强烈，浑身都是晕的，头都是晕的。后来还出现过一次余震，也有些震感。后来我上街去看了下，发现很多人都出来了。”（上游新闻记者 金鑫）","time":"2025-03-28T15:51:41","offset_after_quake_min":91,"extracted_location":{"name":"云南保山市","longitude":99.16,"latitude":25.12,"entity":"GPE","confidence":0.85},"damage_type":"震感反馈","keywords_matched":["受伤","震感"],"sentiment":"negative","severity_vote":1,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-dubq8w8hxqiv","text":"#缅甸附近发生7.7级左右地震# 图片显示缅甸和泰国地震的影响，缅甸首都内比都的一条道路出现裂缝。据缅甸南部仰光的一名居民表示，强烈的 7.7 级地震发生后，居民感觉到震动持续了几分钟。","time":"2025-03-28T15:55:24","offset_after_quake_min":95,"extracted_location":{"name":"内比都","longitude":96.07,"latitude":19.76,"entity":"GPE","confidence":0.85},"damage_type":"道路中断","keywords_matched":["裂缝"],"sentiment":"negative","severity_vote":3,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-b0vszxwql1e8","text":"#缅甸7.9级地震# 最新消息梳理：（编辑：罗莉） 根据2025年3月28日的最新消息，缅甸中部地区发生强震，不同机构对震级的测定存在差异，且后续余震和影响范围较大。以下为综合整理的关键信息： 一、主震信息 震级与时间 中国地震台网：测定主震为7.9级，发生于当地时间28日14时20分（北京时间），震源深度30公里，震中位于北纬21.85度、东经95.95度。 美国地质调查局：测定震级为7.7级，震源深度10公里，震中位于缅甸实皆省西北部。 缅甸消防部门：确认7.7级地震，并启动紧急搜救。 地震背景 此次地震是2025年全球最大地震，也是今年第17次六级以上地震。 二、余震及后续影响 6.4级余震：14时32分发生（北京时间），震源深度30公里，距中国边境约317公里。 多地震感强烈 缅甸：仰光、内比都、曼德勒震感强烈，部分建筑倒塌，道路受损。 中国：云南西双版纳、德宏、昆明等地有明显震感，贵州、广西亦有反馈。 泰国、老挝：曼谷、万象等地高层建筑摇晃明显，民众疏散至街道。 三、海啸预警与灾害风险 海啸可能性：自然资源部判断地震可能引发局地海啸，但震中位于太平洋范围外，对中国沿岸无影响。 次生灾害：震中300公里内有15座大中城市，实皆市距震中仅31公里，震中区域平均海拔107米，可能加剧山体滑坡等风险。 四、数据差异说明 不同机构对震级和震源深度的测定存在差异，可能因测量方法或数据更新导致。例如： 中国地震台网从自动测定的7.7级（网页1）修正为正式测定的7.9级； 美国地质调查局和缅甸消防部门则维持7.7级。 五、救援与应对 缅甸消防部门已派出搜救团队； 中国云南等地启动应急响应，暂无人员伤亡报告。 如需进一步了解余震动态或灾区实况，可关注中国地震台网、新华社等官方渠道。","time":"2025-03-28T15:58:40","offset_after_quake_min":98,"extracted_location":{"name":"实皆省","longitude":95.97,"latitude":21.88,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["倒塌","伤亡","救援","滑坡","海啸","震感","疏散","道路受损"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-b96p4ufwczqp","text":"#缅甸7.9级地震# 【：桥断了，自己只差100米上桥】 中国地震台网正式测定：03月28日14时20分在缅甸（北纬21.85度，东经95.95度）发生7.9级地震，震源深度30千米。据悉，地震致缅甸当地桥梁、房屋等建筑受损严重，一位在缅华人称，“桥断了，自己只差100米上桥。”","time":"2025-03-28T15:59:24","offset_after_quake_min":99,"extracted_location":{"name":"缅甸","longitude":95.84,"latitude":22.05,"entity":"GPE","confidence":0.85},"damage_type":"道路中断","keywords_matched":["桥断"],"sentiment":"urgent","severity_vote":3,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-cw4ycjwtpam7","text":"#缅甸7.9级地震# 。缅甸突发7.9级地震！桥梁房屋等建筑受损严重，当地华人发声：桥断了，只差100米上桥。 幸运的，一定注意平安🙏","time":"2025-03-28T16:02:56","offset_after_quake_min":102,"extracted_location":{"name":"缅甸震中区域","longitude":95.84,"latitude":22.05,"entity":"GPE","confidence":0.4},"damage_type":"房屋倒塌","keywords_matched":["桥断"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-cjk1o2iranht","text":"【缅甸7.9级地震 全球今年以来最大地震】3月28日14时20分，缅甸中部发生强烈地震，酒店民房大桥机场坍塌受损。","time":"2025-03-28T16:11:11","offset_after_quake_min":111,"extracted_location":{"name":"缅甸中部","longitude":95.84,"latitude":22.05,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["坍塌"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-c0wt8v7r7xk8","text":"#缅甸7.9级地震在泰华人称震感强烈# 【】中国地震台网正式测定：3月28日14时20分在缅甸（北纬21.85度，东经95.95度）发生7.9级地震，震源深度30千米。 下午3时，多位在泰国的华人向极目新闻记者介绍，缅甸地震，泰国震感强烈。 郭先生目前在泰国曼谷旅游，据他介绍，地震发生时，他正在曼谷亚洲酒店附近。“整个曼谷都有震感，就是突然晃动了一阵，我感觉大概有十多分钟，有外国老太太哭了，还有人衣服没穿就下来了，裹着浴巾，光着上身。”郭先生说，曼谷旅游发达，察觉到震感后，很多人都从室内跑了出来，站在路边。由于曼谷目前比较炎热，还有当地警察给大家发放风油精等防暑物资。 另外两名在清迈的华人也证实，他们所在的地方有震感。“晃了1分钟左右，没有曼谷那边强烈，我们这边比较轻微一些。”在清迈旅游的刘女士说。","time":"2025-03-28T16:17:21","offset_after_quake_min":117,"extracted_location":{"name":"缅甸震中区域","longitude":95.84,"latitude":22.05,"entity":"GPE","confidence":0.4},"damage_type":"震感反馈","keywords_matched":["物资","震感"],"sentiment":"neutral","severity_vote":1,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-star80m8z5bk","text":"#缅甸7.9级地震# 缅甸曼德勒伊洛瓦底江上的地标性建筑物、已有90多年历史的阿瓦大桥部分坍塌。 （cctv国际时讯）","time":"2025-03-28T16:23:44","offset_after_quake_min":123,"extracted_location":{"name":"曼德勒","longitude":96.08,"latitude":21.97,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["坍塌"],"sentiment":"negative","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-bcj8n5vfy1n0","text":"#地震# 2025年3月28日下午缅甸时间 12 点 53 分，缅甸实皆省发生震级为7.9级的地震，全国各地遭受了严重损失。 旧的实皆桥倒塌，昂潘市三层楼的昂潘酒店大楼倒塌，曼德勒也发生山体滑坡。","time":"2025-03-28T16:24:10","offset_after_quake_min":124,"extracted_location":{"name":"实皆省","longitude":95.97,"latitude":21.88,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["倒塌","滑坡"],"sentiment":"negative","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-d0aw7559ksww","text":"#缅甸地震可能引发局地海啸# 【｜地震后还有可能遇到哪些次生灾害？】 据央视财经报道，今日14时20分在缅甸发生7.9级地震，。本次地震是今年以来全球发生的第17次6级及以上地震，也是今年以来的最大地震。地震可能会在震源周围引发局地海啸。但由于震源位于太平洋范围之外，不会对我国沿岸造成影响。 地震后可能引发的次生灾害有雪崩、山体滑坡、泥石流、堰塞湖、火灾、化学品泄漏等，通常在短时间内对救援工作造成严重干扰，甚至可能加剧人员伤亡和财产损失。因此，科学防范次生灾害、制定有效的应急措施显得尤为重要。 地震后有可能发生哪些次生灾害？ 1、雪崩 西藏地区的高海拔地带，尤其是定日县所在的山脉，常年积雪，地震发生后，强烈震动可能会引发雪崩灾害。震动可能使得积雪松动，滑雪区的积雪可能在重力作用下沿着山坡滑落，迅速形成大规模的雪崩。 2、滑坡、泥石流与堰塞湖 西藏定日县地质环境复杂，震后山体稳定性显著下降，尤其是高山峡谷地带，山高坡陡，极易发生滑坡、崩塌及泥石流等灾害。强烈的地震震动可能导致岩土层松动、断层滑动，从而使得山体在降雨或融雪的作用下迅速滑落。 堰塞湖是由山体滑坡、崩塌等自然灾害堵塞河道形成的暂时性水库，若发生溃坝，可能引发灾难性的洪水，严重威胁下游地区的安全。 3、火灾与化学品泄漏 燃气管道、电力设施以及工矿企业的危险化学品存储设备等可能在地震中受到损坏，从而增加火灾及化学品泄漏的风险。特别是在震中区域的工业设施附近，地震可能引发火灾，或由于设备损坏导致危险化学品泄漏，严重污染环境，威胁人类健康和生态系统安全。 应该如何科学防范？ 1、全面排查地质灾害隐患 地震后，应尽快组织专业排查队伍，结合无人机、遥感技术与实地勘察，全面对震中及周边高山峡谷地带进行检查。 2、雪崩监测与防范 加强积雪区域的监测和预警，设置雪崩屏障、分流导雪设施等，并加强居民、救援人员等的防灾培训，增强其应对雪崩的能力。 3、防范火灾及化学品泄漏 组织专业队伍对震区的燃气、电力设施及工厂进行全面检查，及时修复或封堵破损设备。对于危险化学品泄漏，按照应急预案，迅速采取隔离、封堵和回收等措施，防止化学品扩散到周边环境中。 4、强化应急避险与避难能力 为确保安置区的安全，应优先选择避开滑坡、泥石流、堰塞湖和雪崩等高风险区域。避难所应具备完善的应急设施，并开展定期的应急演练。此外，应通(...)","time":"2025-03-28T16:55:00","offset_after_quake_min":155,"extracted_location":{"name":"缅甸震中区域","longitude":95.84,"latitude":22.05,"entity":"GPE","confidence":0.4},"damage_type":"次生灾害","keywords_matched":["伤亡","救援","安置","滑坡","海啸"],"sentiment":"negative","severity_vote":4,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-cowvmo0qzlnn","text":"#直击缅甸地震# 缅甸突发7.9级地震！桥梁房屋等建筑受损严重，当地华人：桥断了，我只差100米上桥","time":"2025-03-28T17:01:07","offset_after_quake_min":161,"extracted_location":{"name":"缅甸震中区域","longitude":95.84,"latitude":22.05,"entity":"GPE","confidence":0.4},"damage_type":"房屋倒塌","keywords_matched":["桥断"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-b4u2z56p8hiz","text":"#缅甸7.9级地震# 【】受缅甸7.9级地震影响，云南省瑞丽市财富广场附近有楼房受损，玻璃震碎、墙体开裂。消防人员赶到现场后，对房间进行逐一排查，疏散居民。","time":"2025-03-28T17:11:18","offset_after_quake_min":171,"extracted_location":{"name":"瑞丽市","longitude":97.85,"latitude":24.01,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["疏散"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-dlslw6j7pk53","text":"#缅甸地震云南建筑晃动扬起巨大灰尘# 缅甸7.9级地震跨国暴击！云南秒变蹦迪现场，吊灯晃成海盗船 家人们谁懂啊！缅甸今天下午突然甩了个7.9级地震，震源才30公里深，威力相当于500颗广岛原子弹！云南直接被带飞——西双版纳、德宏、昆明、丽江、保山、大理全晃懵了！瑞丽高楼外墙砖石像下雨，昆明吊灯晃成海盗船，好多网友手机都拿不稳，朋友圈全是“地震预警倒计时”截图。 最夸张的是西双版纳，有网友说办公室电脑都在跳舞，奶茶泼了一键盘！德宏州消防紧急出动，15分钟救出9名电梯被困人员，瑞丽2人被瓷砖砸伤送医。省应急厅秒速启动四级响应，蓝天救援队带着搜救犬直奔边境。 专家说这是今年全球最大地震，余震还在持续，主震后已晃了6次5级以上余震。未来三天要小心滑坡，山区朋友赶紧远离陡坡！最后提醒：遇到地震别乱跑，小震不用跑，大震跑不了！高楼住户躲承重墙，转发提醒家人，平安最重要！祈祷缅甸、云南都挺住！","time":"2025-03-28T17:39:10","offset_after_quake_min":199,"extracted_location":{"name":"德宏","longitude":98.58,"latitude":24.43,"entity":"GPE","confidence":0.85},"damage_type":"人员伤亡","keywords_matched":["被困","救援","滑坡"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-1vf2see5dlco","text":"#缅甸地震# 地震影响： 缅甸震中位于人口较稀疏的山区，但可能引发山体滑坡和道路中断。 云南的保山、西双版纳、普洱等地有强烈震感，昆明的高层建筑内居民感到眩晕。","time":"2025-03-28T17:41:15","offset_after_quake_min":201,"extracted_location":{"name":"保山","longitude":99.16,"latitude":25.12,"entity":"GPE","confidence":0.85},"damage_type":"次生灾害","keywords_matched":["滑坡","震感","道路中断"],"sentiment":"neutral","severity_vote":4,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-4a31ji36omd0","text":"#专家谈缅甸7.9级地震# 【：】3月28日14时20分，缅甸发生7.9级地震，云南多地有明显震感。国家自然灾害防治研究院首任院长、中国地质大学教授徐锡伟介绍，此次地震发生在亚欧板块与印度洋板块交界处的实皆断裂带，该地区地震活动较为频繁，历史地震多，此次地震同样是由于板块之间运动导致。徐锡伟还指出，此次震中距离我国边境较远，预计对我国的灾害影响相对较小。但从目前情况来看，缅甸后续发生强余震的可能性较大。","time":"2025-03-28T17:50:29","offset_after_quake_min":210,"extracted_location":{"name":"缅甸","longitude":95.84,"latitude":22.05,"entity":"GPE","confidence":0.85},"damage_type":"震感反馈","keywords_matched":["断裂","震感"],"sentiment":"neutral","severity_vote":1,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-b4whh3ikhaf9","text":"#缅甸7.9级地震# 曼德勒城区交通中断，电力供应部分中断，民众涌入街头避险。缅甸最大城市仰光商业活动一度停滞，通信网络拥挤","time":"2025-03-28T17:54:04","offset_after_quake_min":214,"extracted_location":{"name":"曼德勒","longitude":96.08,"latitude":21.97,"entity":"GPE","confidence":0.85},"damage_type":"道路中断","keywords_matched":["交通中断"],"sentiment":"urgent","severity_vote":3,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-cc3m03h40wd2","text":"#在缅同胞注意防范地震和次生灾害# 据中国地震台网测定，当地时间3月28日12时50分，缅甸实皆省（北纬21.85度，东经95.95度）发生7.9级地震，震源深度30千米。截至目前，地震造成实皆省、曼德勒省和掸邦等多地建筑严重损毁，桥梁、道路等基础设施不同程度受损。据缅甸官方信息，不排除短期内再次发生较强余震。 中国驻缅甸使领馆第一时间启动应急机制，密切关注地震灾情和在缅同胞受灾情况，全力以赴开展应对工作。为确保在缅同胞人身财产安全，特提醒以下注意事项： 一、加强自身安全防范，及时了解掌握地震自救知识，适当储备饮用水、食品、防灾急救用品等应急物资。 二、密切关注地震动态、气象预警和防灾信息，保持通讯设备畅通，防范余震及山体滑坡、火灾、传染性疾病等次生灾害。 三、遵从当地政府疏散安排和撤离指引，积极配合现场管理人员指挥，尽快转移至安全地带。 四、如遇紧急情况，请及时报警并联系驻缅甸使领馆求助。 缅甸报警电话：0095-199、0095-12323199 缅甸医疗急救电话：0095-192 驻缅甸使馆领事保护电话：0095-943209657 驻曼德勒总领事馆领事保护电话：0095-9259172726 外交部全球领事保护与服务应急热线（24小时）：+86-10-12308 +86-10-65612308","time":"2025-03-28T18:05:37","offset_after_quake_min":225,"extracted_location":{"name":"实皆省","longitude":95.97,"latitude":21.88,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["物资","滑坡","疏散"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-cuahy6qip92q","text":"#缅甸地震致瑞丽2人被砸伤# 【 多处老旧房屋受损】 3月28日，缅甸发生7.9级地震。据云南省瑞丽市宣传部消息，财富广场墙壁脱落致2人轻伤，已送医院救治，其它暂无人员伤亡；有多处老旧房屋受损，正在统计。瑞丽市人民医院急诊工作人员表示，目前接到约二三十名就诊者，“情况主要为震后恐慌、难喘气等”。（综合央视）","time":"2025-03-28T18:05:50","offset_after_quake_min":225,"extracted_location":{"name":"瑞丽市","longitude":97.85,"latitude":24.01,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["伤亡","医院"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-d2cyytupcv6g","text":"#缅甸7.9级地震# 【紧急救援！】，我国云南多地震感强烈。云南消防迅速集结出动，组织排查。3月28日16时30分， 记者从云南省消防救援总队了解到，在3月28日14时20分缅甸发生7.9级地震发生后，云南省消防救援队伍第一时间做好集结和出动准备。经与缅甸接壤的怒江、临沧、德宏、保山支队了解，辖区有明显震感，道路交通、电力通信正常。云南消防救援队伍已派出4支前突力量进行排查。怒江、临沧、德宏、保山共有138车646名消防救援人员和14头搜救犬做好出动准备。愿平安！","time":"2025-03-28T18:06:54","offset_after_quake_min":226,"extracted_location":{"name":"德宏","longitude":98.58,"latitude":24.43,"entity":"GPE","confidence":0.85},"damage_type":"震感反馈","keywords_matched":["救援","震感"],"sentiment":"urgent","severity_vote":1,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-c0ruiwk73xag","text":"#缅甸地震可能会引发海啸# 【？】 据央视财经报道，今日14时20分在缅甸发生7.9级地震，云南省多地震感明显。本次地震是今年以来全球发生的第17次6级及以上地震，也是今年以来的最大地震。地震可能会在震源周围引发局地海啸。但由于震源位于太平洋范围之外，不会对我国沿岸造成影响。 地震后可能引发的次生灾害有雪崩、山体滑坡、泥石流、堰塞湖、火灾、化学品泄漏等，通常在短时间内对救援工作造成严重干扰，甚至可能加剧人员伤亡和财产损失。因此，科学防范次生灾害、制定有效的应急措施显得尤为重要。 地震后有可能发生哪些次生灾害？ 1、雪崩 西藏地区的高海拔地带，尤其是定日县所在的山脉，常年积雪，地震发生后，强烈震动可能会引发雪崩灾害。震动可能使得积雪松动，滑雪区的积雪可能在重力作用下沿着山坡滑落，迅速形成大规模的雪崩。 2、滑坡、泥石流与堰塞湖 西藏定日县地质环境复杂，震后山体稳定性显著下降，尤其是高山峡谷地带，山高坡陡，极易发生滑坡、崩塌及泥石流等灾害。强烈的地震震动可能导致岩土层松动、断层滑动，从而使得山体在降雨或融雪的作用下迅速滑落。 堰塞湖是由山体滑坡、崩塌等自然灾害堵塞河道形成的暂时性水库，若发生溃坝，可能引发灾难性的洪水，严重威胁下游地区的安全。 3、火灾与化学品泄漏 燃气管道、电力设施以及工矿企业的危险化学品存储设备等可能在地震中受到损坏，从而增加火灾及化学品泄漏的风险。特别是在震中区域的工业设施附近，地震可能引发火灾，或由于设备损坏导致危险化学品泄漏，严重污染环境，威胁人类健康和生态系统安全。 应该如何科学防范？ 1、全面排查地质灾害隐患 地震后，应尽快组织专业排查队伍，结合无人机、遥感技术与实地勘察，全面对震中及周边高山峡谷地带进行检查。 2、雪崩监测与防范 加强积雪区域的监测和预警，设置雪崩屏障、分流导雪设施等，并加强居民、救援人员等的防灾培训，增强其应对雪崩的能力。 3、防范火灾及化学品泄漏 组织专业队伍对震区的燃气、电力设施及工厂进行全面检查，及时修复或封堵破损设备。对于危险化学品泄漏，按照应急预案，迅速采取隔离、封堵和回收等措施，防止化学品扩散到周边环境中。 4、强化应急避险与避难能力 为确保安置区的安全，应优先选择避开滑坡、泥石流、堰塞湖和雪崩等高风险区域。避难所应具备完善的应急设施，并开展定期的应急演练。此外，应通过广播、短信、(...)","time":"2025-03-28T18:11:13","offset_after_quake_min":231,"extracted_location":{"name":"缅甸震中区域","longitude":95.84,"latitude":22.05,"entity":"GPE","confidence":0.4},"damage_type":"次生灾害","keywords_matched":["伤亡","救援","安置","滑坡","海啸","震感"],"sentiment":"urgent","severity_vote":4,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-18rvoyntr153","text":"#缅甸多座建筑因强震倒塌# 【】 据缅甸媒体报道，28日强震发生后，缅甸曼德勒一座清真寺坍塌，造成至少10人丧生。另有曼德勒当地民众通过社交媒体发布消息说，有一栋建筑倒塌，四五人被困。据悉，首都内比都部分学校和办公楼倒塌。（）","time":"2025-03-28T18:21:41","offset_after_quake_min":241,"extracted_location":{"name":"曼德勒","longitude":96.08,"latitude":21.97,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["倒塌","坍塌","被困"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-drxgsrjznd2t","text":"#缅甸7.9级强震# 缅甸曼德勒伊洛瓦底江上的地标性建筑物、已有90多年历史的阿瓦大桥部分坍塌。 （CCTV国际时讯）","time":"2025-03-28T18:32:10","offset_after_quake_min":252,"extracted_location":{"name":"曼德勒","longitude":96.08,"latitude":21.97,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["坍塌"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-dqmom02bm6ac","text":"#全球今年以来最大的地震# 【】 今日14时20分在缅甸发生7.9级地震。据泰国媒体报道，曼谷市区一栋在建高楼28日因强震倒塌，多人被困，官方正开展紧急救援。（央视新闻，总台记者杨探骊 翟磊）","time":"2025-03-28T18:40:18","offset_after_quake_min":260,"extracted_location":{"name":"缅甸震中区域","longitude":95.84,"latitude":22.05,"entity":"GPE","confidence":0.4},"damage_type":"房屋倒塌","keywords_matched":["倒塌","被困","救援"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-bsair3s1ylsz","text":"#缅甸7.9级地震# 【 注意防范地震和次生灾害】 当地时间3月28日12时50分，缅甸实皆省发生7.9级地震，震源深度30千米。截至目前，地震造成实皆省、曼德勒省和掸邦等多地建筑严重损毁，桥梁、道路等基础设施不同程度受损。据缅甸官方信息，不排除短期内再次发生较强余震。 中国驻缅甸使领馆已启动应急机制，密切关注地震灾情和在缅同胞受灾情况并开展应对工作。为确保在缅同胞人身财产安全，使领馆方面提醒以下注意事项： 加强自身安全防范，及时了解掌握地震自救知识，适当储备饮用水、食品、防灾急救用品等应急物资。 密切关注地震动态、气象预警和防灾信息，保持通信设备畅通，防范余震及山体滑坡、火灾、传染性疾病等次生灾害。 遵从当地政府疏散安排和撤离指引，积极配合现场管理人员指挥，尽快转移至安全地带。 如遇紧急情况，请及时报警并联系驻缅甸使领馆求助。 缅甸报警电话：0095-199、0095-12323199 缅甸医疗急救电话：0095-192 驻缅甸使馆领事保护电话：0095-943209657 驻曼德勒总领事馆领事保护电话：0095-9259172726 外交部全球领事保护与服务应急热线（24小时）：+86-10-12308 +86-10-65612308 （中国驻缅甸大使馆）","time":"2025-03-28T18:54:47","offset_after_quake_min":274,"extracted_location":{"name":"实皆省","longitude":95.97,"latitude":21.88,"entity":"GPE","confidence":0.85},"damage_type":"次生灾害","keywords_matched":["物资","滑坡","疏散"],"sentiment":"urgent","severity_vote":4,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-ehfjynnq9sto","text":"#泰国电视台直播时地震女演员被吓哭# 【】3月28日，缅甸发生7.9级地震后，泰国多地也有震感。泰国总理佩通坦宣布进入紧急状态。极目新闻记者注意到，不少网友在社交媒体上发布泰国震感强烈的视频，其中一名女主持人疑似在节目中当场被吓哭。 据发布视频的网友肖先生介绍，这则视频是他在观看泰国直播节目时，正巧截取到的画面。被吓哭的女性是节目邀请的一位女演员。 肖先生是成都一名泰语专业的学生，平日会通过泰国电视节目进行语言训练。肖先生表示，这是泰国三台一档热点访谈节目，名为《โหนกระแส》（大意为：追热点），每天中午时分直播。节目有一位男主持人，邀请嘉宾进行访谈。 直播刚开始不久，画面就在摇晃。在场的一位女嘉宾大惊失色，当场就吓哭了，倒在男嘉宾身上。其他嘉宾也纷纷离开座位，打算逃走。这时工作人员还在安抚：“不要慌张，先稳一下……”但很快直播就中断，电视台插入广告，随后转播其他节目。","time":"2025-03-28T19:05:31","offset_after_quake_min":285,"extracted_location":{"name":"成都","longitude":104.07,"latitude":30.57,"entity":"GPE","confidence":0.85},"damage_type":"震感反馈","keywords_matched":["震感"],"sentiment":"negative","severity_vote":1,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-bdcy6eoeyet9","text":"地震坍塌较严重的区域在曼德勒的78条41-42附近，当地的Sky Villa公寓倒塌，很多小孩和住户都困在里面，Sky Villa公寓里有夫妻俩都去世了，妻子还是孕妇，很多人都是失联状态，当地已有华人自发组织，形成救援队展开救援。","time":"2025-03-28T19:22:41","offset_after_quake_min":301,"extracted_location":{"name":"曼德勒","longitude":96.08,"latitude":21.97,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["坍塌","倒塌","失联","救援"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-c9197gfc2qyz","text":"【中国驻缅甸使领馆提醒在缅同胞注意防范地震和次生灾害！】据中国地震台网测定，当地时间3月28日12时50分，缅甸实皆省（北纬21.85度，东经95.95度）发生7.9级地震，震源深度30千米。截至目前，地震造成实皆省、曼德勒省和掸邦等多地建筑严重损毁，桥梁、道路等基础设施不同程度受损。据缅甸官方信息，不排除短期内再次发生较强余震。 中国驻缅甸使领馆第一时间启动应急机制，密切关注地震灾情和在缅同胞受灾情况，全力以赴开展应对工作。为确保在缅同胞人身财产安全，特提醒以下注意事项： 一、加强自身安全防范，及时了解掌握地震自救知识，适当储备饮用水、食品、防灾急救用品等应急物资。 二、密切关注地震动态、气象预警和防灾信息，保持通讯设备畅通，防范余震及山体滑坡、火灾、传染性疾病等次生灾害。 三、遵从当地政府疏散安排和撤离指引，积极配合现场管理人员指挥，尽快转移至安全地带。 四、如遇紧急情况，请及时报警并联系驻缅甸使领馆求助。 缅甸报警电话：0095-199、0095-12323199 缅甸医疗急救电话：0095-192 驻缅甸使馆领事保护电话：0095-943209657 驻曼德勒总领事馆领事保护电话：0095-9259172726 外交部全球领事保护与服务应急热线（24小时）：+86-10-12308 +86-10-65612308 （来源 中国驻缅甸大使馆）","time":"2025-03-28T19:33:08","offset_after_quake_min":313,"extracted_location":{"name":"实皆省","longitude":95.97,"latitude":21.88,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["物资","滑坡","疏散"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-4xd4b5r8f8f4","text":"#缅甸地震已超50人死亡# 超50人死亡，这数字太让人揪心了。不知道还有多少人被埋在废墟下，愿每一个生命都能被温柔以待，缅甸人民加油！","time":"2025-03-28T19:34:10","offset_after_quake_min":314,"extracted_location":{"name":"缅甸震中区域","longitude":95.84,"latitude":22.05,"entity":"GPE","confidence":0.4},"damage_type":"人员伤亡","keywords_matched":["废墟"],"sentiment":"negative","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-c3ex0jzj5wq4","text":"#缅甸地震已超50人死亡# 【】 根据缅甸媒体报道，目前缅甸地震已造成超过50人死亡，300人受伤。目前大多遇难者遗体在曼德勒、内比都等地区被发现，当地已采取各种积极措施展开救援。缅甸政府呼吁民众积极为受伤人员进行献血行动和相互帮助。（央视新闻 北京商报）","time":"2025-03-28T19:43:00","offset_after_quake_min":323,"extracted_location":{"name":"曼德勒","longitude":96.08,"latitude":21.97,"entity":"GPE","confidence":0.85},"damage_type":"人员伤亡","keywords_matched":["遇难","受伤","救援"],"sentiment":"negative","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-crrkqvtij04i","text":"#缅甸地震已超50人死亡# 】 根据缅甸媒体报道，目前缅甸地震已造成超过50人死亡，300人受伤。目前大多遇难者遗体在曼德勒、内比都等地区被发现，当地已采取各种积极措施展开救援。缅甸政府呼吁民众积极为受伤人员进行献血行动和相互帮助","time":"2025-03-28T19:59:06","offset_after_quake_min":339,"extracted_location":{"name":"曼德勒","longitude":96.08,"latitude":21.97,"entity":"GPE","confidence":0.85},"damage_type":"人员伤亡","keywords_matched":["遇难","受伤","救援"],"sentiment":"negative","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-dr8w129ail8v","text":"#缅甸附近地震不会对我国沿岸造成影响# 【 】 中国地震台网正式测定：3月28日14时20分，在缅甸（北纬21.85度，东经95.95度）发生7.9级地震，震源深度30公里。 中国驻缅甸大使馆对极目新闻记者表示，震中离缅甸第二大城市曼德勒比较近，那里也有不少华人。“我们正在跟进了解情况，如果有伤亡，会逐一与家属联系。”极目新闻记者了解到，目前已有家属在联系中国驻缅甸大使馆。","time":"2025-03-28T20:45:55","offset_after_quake_min":385,"extracted_location":{"name":"曼德勒","longitude":96.08,"latitude":21.97,"entity":"GPE","confidence":0.85},"damage_type":"人员伤亡","keywords_matched":["伤亡"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-c3gw7y6wuqdh","text":"#缅甸7.9级地震# 【云南省地震局回应为何没有收到地震预警】 3月28日14时20分，缅甸发生7.9级地震，震源深度30公里。云南省瑞丽市财富广场附近有楼房受损，玻璃震碎、墙体开裂，致2人轻伤，已送医院救治。 此次地震为何公众没有收到预警信息？ 回应：地震预警系统能够产出云南省及周边50千米范围内发生的4.0级以上地震信息。3月28日在缅甸发生的7.9级地震距离我国最近的预警台站约300公里，且境外没有地震预警站网，该情况超出目前地震预警系统响应能力，因此预警系统未发出预警信号。（中国青年报）","time":"2025-03-28T20:48:38","offset_after_quake_min":388,"extracted_location":{"name":"云南省瑞丽市","longitude":97.85,"latitude":24.01,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["医院"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-bm1fj36m9w4m","text":"#缅甸地震已超50人死亡# 据缅甸媒体28日报道，缅甸地震已造成超过50人死亡、300人受伤。目前大多遇难者遗体在曼德勒、内比都等地区被发现，当地已采取各种积极措施展开救援。 3月28日14时20分，缅甸（北纬21.85度，东经95.95度）发生7.9级地震，震源深度30千米。随后，在14时32分，震中附近又发生6.4级余震。缅甸国家管理委员会新闻信息组当天发布信息称，根据缅甸自然灾害管理法，缅甸实皆省、曼德勒省、马圭省、掸邦东北部、内比都、勃固省等地震受灾严重地区进入紧急状态。","time":"2025-03-28T20:55:35","offset_after_quake_min":395,"extracted_location":{"name":"曼德勒","longitude":96.08,"latitude":21.97,"entity":"GPE","confidence":0.85},"damage_type":"人员伤亡","keywords_matched":["遇难","受伤","救援"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-cv2xhxvc6tko","text":"#缅甸地震已致144人遇难# 【点赞！】 3月28日，云南瑞丽出入境边防检查站。民警在地震来临时第一时间疏散正在排队待检的群众，在撤离到安全区域后，民警王海霞发现还有人员未全部撤离，于是立即返回旅检大厅，将剩余人员带至安全区域。仅1分钟不到，所有人员均安全撤离。（云南日报）","time":"2025-03-28T22:21:27","offset_after_quake_min":481,"extracted_location":{"name":"云南瑞丽","longitude":97.85,"latitude":24.01,"entity":"GPE","confidence":0.85},"damage_type":"救援进展","keywords_matched":["疏散"],"sentiment":"hopeful","severity_vote":2,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-c6s4re3if7ij","text":"#缅甸7.9级地震# 【“站不稳，还头晕！”！瑞丽震感明显！财富中心最新情况——】 3月28日14时20分，缅甸发生7.9级地震，14时32分，缅甸再次发生6.4级地震，两次地震震源深度30千米。震中距我国边境线最近约294公里，距云南瑞丽市政府驻地约310公里。据央视新闻17时消息，目前，瑞丽社会秩序平稳正常，交通、通信正常。财富广场墙壁脱落致2人轻伤，已送医院救治，其他暂无人员伤亡；有多处老旧房屋受损，正在统计。 地震发生时，瑞丽震感如何？地震亲历者初三学生小瑞向津云新闻记者讲述了她的经历。 据小瑞回忆，地震发生时，她正在操场上准备体测，突然发现电动车不停摇晃，随后听到有人大喊“地震了”。“听到有人喊我才感受到，慢慢地震得越来越厉害。我站着的时候都站不稳，还有点头晕。”小瑞说，“第一次地震大概持续了三四分钟，第二次震感小了一点，大约持续了一二分钟。就那两次感觉比较明显，后面还有一点余震，就没事了。” 据小瑞介绍，地震发生后，学校第一时间在群内向家长通报了学生疏散情况。下午三点左右，学校发布通知提前放学，小瑞在学校完成体测后返回家中。目前，未接到学校的停课通知，震后生活一切正常。 小瑞家位于瑞丽国门公馆附近，地震发生时，她的家里人迅速跑到室外避险。“我妈一直待到余震完全消失才敢回去。不知道今晚还有没有余震，我们不敢回家一直在外面。”小瑞说。 据媒体报道，缅甸地震发生时，云南瑞丽财富中心有砖石掉落，楼顶的水像瀑布倾泻，楼下店铺被砸，门牌散落一地，有居民在楼下道路狂奔时被水冲走。 “比较严重的财富广场那边，听说有墙体脱落。今天放学路过财富广场附近，去那边的路已经不让人过去了，我们只能绕路。问了问身边的朋友都没事，严重一点的也只是家中墙有点塌。”小瑞告诉记者。 此时的瑞丽财富中心情况如何？记者联系到了瑞丽蓝天救援队相关负责人。 据介绍，瑞丽蓝天救援队共派出37人进行救援摸排，救援队力量主要分布在财富中心及各小区居民楼中。“财富广场楼顶受损比较严重，附近居民已经疏散了，楼体具体的受损情况还需要官方进一步测算。”对方告诉记者，地震发生后，瑞丽周边多个蓝天救援队前来支援，目前除了财富中心外，队员主要在各小区居民楼中进行摸排，查找隐患。 据了解，缅甸本次地震造成云南西双版纳、德宏、昆明、丽江、保山、大理等地震感强烈，贵州、广西等地亦有震感反馈。更多地震情况，记者将持(...)","time":"2025-03-28T22:25:25","offset_after_quake_min":485,"extracted_location":{"name":"瑞丽","longitude":97.85,"latitude":24.01,"entity":"GPE","confidence":0.85},"damage_type":"人员伤亡","keywords_matched":["伤亡","救援","震感","疏散","医院"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-binlu9642h3g","text":"#缅甸7.9级地震# 2025年3月28日14时20分，缅甸（北纬21.85度，东经95.95度）发生7.9级地震，震源深度30千米。此次地震是今年以来全球发生的最大地震。 震中距中国边境线最近约294公里，距云南瑞丽市政府驻地约310公里，距昆明市政府驻地约776公里。云南德宏、临沧、保山、西双版纳、丽江、大理等地震感强烈，楚雄、昆明等地震感明显，贵州、广西等地亦有震感反馈。此外，泰国首都曼谷及其附近地区，以及泰国北部、东北部、中部和南部地区均有震感。 14时32分，震中附近发生6.4级余震。中国科协地球物理信息科学首席传播专家陈会忠表示，后续发生更大规模地震风险不大，但可能会有5 - 7级余震，也需要防范山体滑坡等次生灾害。自然资源部海啸预警中心根据初步地震参数判断，地震可能会在震源周围引发局地海啸，但由于震源位于太平洋范围之外，不会对中国沿岸造成影响。 缅甸夹在印度板块、欧亚大陆板块、巽他板块、缅甸板块四个板块的交界处，印度板块和巽他板块交界地带称为实皆断层，是缅甸最大、最活跃的地震威胁源，断层贯穿缅甸各大城市，使得缅甸成为大地震的多发区。","time":"2025-03-28T22:26:53","offset_after_quake_min":486,"extracted_location":{"name":"云南瑞丽","longitude":97.85,"latitude":24.01,"entity":"GPE","confidence":0.85},"damage_type":"震感反馈","keywords_matched":["滑坡","海啸","震感"],"sentiment":"neutral","severity_vote":1,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-bq6i9zk9r7o9","text":"《【🔥百度热搜】缅甸地震已造成超50人死亡300人受伤 地震可能引发局地海啸》缅甸地震已造成超50人死亡300人受伤 地震可能引发局地海啸","time":"2025-03-28T22:38:20","offset_after_quake_min":498,"extracted_location":{"name":"缅甸","longitude":95.84,"latitude":22.05,"entity":"GPE","confidence":0.85},"damage_type":"人员伤亡","keywords_matched":["受伤","海啸"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-d56w9sus51ig","text":"#缅甸7.9级地震# 【云南瑞丽在缅甸实皆省发生7.9级强震时震感强烈】中国地震台网正式测定：03月28日14时20分在缅甸（北纬21.85度，东经95.95度）发生7.9级地震，震源深度30千米。有媒体报道，位于中缅边境云南省瑞丽市中心的财富广场数十层的高楼一直往下掉砖石，楼顶的水像瀑布一样一直往下流，随着楼上砖石砸落，有人四散逃开。瑞丽市应急管理局迅速响应，目前仅有少量建筑出现轻微裂缝，祈愿平安🙏🙏","time":"2025-03-28T22:42:52","offset_after_quake_min":502,"extracted_location":{"name":"云南瑞丽","longitude":97.85,"latitude":24.01,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["裂缝","震感"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-bq7zenye7kdz","text":"#缅甸地震已致144人遇难# 【】缅甸国家管理委员会主席、国家总理敏昂莱发布全国讲话称，据最新统计，该国地震已造成144人死亡，伤亡数字可能进一步攀升。 敏昂莱表示：“内比都直辖市范围内已确认144人遇难……432人受伤。目前已知实皆省与皎施地区仍有300人下落不明，全国受伤总人数达732人。随着搜救进展，死伤数字预计将持续增加。部分区域建筑坍塌，救援人员仍在相关建筑内开展搜救作业。”","time":"2025-03-28T22:59:18","offset_after_quake_min":519,"extracted_location":{"name":"内比都","longitude":96.07,"latitude":19.76,"entity":"GPE","confidence":0.85},"damage_type":"人员伤亡","keywords_matched":["坍塌","伤亡","遇难","受伤","救援"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-r23or6xvwbti","text":"【缅甸地震已致144人遇难，732人受伤】3月28日消息，缅甸地震已致144人遇难，732人受伤。","time":"2025-03-28T23:00:02","offset_after_quake_min":520,"extracted_location":{"name":"缅甸","longitude":95.84,"latitude":22.05,"entity":"GPE","confidence":0.85},"damage_type":"人员伤亡","keywords_matched":["遇难","受伤"],"sentiment":"negative","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-c6p0y6sghase","text":"28日，缅甸曼德勒发生强烈地震，伤亡惨重。一栋11楼大厦“Sky Villa”因强震倒塌，只剩7层，4楼以下皆被埋在瓦砾堆中。因搜救装备与救援人员不足，仍有不少人被困，现场工作人员称可以听到大厦里被困者的声音，许多人还活着。","time":"2025-03-29T09:54:32","offset_after_quake_min":1173,"extracted_location":{"name":"曼德勒","longitude":96.08,"latitude":21.97,"entity":"GPE","confidence":0.85},"damage_type":"房屋倒塌","keywords_matched":["伤亡","倒塌","被困","救援"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-be56rh29bayw","text":"#缅甸地震致1002死2376伤# 【】3月28日，云南瑞丽，地震发生时，边检民警紧急疏散大厅群众。在撤离到安全区域后，民警发现还有群众未撤离，立即折返回旅检大厅，迅速将所有人都安置到安全区域。","time":"2025-03-29T14:46:45","offset_after_quake_min":1466,"extracted_location":{"name":"云南瑞丽","longitude":97.85,"latitude":24.01,"entity":"GPE","confidence":0.85},"damage_type":"救援进展","keywords_matched":["安置","疏散"],"sentiment":"hopeful","severity_vote":2,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-dpou8sa3kxfh","text":"#曼德勒华文学校院长讲述地震后情况# 【 】 3月28日，一场7.9级强烈地震袭击缅甸中部，据中国地震台网测定，震中位于缅甸第二大城市曼德勒市附近约17.2公里处。泰国、越南多地均有明显震感。本次强震是今年以来全球发生的第17次六级及以上地震，也是今年以来的最强地震。此次地震后12分钟，震中附近发生6.4级强余震，则是今年的第18次六级及以上地震。红星新闻记者连线采访了位于震中地区的曼德勒云华师范学院院长杨周先生。据介绍，曼德勒云华师范学院是缅甸最具影响力的、学生人数最多的新型华文学校，也是曼德勒地区单个校区规模最大的华文学校。为应对余震，所有在校师生昨晚睡在操场空地上，当晚有部分学生被家长接回家中。第二天上午，有两百多位师生留在了学校操场上。“我们没有帐篷，太阳很大，只能克服一下了，因为校外受灾更严重”他说。由于学院实行早晚制和全日制两种教学模式，地震发生时，还有大约2500名学生在校外。对于这部分校外学生的安危，因通讯信号不佳而失联，目前尚无法进行统计。各个班级的班主任正在积极努力联系学生家庭，了解情况。","time":"2025-03-29T16:36:36","offset_after_quake_min":1576,"extracted_location":{"name":"曼德勒市","longitude":96.08,"latitude":21.97,"entity":"GPE","confidence":0.85},"damage_type":"人员伤亡","keywords_matched":["失联","震感"],"sentiment":"urgent","severity_vote":5,"source":"微博(匿名化)","source_type":"social_media"},{"post_id":"wb-d0zyjiq6xsev","text":"#中国蓝天救援云南队奔赴缅甸救援# 【曼德勒一中国老乡腾出场地供人休息，地震亲历者：有朋友失联】 据中国地震台网测定，3月28日14时20分，缅甸发生7.9级地震，震源深度30千米。 3月29日，在曼德勒经商的地震亲历者林先生发布视频表示，一位中国老乡腾出场地免费给受灾群众休息。林先生称，昨天地震发生时自己在冲凉，“大楼剧烈晃动，根本站不住脚。”面对灾情，当地一位开4s店的中国老乡主动开放大棚，为数十名受灾民众提供临时庇护所。 当地时间3月29日上午7点10分，中国云南救援医疗队一行37人抵达仰光国际机场，是抵缅的首支国际救援队，救援队将即赴受灾严重的内比都参与救援。","time":"2025-03-29T17:13:48","offset_after_quake_min":1613,"extracted_location":{"name":"曼德勒","longitude":96.08,"latitude":21.97,"entity":"GPE","confidence":0.85},"damage_type":"救援进展","keywords_matched":["失联","救援"],"sentiment":"hopeful","severity_vote":2,"source":"微博(匿名化)","source_type":"social_media"}];
+
+// ==================== 一、全局状态 ====================
+let currentMode = 'earthquake';
+let clockSeconds = 0;
+let selectedTaskId = null;
+let demoPlaying = false;
+let demoTimer = null;
+const layerVisible = { points: true, wind: true, teams: true, intercept: true };
+const stats = { raw: 0, extracted: 0, intercepted: 0 };
+const DISPATCH_WIP = 6;
+
+/** 数据源状态：detecting / live / mock / offline */
+let dataSource = 'detecting';
+/** 真实数据轮询定时器 */
+let livePollTimer = null;
+/** 已处理过的真实帖子ID集合 */
+const processedLiveIds = new Set();
+
+// ==================== 二、地图坐标投影配置 ====================
+/** 缅甸-云南区域的经纬度边界，用于将真实坐标映射到SVG(0-1000, 0-700) */
+const MAP_BOUNDS = {
+  minLng: 94.5, maxLng: 105.5,
+  minLat: 15.5, maxLat: 31.5
+};
+
+/** 真实经纬度 → SVG坐标 */
+function geoToSvg(lng, lat) {
+  const x = ((lng - MAP_BOUNDS.minLng) / (MAP_BOUNDS.maxLng - MAP_BOUNDS.minLng)) * 1000;
+  const y = ((MAP_BOUNDS.maxLat - lat) / (MAP_BOUNDS.maxLat - MAP_BOUNDS.minLat)) * 700;
+  return { x: Math.max(20, Math.min(980, x)), y: Math.max(20, Math.min(680, y)) };
+}
+
+/** 兼容旧Mock数据的百分比坐标 → SVG坐标 */
+function pctToSvg(lngPct, latPct) {
+  return { x: lngPct * 10, y: latPct * 7 };
+}
+
+/** 统一获取任务的SVG坐标 */
+function getTaskSvgPos(task) {
+  if (task._isRealData) return geoToSvg(task.lng, task.lat);
+  return pctToSvg(task.lng, task.lat);
+}
+
+// ==================== 三、真实数据字段映射 ====================
+/** 街道/乡镇级POI库：将城市级定位细化到可行动的最小单元（真实地名+坐标） */
+const POI_TABLE = {
+  mandalay: [ {n:'昌妙达西镇区',lng:96.10,lat:21.97}, {n:'马哈昂美镇区',lng:96.09,lat:22.00}, {n:'阿玛拉普拉镇',lng:96.10,lat:21.89}, {n:'马达亚镇',lng:96.10,lat:22.02} ],
+  sagaing:  [ {n:'实皆镇区',lng:95.98,lat:21.88}, {n:'敏贡镇',lng:95.95,lat:21.90}, {n:'蒙育瓦镇',lng:95.13,lat:22.05} ],
+  epicenter:[ {n:'实皆镇区',lng:95.98,lat:21.88}, {n:'瑞波镇',lng:95.70,lat:22.57}, {n:'马达亚镇',lng:96.10,lat:22.02}, {n:'阿玛拉普拉镇',lng:96.10,lat:21.89} ],
+  naypyidaw:[ {n:'内比都城区',lng:96.10,lat:19.75}, {n:'彬马那镇',lng:96.08,lat:19.94} ],
+  yangon:   [ {n:'莱镇区',lng:96.15,lat:16.80}, {n:'达贡镇区',lng:96.17,lat:16.85} ],
+  ruili:    [ {n:'姐告街道',lng:97.88,lat:23.98}, {n:'勐卯街道',lng:97.85,lat:24.01}, {n:'弄岛镇',lng:97.78,lat:23.90} ],
+  baoshan:  [ {n:'隆阳区',lng:99.16,lat:25.11}, {n:'蒲缥镇',lng:99.20,lat:25.05} ],
+  dehong:   [ {n:'芒市城区',lng:98.58,lat:24.43}, {n:'姐告街道',lng:97.88,lat:23.98} ],
+  chengdu:  [ {n:'武侯区',lng:104.04,lat:30.64}, {n:'锦江区',lng:104.08,lat:30.66} ]
+};
+
+/** 城市名 → POI分组 */
+function poiGroup(name) {
+  if (!name) return null;
+  if (name.includes('曼德勒')) return 'mandalay';
+  if (name.includes('实皆')) return 'sagaing';
+  if (name.includes('内比都')) return 'naypyidaw';
+  if (name.includes('仰光')) return 'yangon';
+  if (name.includes('瑞丽')) return 'ruili';
+  if (name.includes('保山')) return 'baoshan';
+  if (name.includes('德宏')) return 'dehong';
+  if (name.includes('成都')) return 'chengdu';
+  if (name.includes('缅甸') || name.includes('震中')) return 'epicenter';
+  return null;
+}
+
+/** 稳定哈希：同一帖子每次刷新细化结果一致 */
+function stableHash(s) {
+  let h = 7;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+/** 城市级定位 → 街道/乡镇级（确定性细化，坐标微扰±0.015°） */
+function refineLocation(post) {
+  const base = post.extracted_location || {};
+  const group = poiGroup(base.name);
+  const pois = group && POI_TABLE[group];
+  if (!pois) return { name: base.name || '未知区域', lng: base.longitude || 96, lat: base.latitude || 22, acc: '城市级 ±5km' };
+  const h = stableHash(post.post_id || base.name);
+  const p = pois[h % pois.length];
+  const j1 = ((h >> 3) % 30 - 15) / 1000, j2 = ((h >> 7) % 30 - 15) / 1000;
+  return { name: `${base.name}·${p.n}`, lng: +(p.lng + j1).toFixed(4), lat: +(p.lat + j2).toFixed(4), acc: '街道/乡镇级 ±2km' };
+}
+
+/** severity_vote → P0/P1/P2 + 拦截判定 */
+function mapSeverity(sev, sentiment, damageType) {
+  if (sev >= 5 && (sentiment === 'urgent' || damageType === '人员伤亡' || damageType === '房屋倒塌')) return 'P0';
+  if (sev >= 4) return 'P1';
+  if (sev >= 3) return 'P2';
+  if (sev <= 1 && sentiment === 'neutral') return 'intercept';
+  return 'P2';
+}
+
+/** damage_type → 大屏显示类型 */
+function mapDamageType(dt) {
+  const map = { '人员伤亡':'伤亡求救', '房屋倒塌':'建筑坍塌', '道路中断':'交通中断',
+                '次生灾害':'次生灾害', '震感反馈':'震感报告', '救援进展':'救援动态' };
+  return map[dt] || dt || '未知';
+}
+
+/** 从真实帖子生成参谋方案（基于damage_type的规则引擎） */
+function generatePlans(damageType, location, severity) {
+  const plans = {
+    '人员伤亡': { a:'立即派遣医疗急救队+担架转运', ae:['有明确伤亡报告','位置可定位','需现场分诊'], b:'协调就近医院开通绿色通道', be:['减少转运时间','医院资源待确认','可同步空中转运'] },
+    '房屋倒塌': { a:'重型搜救队+生命探测仪进场', ae:['建筑结构不稳','可能有埋压人员','需防二次坍塌'], b:'无人机侦察+热成像搜索', be:['降低救援风险','覆盖范围大','夜间可用'] },
+    '道路中断': { a:'工程抢险队疏通+临时便道', ae:['影响救援通道','物资运输受阻','可评估绕行方案'], b:'空投应急物资保障基本需求', be:['地面通行恢复需时','空投覆盖有限','优先保障生命线'] },
+    '次生灾害': { a:'地质监测+预警疏散', ae:['滑坡/堰塞湖风险','下游居民需转移','持续监测必要'], b:'设置警戒区+远程监控', be:['人力有限时适用','自动化监测补充','及时预警即可'] },
+    '震感反馈': { a:'信息发布+安抚引导', ae:['无直接灾情','公众关注度高','需防止恐慌'], b:'纳入舆情监测持续关注', be:['无需现场处置','可作为辅助信息','低优先级'] },
+    '救援进展': { a:'汇总通报+资源调配优化', ae:['已有救援力量在场','需统筹协调','信息更新及时'], b:'媒体发布+公众沟通', be:['提振信心','减少重复报警','信息公开透明'] }
+  };
+  const p = plans[damageType] || plans['震感反馈'];
+  return { planA:p.a, planAE:p.ae, planB:p.b, planBE:p.be };
+}
+
+/** 优先级判定理由（可解释性） */
+function priorityReason(mappedPriority, sev, sentiment, damageType) {
+  if (mappedPriority === 'P0') return `severity_vote=${sev}≥5 且 ${sentiment === 'urgent' ? '情绪紧急' : '灾型=' + damageType}，涉及生命安全，SLA 3min`;
+  if (mappedPriority === 'P1') return `severity_vote=${sev}≥4，结构/交通受损但无直接生命威胁，SLA 5min`;
+  if (mappedPriority === 'intercept') return '无灾情要素或疑似谣言，拦截不入队列';
+  return `severity_vote=${sev}，信息性内容，SLA 8min`;
+}
+
+/** 将 live_feed.py 返回的单条帖子转换为大屏任务对象 */
+function postToTask(post) {
+  const loc0 = post.extracted_location || {};
+  const loc = refineLocation(post);
+  const sev = post.severity_vote || 1;
+  const mappedPriority = mapSeverity(sev, post.sentiment, post.damage_type);
+  const isIntercept = mappedPriority === 'intercept';
+  const plans = generatePlans(post.damage_type, loc.name, sev);
+  const credibility = Math.min(95, Math.max(15, (loc0.confidence || 0.5) * 100));
+  const slaMap = { P0: 180, P1: 300, P2: 500 };
+
+  return {
+    eventId: post.post_id || ('live-' + Date.now() + '-' + Math.random().toString(36).substr(2,4)),
+    type: mapDamageType(post.damage_type),
+    location: loc.name,
+    lng: loc.lng,
+    lat: loc.lat,
+    _geoAcc: loc.acc,
+    _prioReason: priorityReason(mappedPriority, sev, post.sentiment, post.damage_type),
+    priority: isIntercept ? 'P2' : mappedPriority,
+    credibility: Math.round(credibility),
+    sla: isIntercept ? 999 : (slaMap[mappedPriority] || 300),
+    status: isIntercept ? 'intercepted' : 'new',
+    sourceText: post.text || '',
+    extracted: isIntercept ? null : {
+      type: mapDamageType(post.damage_type),
+      location: loc.name || '待确认',
+      persons: sev >= 4 ? '多人' : '-',
+      severity: sev >= 5 ? '严重' : sev >= 3 ? '中等' : '轻微'
+    },
+    interceptReason: isIntercept ? (post.sentiment === 'neutral' && sev <= 1 ? '无灾情要素：信息性内容无需响应' : '低优先级：非紧急信息') : undefined,
+    ...plans,
+    _isRealData: true,
+    _offsetMin: post.offset_after_quake_min,
+    _tags: post.keywords_matched || [],
+    _sentiment: post.sentiment
+  };
+}
+
+// ==================== 四、Mock 数据（离线降级用） ====================
+function generateMockData() {
+  const eqTasks = [
+    { eventId:'EQ001', type:'坍塌', location:'宁波海曙区·天一广场B栋', lng:35, lat:30, priority:'P0', credibility:95, sla:180, status:'new', sourceText:'救命！天一广场B栋整面墙塌了，里面至少十几个人被埋，灰尘很大什么都看不清！', extracted:{type:'坍塌',location:'海曙·天一广场B栋',persons:'10+',severity:'严重'}, planA:'立即调派重型搜救队+生命探测仪',planAE:['墙体结构评估为部分坍塌','生命探测信号微弱','周边道路可通行'],planB:'先派无人机侦察再进入',planBE:['余震风险高','内部结构不明','需确认安全通道'] },
+    { eventId:'EQ002', type:'埋压', location:'鄞州区·万达广场地下车库', lng:55, lat:45, priority:'P0', credibility:92, sla:150, status:'new', sourceText:'被困在鄞州万达广场地下车库，楼板掉下来了，腿被压住动不了，旁边还有两个人在哭！', extracted:{type:'埋压',location:'鄞州·万达B1',persons:'3',severity:'危重'}, planA:'液压破拆组+医疗急救同步进场',planAE:['地下空间定位明确','伤者意识清醒','通风系统尚存'],planB:'从相邻商铺打通侧向通道',planBE:['正面入口 debris 堆积','侧面墙体较薄','可减少二次伤害'] },
+    { eventId:'EQ003', type:'断裂', location:'江北区·解放桥', lng:40, lat:20, priority:'P0', credibility:88, sla:200, status:'new', sourceText:'解放桥中间断了一截！好几辆车卡在裂缝边上，有人趴在车顶上不敢动！', extracted:{type:'桥梁断裂',location:'江北·解放桥中段',persons:'5+',severity:'极危'}, planA:'封锁两端+水上救援艇接近',planAE:['桥面持续变形','车辆位置不稳定','水面距离8米'],planB:'直升机索降救援',planBE:['风速允许飞行','可快速转移伤员','需协调空域'] },
+    { eventId:'EQ004', type:'坍塌', location:'镇海区·炼化厂宿舍楼', lng:70, lat:25, priority:'P1', credibility:78, sla:300, status:'new', sourceText:'镇海炼化旁边的老宿舍楼裂了好大一条缝，三楼阳台掉下来了，还好没人住。', extracted:{type:'建筑开裂',location:'镇海·炼化厂宿舍',persons:'0',severity:'中等'}, planA:'警戒隔离+结构鉴定',planAE:['无人员伤亡报告','建筑年代久远','可能继续恶化'],planB:'暂不处置持续监测',planBE:['无人受困','资源优先P0','已设警戒线'] },
+    { eventId:'EQ005', type:'埋压', location:'北仑区·新碶街道民房', lng:80, lat:55, priority:'P1', credibility:82, sla:280, status:'new', sourceText:'北仑新碶这边一排老房子倒了两间，有个老人被压在下面，邻居在用手刨！', extracted:{type:'民房倒塌',location:'北仑·新碶街道',persons:'1',severity:'较重'}, planA:'轻型搜救队+担架转运',planAE:['单层砖混结构','被困者有回应','邻居已初步清理'],planB:'调用挖掘机小心作业',planBE:['手动效率低','机械可加速','需精确控制'] },
+    { eventId:'EQ006', type:'断裂', location:'奉化区·溪口公路', lng:25, lat:65, priority:'P1', credibility:75, sla:350, status:'new', sourceText:'溪口往山里去的公路有一段路面拱起来了，车过不去但人可以走，山上好像还有村子。', extracted:{type:'路面隆起',location:'奉化·溪口公路',persons:'0',severity:'中等'}, planA:'开辟临时便道+物资输送',planAE:['非主干道','山村人口约200','可绕行3公里'],planB:'空投应急物资',planBE:['山路修复耗时','天气条件允许','可覆盖基本需求'] },
+    { eventId:'EQ007', type:'坍塌', location:'余姚市·龙泉山公园步道', lng:20, lat:40, priority:'P2', credibility:65, sla:500, status:'new', sourceText:'龙泉山公园的观景台栏杆歪了，步道有几处落石，已经自己跑下来了。', extracted:{type:'设施损坏',location:'余姚·龙泉山公园',persons:'0',severity:'轻微'}, planA:'封闭景区+排险修复',planAE:['无伤亡','属公共设施','游客已撤离'],planB:'设置警示牌暂缓修复',planBE:['优先级较低','人力紧张','风险可控'] },
+    { eventId:'EQ008', type:'坍塌', location:'慈溪市·观海卫古城墙', lng:60, lat:15, priority:'P2', credibility:60, sla:600, status:'new', sourceText:'观海卫那段古城墙震掉了几块砖，看着心疼但没有危险，大家别去围观就行。', extracted:{type:'文物受损',location:'慈溪·观海卫城墙',persons:'0',severity:'轻微'}, planA:'文保单位现场勘查',planAE:['非结构性损伤','无安全风险','文物保护需要'],planB:'拍照记录后续修缮',planBE:['不影响安全','专业修复需排期','已设围挡'] },
+    { eventId:'EQ009', type:'其他', location:'未知', lng:50, lat:50, priority:'P2', credibility:20, sla:999, status:'intercepted', sourceText:'地震了地震了！！世界末日要来了！！！快跑啊！！！', extracted:null, interceptReason:'疑似谣言：情绪煽动无实质灾情信息' },
+    { eventId:'EQ010', type:'其他', location:'未知', lng:50, lat:50, priority:'P2', credibility:15, sla:999, status:'intercepted', sourceText:'今天天气真好，中午吃了碗面条哈哈', extracted:null, interceptReason:'无灾情要素：日常闲聊内容' }
+  ];
+  return { earthquake: eqTasks };
+}
+const allMockData = generateMockData();
+
+// ==================== 四之A、卫星求救通道（北斗短报文 · 无网线索） ====================
+// 无网环境下的求救信号经北斗短报文/高德卫星求救通道接入，设备级定位可信度高于社媒
+const SATELLITE_SOS = [
+  { post_id:'BD-0001', text:'【北斗短报文】SOS 被困3人 位置N21.98 E96.08 房屋倒塌 无网络 电量17%', lng:96.08, lat:21.98, persons:'3', type:'伤亡求救', location:'曼德勒 Amarapura（卫星定位）' },
+  { post_id:'BD-0002', text:'【北斗短报文】SOS 老人1名 被困废墟 位置N22.05 E96.15 请求救援 手机即将关机保电', lng:96.15, lat:22.05, persons:'1', type:'埋压', location:'曼德勒东北郊（卫星定位）' },
+  { post_id:'BD-0003', text:'【高德卫星求救转接】用户离线求助 位置N21.90 E95.99 一家4口 楼房开裂被困顶层', lng:95.99, lat:21.90, persons:'4', type:'建筑坍塌', location:'实皆区江西岸（卫星定位）' }
+];
+
+/** 卫星求救报文 → 任务对象（设备级定位，直接P0） */
+function satToTask(s) {
+  return {
+    eventId: s.post_id, type: s.type, location: s.location,
+    lng: s.lng, lat: s.lat, priority: 'P0',
+    credibility: 96, sla: 180, status: 'new', sourceText: s.text,
+    extracted: { type: s.type, location: s.location, persons: s.persons, severity: '严重' },
+    ...generatePlans('人员伤亡', s.location, 5),
+    _isRealData: true, _channel: 'satellite'
+  };
+}
+
+/** 在实时数据流中穿插注入卫星求救线索（仅地震模式） */
+function startSatelliteInjection() {
+  if (currentMode !== 'earthquake') return;
+  [14000, 36000, 62000].forEach((delay, i) => {
+    setTimeout(() => {
+      if (demoPlaying || currentMode !== 'earthquake') return;
+      const t = satToTask(SATELLITE_SOS[i]);
+      if (!enqueuedIds.has(t.eventId)) addTask(t);
+    }, delay);
+  });
+}
+
+// ==================== 四之B、研判Agent · 伤亡动态估计引擎 ====================
+// 方法来源：Near-Real-Time Earthquake Fatality Estimation（SusuXu Lab, arXiv 2312.03755）
+// 三步：①分层提取伤亡提及 ②动态真值发现（单调约束+可信度加权） ③指数收敛投影最终值
+const casualtyEngine = { reports: [], current: 0, projected: 0, ciLow: 0, ciHigh: 0 };
+
+/** ① 从单条情报中提取伤亡/被困人数提及 */
+function parseCasualtyCount(task) {
+  const p = task.extracted && task.extracted.persons;
+  if (p && p !== '-') {
+    const m = String(p).match(/(\d+)/);
+    if (m) return parseInt(m[1]) + (String(p).includes('+') ? 2 : 0);
+    if (p === '多人') return 5;
+  }
+  const m2 = (task.sourceText || '').match(/(\d+)\s*(?:人|名|口)/);
+  if (m2) return parseInt(m2[1]);
+  const cn = { '十几个人': 12, '几十人': 30, '上百人': 100, '一家三口': 3 };
+  for (const k in cn) if ((task.sourceText || '').includes(k)) return cn[k];
+  return 0;
+}
+
+/** 新情报接入时更新伤亡线索池 */
+function updateCasualtyEstimate(task) {
+  const val = parseCasualtyCount(task);
+  if (val <= 0) return;
+  casualtyEngine.reports.push({ id: task.eventId, t: clockSeconds, val, w: (task.credibility || 50) / 100, verified: false });
+  recomputeCasualty();
+  flashAgent('agent-analyst');
+}
+
+/** ②③ 真值发现 + 指数收敛投影 */
+function recomputeCasualty() {
+  const rs = casualtyEngine.reports;
+  if (!rs.length) { renderCasualtyCard(); return; }
+  // 动态真值发现：可信度加权聚合（已核实线索权重×1.5）+ 高可信峰值衔接
+  const wSum = rs.reduce((s, r) => s + r.w * (r.verified ? 1.5 : 1), 0);
+  const wAvg = rs.reduce((s, r) => s + r.val * r.w * (r.verified ? 1.5 : 1), 0) / wSum;
+  const highCred = rs.filter(r => r.w >= 0.6).map(r => r.val);
+  const wMax = highCred.length ? Math.max(...highCred) : 0;
+  const est = Math.round(Math.max(wAvg, wMax * 0.8));
+  casualtyEngine.current = Math.max(casualtyEngine.current, est); // 单调不减约束
+  // 指数收敛投影：N(t)=N_final·(1-e^{-kt})，早期上报覆盖率低→按覆盖率反推最终值
+  const tMin = clockSeconds / 60 + 10; // 演示时间轴压缩：启动即视为震后10min
+  const coverage = Math.max(0.15, 1 - Math.exp(-0.04 * tMin));
+  casualtyEngine.projected = Math.round(casualtyEngine.current / coverage);
+  casualtyEngine.ciLow = Math.round(casualtyEngine.projected * 0.6);
+  casualtyEngine.ciHigh = Math.round(casualtyEngine.projected * 1.6);
+  renderCasualtyCard();
+}
+
+/** 重置研判引擎（模式切换/演示重启时） */
+function resetCasualtyEngine() {
+  casualtyEngine.reports = [];
+  casualtyEngine.current = 0; casualtyEngine.projected = 0;
+  casualtyEngine.ciLow = 0; casualtyEngine.ciHigh = 0;
+  renderCasualtyCard();
+}
+
+/** 渲染决策桌总览顶部的伤亡估计卡 */
+function renderCasualtyCard() {
+  const el = document.getElementById('casualty-card');
+  if (!el) return;
+  const e = casualtyEngine;
+  if (!e.reports.length) {
+    el.innerHTML = '<div class="casualty-box"><div class="casualty-title">⚖️ 研判 · 伤亡/被困动态估计</div><div class="casualty-empty">等待含伤亡要素的情报接入…</div></div>';
+    return;
+  }
+  const level = e.projected >= 100 ? ['red', '红色 Ⅰ级'] : e.projected >= 10 ? ['orange', '橙色 Ⅱ级'] : e.projected >= 1 ? ['yellow', '黄色 Ⅲ级'] : ['green', '绿色'];
+  const maxMention = Math.max(...e.reports.map(r => r.val));
+  const verifiedCount = e.reports.filter(r => r.verified).length;
+  el.innerHTML = `
+    <div class="casualty-box level-${level[0]}">
+      <div class="casualty-title">⚖️ 研判 · 伤亡/被困动态估计 <span class="casualty-level ${level[0]}">${level[1]}响应建议</span></div>
+      <div class="casualty-nums">
+        <div><div class="cnum mono">${maxMention}</div><div class="clabel">单条最大提及</div></div>
+        <div><div class="cnum mono cyan">${e.current}</div><div class="clabel">真值发现估计</div></div>
+        <div><div class="cnum mono orange">${e.projected}</div><div class="clabel">投影最终 (${e.ciLow}~${e.ciHigh})</div></div>
+      </div>
+      <div class="casualty-note">方法：分层提取 → 动态真值发现（单调约束+可信度加权）→ 指数收敛投影 · 依据 arXiv 2312.03755<br>线索 ${e.reports.length} 条（${verifiedCount} 条已现场核实），估计仅供辅助决策，以官方通报为准</div>
+    </div>`;
+}
+
+// ==================== 四之D、旧版拉齐：ICL/简报/决策助手/案例库/余震 ====================
+/** 历史地震案例库（公开史料，伤亡为约数） */
+const HISTORY_CASES = [
+  { y:2008, n:'汶川地震', m:'M8.0', d:'2008-05-12 四川汶川', loss:'约6.9万人遇难、1.79万人失踪', social:'通信全断，灾情依赖军队前突与幸存者口述，社交媒体尚未普及', lesson:'→ 本产品：多通道情报融合 + 北斗卫星无网求救通道' },
+  { y:2010, n:'玉树地震', m:'M7.1', d:'2010-04-14 青海玉树', loss:'约2698人遇难', social:'微博元年，求救信息分散、无法聚合排序', lesson:'→ 本产品：社媒信息萃取 + P0-P2优先级队列' },
+  { y:2013, n:'芦山地震', m:'M7.0', d:'2013-04-20 四川芦山', loss:'约196人遇难', social:'微博求救爆发但重复帖与谣言混杂，救援力量自发涌入造成拥堵', lesson:'→ 本产品：去重拦截区 + 救援力量统一调度工单' },
+  { y:2022, n:'泸定地震', m:'M6.8', d:'2022-09-05 四川泸定', loss:'约93人遇难', social:'ICL预警提前数秒推送成都；抖音/微博成为主要求救通道', lesson:'→ 本产品：ICL预警接入 + 短视频通道扩展预留' },
+  { y:2023, n:'土耳其-叙利亚地震', m:'M7.8', d:'2023-02-06 土耳其卡赫拉曼马拉什', loss:'逾5万人遇难', social:'多语言求救推文海量涌入，国际救援队对接混乱、重复派单', lesson:'→ 本产品：结构化工单 + 双向信息中转合规对接' },
+  { y:2025, n:'缅甸地震（本次事件）', m:'M7.9', d:'2025-03-28 曼德勒-实皆', loss:'逾4000人遇难（以官方通报为准）', social:'52条真实微博情报 + 北斗卫星求救在本系统全链路接入', lesson:'→ 本复赛演示：社媒→研判→派遣→核实→闭环', current:true }
+];
+
+function openCases() {
+  const body = document.getElementById('cases-body');
+  body.innerHTML = HISTORY_CASES.map(c => `
+    <div class="case-card ${c.current ? 'current' : ''}">
+      <div class="case-head">${c.y} ${c.n}<span class="m mono">${c.m}</span>${c.current ? ' <span style="color:#52c41a;font-size:12px;">● 当前事件</span>' : ''}</div>
+      <div class="case-meta">${c.d}</div>
+      <div class="case-loss">伤亡：${c.loss}</div>
+      <div class="case-social">社媒特征：${c.social}</div>
+      <div class="case-lesson">${c.lesson}</div>
+    </div>`).join('');
+  document.getElementById('cases-modal').classList.add('open');
+}
+function closeCases() { document.getElementById('cases-modal').classList.remove('open'); }
+
+/** AI灾情简报：基于当前状态自动生成（每15s + 关键事件触发） */
+function genBrief() {
+  const el = document.getElementById('brief-card');
+  if (!el) return;
+  const ts = window.tasks.filter(t => t.status !== 'intercepted');
+  const p0 = ts.filter(t => t.priority === 'P0').length;
+  const p1 = ts.filter(t => t.priority === 'P1').length;
+  const p2 = ts.filter(t => t.priority === 'P2').length;
+  const locCount = {};
+  ts.forEach(t => { const k = t.location.split('·')[0]; locCount[k] = (locCount[k] || 0) + 1; });
+  const tops = Object.entries(locCount).sort((a, b) => b[1] - a[1]).slice(0, 2).map(e => e[0]);
+  const proj = casualtyEngine.projected;
+  const level = proj >= 100 ? 'Ⅰ级' : proj >= 10 ? 'Ⅱ级' : 'Ⅲ级';
+  const firstP0 = ts.find(t => t.priority === 'P0' && t.status !== 'closed');
+  const closed = ts.filter(t => t.status === 'closed').length;
+  const text = ts.length === 0 ? '等待情报接入…' :
+    `截至 T+${formatClock(clockSeconds)}，接入有效情报 ${ts.length} 条（P0 ${p0} / P1 ${p1} / P2 ${p2}），拦截 ${stats.intercepted} 条；已闭环 ${closed} 条。灾情集中于${tops.join('、') || '待定'}；伤亡/被困投影 ${proj} 人，建议${level}响应。` +
+    (firstP0 ? `当前最高优先：${firstP0.location}（${firstP0.type}·${firstP0.status === 'pending' ? '待批准' : firstP0.status === 'dispatched' ? '救援中' : firstP0.status === 'verify' ? '待核验' : '处理中'}）。` : '全部 P0 已闭环。');
+  el.innerHTML = `<div class="brief-title"><span>📋 AI 灾情简报</span><span class="mono" style="color:#5a6a7a;font-size:12px;">自动生成 · 15s刷新</span></div><div class="brief-text">${text}</div>`;
+}
+
+function formatClock(s) {
+  return `${String(Math.floor(s / 3600)).padStart(2,'0')}:${String(Math.floor(s % 3600 / 60)).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
+}
+
+/** AI决策助手：基于实时状态的规则问答 */
+function askAssistant(preset) {
+  const input = document.getElementById('assistant-q');
+  const q = preset || (input && input.value.trim());
+  const ans = document.getElementById('assistant-answer');
+  if (!ans) return;
+  if (!q) { ans.textContent = '请输入问题或点击预设问题。'; return; }
+  const ts = window.tasks.filter(t => t.status !== 'intercepted');
+  let out = '';
+  if (/危险|优先|最急|严重/.test(q)) {
+    const top = ts.filter(t => t.priority === 'P0' || t.priority === 'P1').slice(0, 3);
+    out = top.length ? '当前最危险区域：' + top.map(t => `${t.location}（${t.type}·${t.priority}·SLA余${formatSLA(getSLARemain(t))}）`).join('；') + '。建议按看板顺序优先批准。' : '当前无 P0/P1 未闭环任务，局势可控。';
+  } else if (/响应|级别/.test(q)) {
+    const proj = casualtyEngine.projected;
+    out = proj >= 100 ? `伤亡投影 ${proj} 人≥100，建议启动Ⅰ级响应并请求国家级支援。` : proj >= 10 ? `伤亡投影 ${proj} 人，建议启动Ⅱ级响应、省级统筹资源。` : `伤亡投影 ${proj||'暂无'} 人，建议Ⅲ级响应、县级处置即可，持续监测。`;
+  } else if (/队伍|调度|派|救援队/.test(q)) {
+    out = RESCUE_TEAMS.map(t => `${t.name}（${t._status || '值守'}·在手工单${ts.filter(x => x._ticket && x._ticket.team === t.name && x.status !== 'closed').length}）`).join('；') + '。批准任务时系统自动匹配最近队伍生成工单。';
+  } else if (/伤亡|死亡|被困|人数/.test(q)) {
+    out = `真值发现估计 ${casualtyEngine.current} 人，指数投影最终 ${casualtyEngine.projected} 人（置信区间 ${casualtyEngine.ciLow}~${casualtyEngine.ciHigh}），线索 ${casualtyEngine.reports.length} 条；方法见研判卡注脚。`;
+  } else {
+    out = genBriefTextOnly();
+  }
+  ans.innerHTML = '🤖 ' + out;
+}
+
+function genBriefTextOnly() {
+  const el = document.getElementById('brief-card');
+  return el ? el.querySelector('.brief-text').textContent : '暂无简报。';
+}
+
+/** 顶部横幅Toast（余震/恢复等全局事件） */
+function showBanner(text, color) {
+  const d = document.createElement('div');
+  d.className = 'toast-banner';
+  d.style.background = color;
+  d.textContent = text;
+  document.body.appendChild(d);
+  setTimeout(() => d.remove(), 6000);
+}
+
+/** 余震联动：强余震暂停作业→评估后恢复（旧版核心能力） */
+function scheduleAftershocks() {
+  if (window._aftScheduled) return;
+  window._aftScheduled = true;
+  setTimeout(() => {
+    if (demoPlaying) return;
+    showBanner('🚨 M4.8 余震 · 实皆区域 · 按预案暂停现场作业60秒', '#ff4d4f');
+    flashAgent('agent-sentinel');
+    genBrief();
+  }, 50000);
+  setTimeout(() => {
+    if (demoPlaying) return;
+    showBanner('✅ 余震评估完成 · 现场作业恢复', '#52c41a');
+    genBrief();
+  }, 110000);
+}
+
+// ==================== 四之C、通讯员Agent · 救援对接工单 ====================
+/** 已对接的真实救援力量（国家队+社会救援力量+医疗急救，平台双向中转不暴露求助人） */
+const RESCUE_TEAMS = [
+  { name:'云南消防救援总队·瑞丽大队', short:'瑞丽消防', lng:97.85, lat:24.01, contact:'119指挥中心', type:'重型搜救', org:'国家专业队', channel:'119指挥中心调度令', _status:'值守' },
+  { name:'深圳公益救援队·前置备勤点', short:'深圳公益', lng:98.58, lat:24.43, contact:'公众号值守台', type:'城市搜救', org:'社会救援力量', channel:'微信公众号值守台·电话中转', _status:'值守' },
+  { name:'保山市人民医院急诊科', short:'保山120', lng:99.16, lat:25.12, contact:'120急救中心', type:'医疗急救', org:'医疗急救', channel:'120指挥中心联动', _status:'值守' },
+  { name:'蓝天救援队·云南队', short:'云南蓝天', lng:102.73, lat:25.04, contact:'全国值守热线', type:'综合应急', org:'社会救援力量', channel:'值守热线+联络官邮箱', _status:'值守' }
+];
+let ticketSeq = 0;
+
+/** 按地图距离匹配最近救援队 */
+function nearestTeam(task) {
+  const p = getTaskSvgPos(task);
+  let best = RESCUE_TEAMS[0], bd = Infinity;
+  RESCUE_TEAMS.forEach(t => {
+    const q = geoToSvg(t.lng, t.lat);
+    const d = Math.hypot(p.x - q.x, p.y - q.y);
+    if (d < bd) { bd = d; best = t; }
+  });
+  return { ...best, _dist: bd };
+}
+
+/** 批准时生成对接工单：结构化情报包 + 最近队伍 + 四步时间线 */
+function createTicket(task) {
+  const team = nearestTeam(task);
+  task._ticket = {
+    id: 'TK-' + String(++ticketSeq).padStart(3, '0'),
+    team: team.name, teamType: team.type, contact: team.contact, channel: team.channel,
+    etaMin: Math.min(120, 12 + Math.round(team._dist / 10)),
+    steps: { created: clockSeconds, accepted: null, onsite: null, closed: null }
+  };
+  team._status = '集结';
+  updateForceBoard();
+  flashAgent('agent-comms');
+}
+
+/** 工单四步时间线HTML */
+function ticketStepsHtml(t) {
+  const steps = [['工单生成', t.steps.created != null], ['救援队接单', t.steps.accepted != null], ['现场核实', t.steps.onsite != null], ['救援闭环', t.steps.closed != null]];
+  return steps.map(([label, done]) => `<span class="tstep ${done ? 'done' : ''}">${done ? '✓' : '○'} ${label}</span>`).join('<span class="tsep">→</span>');
+}
+
+/** 现场回传报告（进入待核验时由通讯员生成） */
+function genFieldReport(task) {
+  const loc = (task.extracted && task.extracted.location) || task.location;
+  const tp = (task.extracted && task.extracted.type) || task.type;
+  const p = task.extracted && task.extracted.persons && task.extracted.persons !== '-' ? task.extracted.persons + '名' : '现场';
+  return `${task._ticket.team}已抵达${loc}，核实“${tp}”属实，确认涉及${p}人员，正按方案A处置，请后方保持信息中转通道畅通。`;
+}
+
+/** 救援力量状态板（真实组织·实时状态） */
+function updateForceBoard() {
+  const el = document.getElementById('force-board');
+  if (!el) return;
+  const statusCls = { '值守':'s-onduty', '集结':'s-assembling', '途中':'s-enroute', '作业中':'s-onsite' };
+  el.innerHTML = `<div class="force-title">🚒 已对接救援力量 · 实时状态</div>` + RESCUE_TEAMS.map(t => {
+    const active = window.tasks.filter(x => x._ticket && x._ticket.team === t.name && x.status !== 'closed').length;
+    return `<div class="force-row"><span class="force-org">${t.org}</span><span class="force-name">${t.name}</span>${active ? `<span style="font-size:12px;color:#5a6a7a;">单${active}</span>` : ''}<span class="force-status ${statusCls[t._status] || 's-onduty'}">${t._status}</span></div>`;
+  }).join('');
+}
+
+/** 队伍出动动画：地图上🚒从驻地移向任务点（真实投入救援的可视化） */
+function animateTeamTo(task, team) {
+  if (lfMap) { animateLfTeamTo(task, team); return; }
+  const layer = document.getElementById('layer-teams');
+  if (!layer) return;
+  const from = geoToSvg(team.lng, team.lat), to = getTaskSvgPos(task);
+  const mk = svgEl('text', { x:from.x, y:from.y+5, 'text-anchor':'middle', 'font-size':'16', class:'team-moving' });
+  mk.textContent = '🚒';
+  layer.appendChild(mk);
+  const t0 = performance.now(), dur = 2500;
+  function step(now) {
+    const k = Math.min(1, (now - t0) / dur);
+    const e = k * (2 - k); // easeOut
+    mk.setAttribute('x', from.x + (to.x - 15 - from.x) * e);
+    mk.setAttribute('y', from.y + (to.y - from.y) * e + 5);
+    if (k < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+window.tasks = [];
+const enqueuedIds = new Set();
+
+// ==================== 五、数据源检测与实时拉取 ====================
+/** 更新顶栏数据源状态徽章 */
+function updateDataSourceBadge(status, detail) {
+  const el = document.getElementById('data-source-badge');
+  if (!el) return;
+  const styles = {
+    detecting: { bg:'rgba(90,106,122,.15)', color:'#5a6a7a', border:'#1e2630' },
+    live:      { bg:'rgba(82,196,26,.12)',  color:'#52c41a', border:'rgba(82,196,26,.3)' },
+    mock:      { bg:'rgba(250,140,22,.12)', color:'#fa8c16', border:'rgba(250,140,22,.3)' },
+    offline:   { bg:'rgba(255,77,79,.12)',  color:'#ff4d4f', border:'rgba(255,77,79,.3)' }
+  };
+  const s = styles[status] || styles.offline;
+  el.style.background = s.bg;
+  el.style.color = s.color;
+  el.style.borderColor = s.border;
+  const labels = { detecting:'⏳ 检测数据源...', live:'🟢 实时数据', mock:'🟡 Mock回放', offline:'🔴 离线模式' };
+  el.textContent = (labels[status] || status) + (detail ? ' · ' + detail : '');
+}
+
+/** 加载内嵌真实数据 + 尝试连接 live_feed.py */
+async function detectAndConnect() {
+  updateDataSourceBadge('detecting');
+  // 清理之前的注入器
+  if (window._realDataInjector) clearInterval(window._realDataInjector);
+  // 优先加载内嵌真实数据（52条缅甸地震微博，含完整字段）
+  if (REAL_SOCIAL_POSTS && REAL_SOCIAL_POSTS.length > 0) {
+    dataSource = 'live';
+    updateDataSourceBadge('live', `内嵌真实数据 · ${REAL_SOCIAL_POSTS.length}条`);
+    let idx = 0;
+    const injectInterval = setInterval(() => {
+      if (demoPlaying || idx >= REAL_SOCIAL_POSTS.length) {
+        clearInterval(injectInterval);
+        return;
+      }
+      const post = REAL_SOCIAL_POSTS[idx];
+      if (!processedLiveIds.has(post.post_id)) {
+        processedLiveIds.add(post.post_id);
+        addTask(postToTask(post));
+      }
+      idx++;
+      if (idx % 5 === 0 || idx >= REAL_SOCIAL_POSTS.length) {
+        updateDataSourceBadge('live', `真实数据 · ${Math.min(idx, REAL_SOCIAL_POSTS.length)}/${REAL_SOCIAL_POSTS.length}条`);
+      }
+    }, 3000);
+    window._realDataInjector = injectInterval;
+  }
+  // 无网求救：在实时流中穿插北斗短报文/卫星求救线索
+  startSatelliteInjection();
+  // 同时尝试连接 live_feed.py（weibo模式下可获取实时更新）
+  try {
+    const resp = await fetch('http://127.0.0.1:8012/live/social', { signal: AbortSignal.timeout(3000) });
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.source === 'weibo' && data.posts && data.posts.length > 0) {
+        updateDataSourceBadge('live', `weibo实时 · ${data.posts.length}条`);
+        processLivePosts(data.posts);
+        startLivePolling();
+      } else {
+        console.log('[RescueAI] live_feed在线(mock模式)，使用内嵌数据为主');
+      }
+    }
+  } catch (e) {
+    console.log('[RescueAI] live_feed不可达，仅使用内嵌数据:', e.message);
+  }
+}
+
+/** 轮询 live_feed.py 获取新帖 */
+function startLivePolling() {
+  clearInterval(livePollTimer);
+  livePollTimer = setInterval(async () => {
+    if (demoPlaying || dataSource !== 'live') return;
+    try {
+      const resp = await fetch('http://127.0.0.1:8012/live/social', { signal: AbortSignal.timeout(5000) });
+      const data = await resp.json();
+      if (data.posts && data.posts.length > 0) {
+        processLivePosts(data.posts);
+        updateDataSourceBadge('live', `${data.source} · ${data.posts.length}条`);
+      }
+    } catch (e) {
+      // 单次失败不切换模式，仅日志
+      console.log('[RescueAI] 轮询失败:', e.message);
+    }
+  }, 15000);
+}
+
+/** 处理真实帖子列表，过滤已处理的，转换并注入 */
+function processLivePosts(posts) {
+  let newCount = 0;
+  posts.forEach(post => {
+    const pid = post.id || post.post_id;
+    if (!pid || processedLiveIds.has(pid)) return;
+    processedLiveIds.add(pid);
+    const task = postToTask(post);
+    addTask(task);
+    newCount++;
+  });
+  if (newCount > 0) {
+    console.log(`[RescueAI] 新增${newCount}条真实情报`);
+  }
+}
+
+/** Mock降级：按原有节奏注入 */
+function loadMockFallback() {
+  startFeedInjection();
+}
+
+// ==================== 六、初始化 ====================
+window.addEventListener('DOMContentLoaded', () => {
+  resizeApp();
+  window.addEventListener('resize', resizeApp);
+  initMap();
+  renderDeskOverview();
+  startClock();
+  startRealClock();
+  renderDistTable();
+  setInterval(genBrief, 15000);
+  scheduleAftershocks();
+  // 优先尝试连接真实数据源
+  detectAndConnect();
+});
+
+function resizeApp() {
+  const root = document.getElementById('app-root');
+  const scaleX = window.innerWidth / 2560;
+  const scaleY = window.innerHeight / 1440;
+  const scale = Math.min(scaleX, scaleY);
+  root.style.transform = `translate(-50%,-50%) scale(${scale})`;
+}
+
+function startClock() {
+  setInterval(() => {
+    clockSeconds++;
+    const h = String(Math.floor(clockSeconds / 3600)).padStart(2, '0');
+    const m = String(Math.floor((clockSeconds % 3600) / 60)).padStart(2, '0');
+    const s = String(clockSeconds % 60).padStart(2, '0');
+    document.getElementById('task-clock').textContent = `T+${h}:${m}:${s}`;
+    updateAllSLA();
+  }, 1000);
+}
+
+// ==================== 七、模式切换 ====================
+function switchMode(mode) {
+  if (mode === currentMode) return;
+  currentMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  window.tasks = [];
+  enqueuedIds.clear();
+  processedLiveIds.clear();
+  stats.raw = 0; stats.extracted = 0; stats.intercepted = 0;
+  updateStats();
+  document.getElementById('feed-list').innerHTML = '';
+  document.getElementById('intercept-list').innerHTML = '';
+  ['new','pending','dispatched','verify','closed'].forEach(s => document.getElementById('kb-' + s).innerHTML = '');
+  selectedTaskId = null;
+  resetCasualtyEngine();
+  closeDrawer();
+  renderDeskOverview();
+  renderDistTable();
+  initMap();
+  // 清理注入器并重新检测数据源
+  if (window._realDataInjector) clearInterval(window._realDataInjector);
+  detectAndConnect();
+}
+
+// ==================== 八、Mock情报注入引擎（降级时使用） ====================
+let feedQueue = [];
+let feedTimer = null;
+
+function startFeedInjection() {
+  clearInterval(feedTimer);
+  const data = allMockData[currentMode].slice();
+  feedQueue = data.filter(t => !enqueuedIds.has(t.eventId));
+  if (feedQueue.length > 0) {
+    injectNext();
+    feedTimer = setInterval(injectNext, 10000);
+  }
+}
+
+function injectNext() {
+  if (feedQueue.length === 0) { clearInterval(feedTimer); return; }
+  const task = feedQueue.shift();
+  addTask(task);
+}
+
+/** 添加任务到全局数据源并触发所有视图更新 */
+function addTask(task) {
+  if (enqueuedIds.has(task.eventId)) return;
+  enqueuedIds.add(task.eventId);
+  task._createdAt = Date.now();
+  task._slaStart = clockSeconds;
+  window.tasks.push(task);
+  stats.raw++;
+  if (task.status === 'intercepted') {
+    stats.intercepted++;
+    renderInterceptItem(task);
+  } else {
+    renderFeedCard(task);
+    renderKanbanCard(task);
+    renderMapPoint(task);
+    updateCasualtyEstimate(task);
+    if (task.status === 'new') {
+      setTimeout(() => transitionTask(task.eventId, 'pending'), 3000);
+    }
+  }
+  updateStats();
+  flashSentinel();
+  genBrief();
+  renderDistTable();
+}
+
+// ==================== 九、左栏 Feed 渲染 ====================
+function renderFeedCard(task) {
+  const list = document.getElementById('feed-list');
+  const card = document.createElement('div');
+  card.className = 'feed-card entering';
+  card.id = 'feed-' + task.eventId;
+  card.onclick = () => { selectTask(task.eventId); openDrawer(task.eventId); };
+  const chan = task._channel === 'satellite'
+    ? '<span class="chan-badge chan-sat">🛰 北斗卫星·无网求救</span>'
+    : '<span class="chan-badge chan-weibo">📱 微博</span>';
+  card.innerHTML = `<div class="scan-line"></div><div class="feed-chan">${chan}</div><div class="feed-source typewriter-cursor" id="tw-${task.eventId}"></div><div class="feed-badges" id="fb-${task.eventId}"></div><div class="feed-marks" id="fm-${task.eventId}"></div>`;
+  list.prepend(card);
+  const twEl = document.getElementById('tw-' + task.eventId);
+  let idx = 0;
+  const text = task.sourceText;
+  const typeInterval = setInterval(() => {
+    if (idx < text.length) {
+      twEl.textContent = text.substring(0, ++idx);
+    } else {
+      clearInterval(typeInterval);
+      twEl.classList.remove('typewriter-cursor');
+      completeExtraction(task);
+    }
+  }, 40);
+}
+
+function completeExtraction(task) {
+  const scanLine = document.querySelector(`#feed-${task.eventId} .scan-line`);
+  if (scanLine) scanLine.remove();
+  stats.extracted++;
+  updateStats();
+  const badges = document.getElementById('fb-' + task.eventId);
+  if (badges && task.extracted) {
+    badges.innerHTML = `<span class="badge badge-type">${task.extracted.type}</span><span class="badge badge-loc">${task.extracted.location}</span><span class="badge badge-score">可信度 ${task.credibility}/100</span>`;
+    badges.classList.add('visible');
+  }
+  const marks = document.getElementById('fm-' + task.eventId);
+  if (marks) {
+    marks.textContent = '🗺 已定位 · 📋 已入看板';
+    marks.classList.add('visible');
+  }
+}
+
+function renderInterceptItem(task) {
+  const list = document.getElementById('intercept-list');
+  const item = document.createElement('div');
+  item.className = 'intercept-item';
+  item.innerHTML = `${task.sourceText}<div class="intercept-reason">🚫 ${task.interceptReason}</div>`;
+  list.appendChild(item);
+  document.getElementById('intercept-count').textContent = stats.intercepted;
+}
+
+function toggleIntercept() {
+  document.getElementById('intercept-list').classList.toggle('open');
+}
+
+function updateStats() {
+  document.getElementById('stat-raw').textContent = stats.raw;
+  document.getElementById('stat-extracted').textContent = stats.extracted;
+  document.getElementById('stat-intercepted').textContent = stats.intercepted;
+}
+
+function flashSentinel() {
+  flashAgent('agent-sentinel');
+}
+
+// ==================== 十五、参考图UI：震中距离表 / 真实时钟 / 核实闭环抽屉 ====================
+const EPICENTER_GEO = { lng: 95.95, lat: 21.85 };
+function haversineKm(lng1, lat1, lng2, lat2) {
+  const R = 6371, rd = Math.PI / 180;
+  const dLat = (lat2 - lat1) * rd, dLng = (lng2 - lng1) * rd;
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * rd) * Math.cos(lat2 * rd) * Math.sin(dLng / 2) ** 2;
+  return Math.round(2 * R * Math.asin(Math.sqrt(a)));
+}
+/** 右栏：震中距离详情（真实经纬度线索，按距离升序） */
+function renderDistTable() {
+  const el = document.getElementById('dist-table');
+  if (!el) return;
+  const seen = {};
+  window.tasks.forEach(t => {
+    if (t.status === 'intercepted' || !t.extracted || t.lng == null) return;
+    if (!(t.lng > 90 && t.lng < 100 && t.lat > 14 && t.lat < 26)) return; // 仅缅-滇区域真实坐标
+    const key = t.extracted.location || t.location;
+    if (key && seen[key] === undefined) seen[key] = haversineKm(EPICENTER_GEO.lng, EPICENTER_GEO.lat, t.lng, t.lat);
+  });
+  const rows = Object.entries(seen).sort((a, b) => a[1] - b[1]).slice(0, 6);
+  el.innerHTML = rows.length
+    ? rows.map(([n, k]) => `<div class="dist-row"><span>${n}</span><span class="km">${k}</span></div>`).join('')
+    : '<div class="dist-row"><span>等待情报接入…</span></div>';
+}
+/** 顶栏真实时钟 */
+function startRealClock() {
+  const tick = () => {
+    const d = new Date(), p = n => String(n).padStart(2, '0');
+    const c1 = document.getElementById('real-clock'), c2 = document.getElementById('real-date');
+    if (c1) c1.textContent = `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+    if (c2) c2.textContent = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} 星期${'日一二三四五六'[d.getDay()]}`;
+  };
+  tick();
+  setInterval(tick, 1000);
+}
+/** 顶部横幅通知 */
+function toastBanner(msg, bg) {
+  const el = document.createElement('div');
+  el.className = 'toast-banner';
+  el.style.background = bg || 'linear-gradient(90deg,#1d4d2b,#256b39,#1d4d2b)';
+  el.style.border = '1px solid rgba(82,196,26,.5)';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 6200);
+}
+const hm = d => { const p = n => String(n).padStart(2, '0'); return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`; };
+
+// ---------- 核实闭环抽屉：AI初筛 → 5项多源核实 → 推送属地公益救援队 → 追踪反馈 ----------
+let drawerState = null;
+const DRAWER_AUTHORS = ['张伟', '李明', '王芳', '刘强', '陈静', '赵磊', '杨周', '林先生'];
+function drawerAuthor(task) {
+  if (!task._author) {
+    let h = 0;
+    for (const ch of task.eventId) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    task._author = DRAWER_AUTHORS[h % DRAWER_AUTHORS.length];
+  }
+  return task._author;
+}
+function verifyDefs(task) {
+  const loc = (task.extracted && task.extracted.location) || task.location || '震区';
+  const author = drawerAuthor(task);
+  return [
+    { ico: '💬', t: '1. 私信联系发帖人', d: `已向 @${author} 发送私信，等待回复`, doing: '私信已发送，等待回复中', done: `发帖人回复：现场情况与描述一致，确认位置为${loc}` },
+    { ico: '📞', t: '2. 电话核实', d: '通过公开联系方式电话确认灾情', doing: '正在拨打公开联系电话', done: '电话接通：当地村/居委会确认该处灾情属实' },
+    { ico: '💭', t: '3. 评论区询问', d: '在微博评论区询问现场详情', doing: '评论区询问中', done: '评论区补充：现场照片与街道信息与主帖吻合' },
+    { ico: '📋', t: '4. 发帖历史回溯', d: '核查发帖人历史记录，评估可信度', doing: '回溯发帖历史中', done: '历史核查：账号活跃3年+、无谣言记录，可信度上调' },
+    { ico: '🔍', t: '5. 同区域多源交叉印证', d: '比对同区域其他信息源，交叉验证', doing: '交叉验证同区域信息源', done: `已有≥2条同区域独立信息源印证，线索成立` },
+  ];
+}
+function openDrawer(eventId) {
+  const task = window.tasks.find(t => t.eventId === eventId);
+  if (!task || task.status === 'intercepted') return;
+  if (drawerState) closeDrawer();
+  drawerState = {
+    eventId,
+    steps: verifyDefs(task).map((s, i) => ({ ...s, status: i === 0 ? 'doing' : 'wait' })),
+    timer: setInterval(advanceVerify, 3200),
+    pushed: task._pushed || null,
+    track: task._track || (task._track = []),
+  };
+  document.getElementById('drawer-mask').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+  renderDrawer();
+}
+function advanceVerify() {
+  if (!drawerState) return;
+  const ss = drawerState.steps;
+  const i = ss.findIndex(s => s.status === 'doing');
+  if (i >= 0) ss[i].status = 'done';
+  const j = ss.findIndex(s => s.status === 'wait');
+  if (j >= 0) ss[j].status = 'doing';
+  else { clearInterval(drawerState.timer); drawerState.timer = null; }
+  renderDrawer();
+}
+function closeDrawer() {
+  if (drawerState && drawerState.timer) clearInterval(drawerState.timer);
+  drawerState = null;
+  document.getElementById('drawer-mask').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+}
+/** 核实完成 → 第一时间推送属地公益救援队（平台双向中转，不暴露求助人隐私） */
+function pushClue() {
+  if (!drawerState || drawerState.steps.some(s => s.status !== 'done') || drawerState.pushed) return;
+  const task = window.tasks.find(t => t.eventId === drawerState.eventId);
+  const team = nearestTeam(task);
+  const eta = Math.min(120, 12 + Math.round(team._dist / 10));
+  drawerState.pushed = task._pushed = { team: team.name, org: team.org, channel: team.channel, eta };
+  drawerState.track = task._track = [{ t: hm(new Date()), tx: `<b>平台</b>将核实后线索工单推送至 ${team.name}（通道：${team.channel}）` }];
+  toastBanner(`📡 经核实的有效线索已第一时间推送至属地救援力量：${team.name}`);
+  flashAgent('agent-comms');
+  const plan = [
+    { d: 4, tx: `<b>${team.short || team.name}</b> 值班台确认接收，线索进入队伍调度队列` },
+    { d: 9, tx: `救援队已出动，预计 ${eta} 分钟抵达线索坐标` },
+    { d: 15, tx: `抵达现场：正在核实 ${(task.extracted && task.extracted.location) || task.location} 灾情` },
+    { d: 22, tx: `<b>现场反馈</b>：情况属实，与线索描述一致 → 线索闭环 ✓` },
+  ];
+  plan.forEach(pl => setTimeout(() => {
+    if (!task._track) task._track = [];
+    task._track.push({ t: hm(new Date()), tx: pl.tx });
+    if (drawerState && drawerState.eventId === task.eventId) { drawerState.track = task._track; renderDrawer(); }
+  }, pl.d * 1000));
+  renderDrawer();
+}
+function renderDrawer() {
+  if (!drawerState) return;
+  const task = window.tasks.find(t => t.eventId === drawerState.eventId);
+  if (!task) return;
+  const ex = task.extracted || {};
+  const author = drawerAuthor(task);
+  const doneN = drawerState.steps.filter(s => s.status === 'done').length;
+  const pct = Math.round(doneN / 5 * 100);
+  const allDone = doneN === 5;
+  const risk = task.priority === 'P0' ? '高危' : task.priority === 'P1' ? '中危' : '中危';
+  const ago = task._offsetMin || (task._createdAt ? Math.max(1, Math.round((Date.now() - task._createdAt) / 60000)) : 8);
+  const txt = task.sourceText.length > 110 ? task.sourceText.slice(0, 110) + '…' : task.sourceText;
+  document.getElementById('drawer-body').innerHTML = `
+  <div class="dw-sec brk">
+    <div class="sec-title">原始线索</div>
+    <div class="dw-clue">
+      <div class="dw-avatar">${author[0]}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:18px;font-weight:700;color:#e8f0fe;">${author} <span style="color:#8899aa;font-size:15px;font-weight:400;">@微博</span> <span class="vstatus doing">${task.priority}</span> <span class="vstatus doing">${risk}</span></div>
+        <div class="dw-meta">📍 ${ex.location || task.location} · ${ago}分钟前</div>
+        <div class="dw-text">${txt}</div>
+        <div class="dw-tags"><span class="vstatus doing">${ex.type || task.type}</span><span class="vstatus wait">可信度 ${task.credibility}%</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="dw-sec brk">
+    <div class="vhead"><span>1. AI 智能初筛</span><span class="vstatus done">已完成</span></div>
+    <div style="font-size:16px;color:#8899aa;margin-bottom:6px;">从微博平台捕获灾情信息，AI自动提取关键要素</div>
+    <div class="vgrid">
+      <div class="vbox"><div class="l">灾情类型</div><div class="v">${ex.type || task.type}</div></div>
+      <div class="vbox"><div class="l">风险等级</div><div class="v" style="color:#fa8c16;">${risk}</div></div>
+      <div class="vbox"><div class="l">AI置信度</div><div class="v" style="color:#13c2c2;">${task.credibility}%</div></div>
+    </div>
+  </div>
+  <div class="dw-sec brk">
+    <div class="vhead"><span>2. 多源核实（值班人员）</span><span class="vstatus ${allDone ? 'done' : 'doing'}">${allDone ? '核实完成 100%' : '核实中 ' + pct + '%'}</span></div>
+    <div class="vring-row">
+      <div class="vring" style="--p:${pct}%">${pct}%</div>
+      <div><div style="font-size:17px;color:#c8d6e5;">⏳ 值班人员正在通过以下方式逐一核实线索真实性</div><div style="font-size:15px;color:#8899aa;margin-top:4px;">已完成 <b style="color:#52c41a;">${doneN}</b> / 5 项核实</div></div>
+    </div>
+    ${drawerState.steps.map(s => `<div class="vitem ${s.status}"><div class="ico">${s.ico}</div><div style="flex:1;min-width:0;"><div class="t">${s.t}</div><div class="d">${s.status === 'done' ? s.done : s.status === 'doing' ? s.doing : s.d}</div></div><div class="st">${s.status === 'done' ? '✅ 已核实' : s.status === 'doing' ? '⏳ 进行中' : '— 待执行'}</div></div>`).join('')}
+    <button class="vpush ${allDone && !drawerState.pushed ? 'ready' : ''}" ${allDone && !drawerState.pushed ? '' : 'disabled'} onclick="pushClue()">✓ 确认核实完成，推送至救援队</button>
+  </div>
+  <div class="dw-sec brk">
+    <div class="vhead"><span>3. 线索推送至属地公益救援队</span>${drawerState.pushed ? '<span class="vstatus done">已推送</span>' : ''}</div>
+    ${drawerState.pushed
+      ? `<div class="dw-team"><div class="tn">🚒 ${drawerState.pushed.team}<span class="tg">${drawerState.pushed.org}</span></div>对接通道：${drawerState.pushed.channel} · 预计抵达 ${drawerState.pushed.eta} min<br><span style="color:#8899aa;font-size:12px;">合规说明：平台双向信息中转，不向救援队外暴露求助人隐私；推送内容为经核实的灾情描述与坐标</span></div>`
+      : '<div class="dw-lock">⚠ 需先完成多源核实</div>'}
+  </div>
+  <div class="dw-sec brk">
+    <div class="vhead"><span>4. 追踪反馈（每条线索有回音）</span>${drawerState.pushed && drawerState.track.length >= 5 ? '<span class="vstatus done">已闭环</span>' : ''}</div>
+    ${drawerState.pushed
+      ? drawerState.track.map(k => `<div class="track-item"><span class="tt">${k.t}</span><span class="tx">${k.tx}</span></div>`).join('')
+      : '<div class="dw-lock">⚠ 需先推送至救援队</div>'}
+  </div>
+  <div class="dw-pos">💡 <b>Rescue AI 产品定位</b>：本平台<b>不自建救援队伍</b>，而是作为<b>社媒灾情线索的智能中枢</b>——通过AI初筛＋值班人员多源核实，将<span class="g">有效线索第一时间推送至属地公益救援队</span>，并全程追踪反馈，确保<span class="y">每条线索都有追踪、有反馈、有闭环</span>。</div>`;
+}
+
+/** 通用Agent徽章闪烁 */
+function flashAgent(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('flash');
+  void el.offsetWidth;
+  el.classList.add('flash');
+}
+
+// ==================== 十、地图渲染 ====================
+let lfMap = null, lfLayers = {}, lfTeamMarkers = {};
+
+/** SVG坐标 → 真实经纬度（Mock百分比坐标兼容） */
+function svgToGeo(x, y) {
+  return {
+    lng: MAP_BOUNDS.minLng + x / 1000 * (MAP_BOUNDS.maxLng - MAP_BOUNDS.minLng),
+    lat: MAP_BOUNDS.maxLat - y / 700 * (MAP_BOUNDS.maxLat - MAP_BOUNDS.minLat)
+  };
+}
+/** 任务 → [lat,lng]（真实数据直接用经纬度，Mock用百分比反投影） */
+function taskGeo(task) {
+  if (task._isRealData) return [task.lat, task.lng];
+  const p = pctToSvg(task.lng, task.lat);
+  const g = svgToGeo(p.x, p.y);
+  return [g.lat, g.lng];
+}
+
+/** 初始化Leaflet真实底图（CartoDB暗色瓦片，与大屏风格一致） */
+function initLeaflet() {
+  if (lfMap) { lfMap.remove(); lfMap = null; }
+  document.getElementById('map-leaflet').style.display = 'block';
+  document.getElementById('map-svg').style.display = 'none';
+  const center = [21.9, 96.4];
+  const zoom = 6;
+  lfMap = L.map('map-leaflet', { zoomControl: false, attributionControl: false, zoomSnap: 0.5 }).setView(center, zoom);
+  // 免Key底图：高德中文瓦片为主，加载失败自动切OSM
+  let tileLayer = L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', { subdomains:'1234', maxZoom:18 }).addTo(lfMap);
+  let tileErr = 0;
+  tileLayer.on('tileerror', () => {
+    if (++tileErr === 3) {
+      lfMap.removeLayer(tileLayer);
+      tileLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:18 }).addTo(lfMap);
+    }
+  });
+  lfLayers = { wind: L.layerGroup().addTo(lfMap), teams: L.layerGroup().addTo(lfMap), points: L.layerGroup().addTo(lfMap), intercept: L.layerGroup().addTo(lfMap) };
+  lfTeamMarkers = {};
+  lfDrawModeOverlay();
+  lfDrawTeams();
+  lfDrawShelters();
+}
+
+function lfDrawModeOverlay() {
+  lfLayers.wind.clearLayers();
+  // 地震模式：震中使用真实缅甸震中坐标
+  const epi = [21.85, 95.95];
+  L.circleMarker(epi, { radius:9, color:'#ff4d4f', fillColor:'#ff4d4f', fillOpacity:1 }).bindTooltip('M7.9 震中').addTo(lfLayers.wind);
+  [150000,100000,60000].forEach(r => L.circle(epi, { radius:r, color:'#fa8c16', opacity:.35, fill:false }).addTo(lfLayers.wind));
+}
+
+function lfDrawTeams() {
+  lfLayers.teams.clearLayers();
+  RESCUE_TEAMS.forEach(t => {
+    const mk = L.marker([t.lat, t.lng], { icon: L.divIcon({ html:'<div style="font-size:20px;line-height:1">🚒</div>', className:'', iconSize:[24,24], iconAnchor:[12,12] }) }).bindTooltip(t.short || t.name).addTo(lfLayers.teams);
+    lfTeamMarkers[t.name] = mk;
+  });
+}
+
+function lfDrawShelters() {
+  [{ name:'瑞丽安置点', lng:97.9, lat:24.05 }, { name:'芒市避难所', lng:98.58, lat:24.43 }].forEach(s => {
+    L.marker([s.lat, s.lng], { icon: L.divIcon({ html:'<div style="font-size:17px;line-height:1">🏕</div>', className:'', iconSize:[20,20], iconAnchor:[10,10] }) }).bindTooltip(s.name).addTo(lfLayers.teams);
+  });
+}
+
+function lfRenderPoint(task) {
+  if (task.status === 'intercepted') return;
+  const colorMap = { P0:'#ff4d4f', P1:'#fa8c16', P2:'#fadb14' };
+  const color = colorMap[task.priority] || '#fadb14';
+  const mk = L.circleMarker(taskGeo(task), { radius:7, color, fillColor:color, fillOpacity:.9, weight:2 }).bindTooltip(`${task.priority} · ${task.location}`).addTo(lfLayers.points);
+  mk.on('click', () => selectTask(task.eventId));
+  task._lfM = mk;
+  if (task._channel === 'satellite') {
+    L.marker(taskGeo(task), { icon: L.divIcon({ html:'<div style="font-size:14px;line-height:1">🛰</div>', className:'', iconSize:[16,16], iconAnchor:[-10,8] }) }).addTo(lfLayers.points);
+  }
+}
+
+function lfUpdatePoint(task) {
+  if (!task._lfM) return;
+  const colorMap = { new:'#ff4d4f', pending:'#fa8c16', dispatched:'#13c2c2', verify:'#13c2c2', closed:'#52c41a' };
+  const c = colorMap[task.status] || '#52c41a';
+  task._lfM.setStyle({ color:c, fillColor:c });
+}
+
+/** Leaflet模式下队伍出动动画 */
+function animateLfTeamTo(task, team) {
+  const from = [team.lat, team.lng], to = taskGeo(task);
+  const mk = L.marker(from, { icon: L.divIcon({ html:'<div style="font-size:16px;line-height:1">🚒</div>', className:'', iconSize:[20,20], iconAnchor:[10,10] }) }).addTo(lfLayers.teams);
+  const t0 = performance.now(), dur = 2500;
+  function step(now) {
+    const k = Math.min(1, (now - t0) / dur);
+    const e = k * (2 - k);
+    mk.setLatLng([from[0] + (to[0] - from[0]) * e, from[1] + (to[1] - from[1]) * e]);
+    if (k < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function initMap() {
+  // 优先真实底图；CDN不可达时回退SVG示意图
+  if (window.L && !window._leafletFail) { initLeaflet(); return; }
+  document.getElementById('map-leaflet').style.display = 'none';
+  document.getElementById('map-svg').style.display = '';
+  const svg = document.getElementById('map-svg');
+  svg.innerHTML = '';
+  svg.appendChild(svgEl('rect', { x:0,y:0,width:1000,height:700,fill:'#0a0e14' }));
+  // 经纬网格
+  for (let x = 0; x <= 1000; x += 100) {
+    svg.appendChild(svgEl('line', { x1:x,y1:0,x2:x,y2:700,stroke:'#131a24','stroke-width':0.5 }));
+  }
+  for (let y = 0; y <= 700; y += 100) {
+    svg.appendChild(svgEl('line', { x1:0,y1:y,x2:1000,y2:y,stroke:'#131a24','stroke-width':0.5 }));
+  }
+  // 地形色块（适配缅甸-云南区域的大致轮廓）
+  const terrains = [
+    'M80,250 Q200,180 350,260 T550,230 L520,380 Q320,400 100,340Z',
+    'M550,120 Q680,90 800,150 T920,220 L880,320 Q720,300 570,270Z',
+    'M150,480 Q350,420 520,490 T720,520 L680,620 Q420,640 170,580Z'
+  ];
+  terrains.forEach(d => {
+    svg.appendChild(svgEl('path', { d, fill:'#0f1520', stroke:'#1a2535', 'stroke-width':1 }));
+  });
+  // 道路曲线
+  const roads = [
+    'M0,370 Q250,320 500,370 T1000,340',
+    'M480,0 Q460,220 500,420 T480,700',
+    'M80,620 Q300,520 600,570 T960,520'
+  ];
+  roads.forEach(d => {
+    svg.appendChild(svgEl('path', { d, fill:'none', stroke:'#1a2535', 'stroke-width':2, 'stroke-dasharray':'6 4' }));
+  });
+  // 图层分组
+  ['wind','teams','points','intercept'].forEach(layer => {
+    const g = svgEl('g', { id:'layer-'+layer });
+    svg.appendChild(g);
+  });
+  drawModeOverlay();
+  drawTeams();
+  drawShelters();
+  // 更新角落坐标文字
+  document.querySelector('.map-coord.tl').textContent = `N${MAP_BOUNDS.maxLat}° E${MAP_BOUNDS.minLng}°`;
+  document.querySelector('.map-coord.br').textContent = `N${MAP_BOUNDS.minLat}° E${MAP_BOUNDS.maxLng}°`;
+}
+
+function svgEl(tag, attrs) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (const [k,v] of Object.entries(attrs||{})) el.setAttribute(k, v);
+  return el;
+}
+
+function drawModeOverlay() {
+  if (lfMap) { lfDrawModeOverlay(); return; }
+  const windLayer = document.getElementById('layer-wind');
+  windLayer.innerHTML = '';
+  // 地震模式：震中使用真实缅甸震中坐标
+  const epicenter = geoToSvg(95.95, 21.85);
+  const star = svgEl('polygon', { points:starPoints(epicenter.x,epicenter.y,14,7), fill:'#ff4d4f', stroke:'#ff4d4f', 'stroke-width':1, class:'quake-center' });
+  windLayer.appendChild(star);
+  [180, 120, 70].forEach(r => {
+    windLayer.appendChild(svgEl('circle', { cx:epicenter.x,cy:epicenter.y,r, class:'iso-seismic' }));
+  });
+  // 震中标签
+  const label = svgEl('text', { x:epicenter.x+20,y:epicenter.y-10,'font-size':'15',fill:'#ff4d4f','font-weight':'bold' });
+  label.textContent = 'M7.9 震中';
+  windLayer.appendChild(label);
+}
+
+function starPoints(cx, cy, outerR, innerR) {
+  let pts = [];
+  for (let i = 0; i < 10; i++) {
+    const angle = (Math.PI / 5) * i - Math.PI / 2;
+    const r = i % 2 === 0 ? outerR : innerR;
+    pts.push(`${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`);
+  }
+  return pts.join(' ');
+}
+
+/** 队伍和避难所使用真实地理坐标 */
+function drawTeams() {
+  if (lfMap) { lfDrawTeams(); return; }
+  const layer = document.getElementById('layer-teams');
+  layer.innerHTML = '';
+  // 救援队部署在关键城市（名录见 RESCUE_TEAMS，工单匹配同源）
+  RESCUE_TEAMS.forEach(t => {
+    const pos = geoToSvg(t.lng, t.lat);
+    const icon = svgEl('text', { x:pos.x,y:pos.y+5,'text-anchor':'middle','font-size':'22',fill:'#13c2c2' });
+    icon.textContent = '🚒';
+    layer.appendChild(icon);
+    const label = svgEl('text', { x:pos.x,y:pos.y+24,'text-anchor':'middle','font-size':'13',fill:'#13c2c2',opacity:0.7 });
+    label.textContent = t.short || t.name;
+    layer.appendChild(label);
+  });
+}
+
+function drawShelters() {
+  if (lfMap) { lfDrawShelters(); return; }
+  const layer = document.getElementById('layer-teams');
+  const shelters = [
+    { name:'瑞丽安置点', lng:97.9, lat:24.05 },
+    { name:'芒市避难所', lng:98.58, lat:24.43 }
+  ];
+  shelters.forEach(s => {
+    const pos = geoToSvg(s.lng, s.lat);
+    const icon = svgEl('text', { x:pos.x,y:pos.y+5,'text-anchor':'middle','font-size':'20',fill:'#52c41a' });
+    icon.textContent = '🏕';
+    layer.appendChild(icon);
+    const label = svgEl('text', { x:pos.x,y:pos.y+22,'text-anchor':'middle','font-size':'12',fill:'#52c41a',opacity:0.6 });
+    label.textContent = s.name;
+    layer.appendChild(label);
+  });
+}
+
+function renderMapPoint(task) {
+  if (task.status === 'intercepted') return;
+  if (lfMap) { lfRenderPoint(task); return; }
+  const layer = document.getElementById('layer-points');
+  const pos = getTaskSvgPos(task);
+  const cx = pos.x, cy = pos.y;
+  const colorMap = { P0:'#ff4d4f', P1:'#fa8c16', P2:'#fadb14' };
+  const color = colorMap[task.priority] || '#fadb14';
+  const g = svgEl('g', { class:'disaster-point', id:'mp-'+task.eventId, 'data-id':task.eventId });
+  g.style.cursor = 'pointer';
+  g.onclick = () => selectTask(task.eventId);
+  if (task.status === 'new') {
+    const pulse = svgEl('circle', { cx,cy,r:6,fill:'none',stroke:color,'stroke-width':2,class:'pulse-circle' });
+    g.appendChild(pulse);
+  }
+  g.appendChild(svgEl('circle', { cx,cy,r:5,fill:color,class:'core' }));
+  const label = svgEl('text', { x:cx+10,y:cy+4,'font-size':'14',fill:color,'font-weight':'bold' });
+  label.textContent = task.priority;
+  g.appendChild(label);
+  // 卫星求救线索专属标记
+  if (task._channel === 'satellite') {
+    const sat = svgEl('text', { x:cx-24,y:cy+5,'font-size':'15' });
+    sat.textContent = '🛰';
+    g.appendChild(sat);
+  }
+  // 地名标签
+  if (task.location && task.location !== '未知区域') {
+    const locLabel = svgEl('text', { x:cx+10,y:cy+20,'font-size':'12',fill:'#5a6a7a' });
+    locLabel.textContent = task.location.substring(0, 8);
+    g.appendChild(locLabel);
+  }
+  layer.appendChild(g);
+  // 涟漪入场动画
+  const ripple = svgEl('circle', { cx,cy,r:5,fill:'none',stroke:color,'stroke-width':2,opacity:1 });
+  layer.appendChild(ripple);
+  let rr = 5, ro = 1;
+  function animRipple() {
+    rr += 1; ro -= 0.03;
+    if (ro <= 0) { ripple.remove(); return; }
+    ripple.setAttribute('r', rr);
+    ripple.setAttribute('opacity', ro);
+    requestAnimationFrame(animRipple);
+  }
+  animRipple();
+}
+
+function updateMapPointStatus(task) {
+  if (lfMap) { lfUpdatePoint(task); return; }
+  const g = document.getElementById('mp-' + task.eventId);
+  if (!g) return;
+  const colorMap = { new:'#ff4d4f', pending:'#fa8c16', dispatched:'#13c2c2', verify:'#13c2c2', closed:'#52c41a' };
+  const color = colorMap[task.status] || '#52c41a';
+  g.querySelectorAll('.core').forEach(c => c.setAttribute('fill', color));
+  if (task.status !== 'new') {
+    g.querySelectorAll('.pulse-circle').forEach(c => c.remove());
+  }
+  if (task.status === 'dispatched') {
+    const pos = getTaskSvgPos(task);
+    if (!g.querySelector('.team-marker')) {
+      const tm = svgEl('text', { x:pos.x-15,y:pos.y+5,'font-size':'16',fill:'#13c2c2',class:'team-marker' });
+      tm.textContent = '🚒';
+      g.appendChild(tm);
+    }
+  }
+  g.classList.toggle('selected', task.eventId === selectedTaskId);
+}
+
+function toggleLayer(name, visible) {
+  layerVisible[name] = visible;
+  if (lfMap && lfLayers[name]) {
+    if (visible) lfMap.addLayer(lfLayers[name]); else lfMap.removeLayer(lfLayers[name]);
+    return;
+  }
+  const layer = document.getElementById('layer-' + name);
+  if (layer) layer.style.display = visible ? '' : 'none';
+}
+
+// ==================== 十一、看板渲染 ====================
+function renderKanbanCard(task) {
+  if (task.status === 'intercepted') return;
+  const colBody = document.getElementById('kb-' + task.status);
+  if (!colBody) return;
+  const card = document.createElement('div');
+  card.className = 'kanban-card entering';
+  card.id = 'kc-' + task.eventId;
+  card.onclick = () => selectTask(task.eventId);
+  updateKanbanCardContent(card, task);
+  colBody.appendChild(card);
+  updateKanbanCounts();
+}
+
+function updateKanbanCardContent(card, task) {
+  const pColor = { P0:'#ff4d4f', P1:'#fa8c16', P2:'#fadb14' }[task.priority] || '#fadb14';
+  const agentEmoji = { new:'🛰', pending:'🧠', dispatched:'📡', verify:'🔍', closed:'✅' }[task.status] || '❓';
+  const loc = task.extracted ? task.extracted.location : task.location;
+  const persons = task.extracted && task.extracted.persons && task.extracted.persons !== '-' ? ` · ${task.extracted.persons}` : '';
+  const slaRemain = getSLARemain(task);
+  const slaClass = slaRemain < task.sla * 0.2 ? 'color:#ff4d4f;' : 'color:#13c2c2;';
+  card.innerHTML = `<div class="kanban-priority" style="background:${pColor}"></div><div class="kanban-info">${loc}${persons}</div><div class="kanban-sla mono" style="${slaClass}" id="ksla-${task.eventId}">⏱${formatSLA(slaRemain)}</div><div class="kanban-agent">${agentEmoji}</div>`;
+}
+
+function moveKanbanCard(task) {
+  const oldCard = document.getElementById('kc-' + task.eventId);
+  if (oldCard) oldCard.remove();
+  const colBody = document.getElementById('kb-' + task.status);
+  if (!colBody) return;
+  const card = document.createElement('div');
+  card.className = 'kanban-card entering';
+  card.id = 'kc-' + task.eventId;
+  card.onclick = () => selectTask(task.eventId);
+  updateKanbanCardContent(card, task);
+  colBody.appendChild(card);
+  updateKanbanCounts();
+  checkWIP();
+}
+
+function updateKanbanCounts() {
+  ['new','pending','dispatched','verify','closed'].forEach(s => {
+    const count = document.getElementById('kb-' + s).children.length;
+    document.getElementById('kc-' + s).textContent = count;
+  });
+}
+
+function checkWIP() {
+  const col = document.getElementById('col-dispatched');
+  const count = document.getElementById('kb-dispatched').children.length;
+  if (count > DISPATCH_WIP) {
+    col.classList.add('overload');
+    let toast = col.querySelector('.overload-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'overload-toast';
+      toast.textContent = '产能超载 · 建议升级响应级别';
+      col.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+  } else {
+    col.classList.remove('overload');
+  }
+}
+
+function sortKanbanColumns() {
+  ['new','pending','dispatched','verify'].forEach(status => {
+    const col = document.getElementById('kb-' + status);
+    const cards = Array.from(col.children);
+    cards.sort((a, b) => {
+      const ta = window.tasks.find(t => 'kc-' + t.eventId === a.id);
+      const tb = window.tasks.find(t => 'kc-' + t.eventId === b.id);
+      if (!ta || !tb) return 0;
+      return getSLARemain(ta) - getSLARemain(tb);
+    });
+    cards.forEach(c => col.appendChild(c));
+  });
+}
+
+// ==================== 十二、任务流转 ====================
+function transitionTask(eventId, newStatus) {
+  const task = window.tasks.find(t => t.eventId === eventId);
+  if (!task || task.status === 'intercepted') return;
+  task.status = newStatus;
+  // 通讯员：推进工单时间线 + 救援力量状态联动
+  if (task._ticket) {
+    const team = RESCUE_TEAMS.find(t => t.name === task._ticket.team);
+    if (newStatus === 'dispatched') {
+      task._ticket.steps.accepted = clockSeconds;
+      if (team) { team._status = '途中'; animateTeamTo(task, team); }
+    }
+    if (newStatus === 'verify') {
+      task._ticket.steps.onsite = clockSeconds;
+      task._fieldReport = genFieldReport(task);
+      if (team) team._status = '作业中';
+      flashAgent('agent-comms');
+    }
+    if (newStatus === 'closed') {
+      task._ticket.steps.closed = clockSeconds;
+      if (team && !window.tasks.some(x => x !== task && x._ticket && x._ticket.team === team.name && x.status !== 'closed')) team._status = '值守';
+      // 现场核实后回馈研判引擎：该线索标记为已核实，权重提升
+      const rep = casualtyEngine.reports.find(r => r.id === eventId);
+      if (rep && !rep.verified) { rep.verified = true; recomputeCasualty(); }
+    }
+    updateForceBoard();
+  }
+  moveKanbanCard(task);
+  updateMapPointStatus(task);
+  if (selectedTaskId === eventId) renderDeskDetail(task);
+  if (newStatus === 'dispatched') {
+    setTimeout(() => transitionTask(eventId, 'verify'), 8000);
+  } else if (newStatus === 'verify') {
+    setTimeout(() => transitionTask(eventId, 'closed'), 3000);
+  }
+}
+
+function approveTask(eventId) {
+  const task = window.tasks.find(t => t.eventId === eventId);
+  if (!task || task.status !== 'pending') return;
+  createTicket(task);
+  transitionTask(eventId, 'dispatched');
+  renderDeskDetail(task);
+}
+
+// ==================== 十三、右栏决策桌 ====================
+function renderDeskOverview() {
+  const container = document.getElementById('desk-content');
+  const pendingCount = window.tasks.filter(t => t.status === 'pending').length;
+  const interceptCount = stats.intercepted;
+  container.innerHTML = `
+    <div class="icl-strip">🚨 ICL 地震预警 · 本次事件回放：P波 14:20:32 检出 → <b>14:20:41 发出预警（提前9秒）</b> → S波 14:20:58 抵达曼德勒 · 预估烈度：瑞丽Ⅵ / 保山Ⅴ / 昆明Ⅳ</div>
+    <div class="brief-card" id="brief-card"></div>
+    <div id="casualty-card"></div>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-value cyan mono" id="kpi-avg-time">--</div><div class="kpi-label">平均闭环时间</div></div>
+      <div class="kpi-card"><div class="kpi-value green mono" id="kpi-sla-rate">--</div><div class="kpi-label">SLA达标率</div></div>
+      <div class="kpi-card"><div class="kpi-value orange mono">${interceptCount}</div><div class="kpi-label">误报拦截数</div></div>
+      <div class="kpi-card"><div class="kpi-value red mono">${pendingCount}</div><div class="kpi-label">待批准数</div></div>
+    </div>
+    <div class="agent-status-card"><div class="emoji">🛰</div><div class="info"><div class="name">哨兵</div><div class="status">监听微博社媒流 + 北斗卫星无网求救通道，实时萃取灾情要素</div></div></div>
+    <div class="agent-status-card"><div class="emoji">⚖️</div><div class="info"><div class="name">研判</div><div class="status">多源伤亡线索真值发现与趋势投影，输出响应级别建议</div></div></div>
+    <div class="agent-status-card"><div class="emoji">🧠</div><div class="info"><div class="name">参谋</div><div class="status">基于多源交叉验证生成处置方案，等待指挥长决策</div></div></div>
+    <div class="agent-status-card"><div class="emoji">📡</div><div class="info"><div class="name">通讯员</div><div class="status">生成救援对接工单，双向中转求助人与救援队信息，跟踪闭环</div></div></div>
+    <div class="force-board" id="force-board"></div>
+    <div class="assistant-box">
+      <div class="assistant-title">🤖 AI 决策助手</div>
+      <div class="assistant-chips">
+        <span onclick="askAssistant('当前最危险的区域？')">当前最危险区域？</span>
+        <span onclick="askAssistant('建议启动几级响应？')">建议响应级别？</span>
+        <span onclick="askAssistant('救援队如何调度？')">救援队调度？</span>
+      </div>
+      <div class="assistant-input"><input id="assistant-q" placeholder="询问AI助手…" onkeydown="if(event.key==='Enter')askAssistant()"><button onclick="askAssistant()">发送</button></div>
+      <div class="assistant-answer" id="assistant-answer">点击预设问题或输入问题，助手基于实时灾情作答。</div>
+    </div>
+  `;
+  updateKPIs();
+  renderCasualtyCard();
+  updateForceBoard();
+  genBrief();
+}
+
+function updateKPIs() {
+  const closedTasks = window.tasks.filter(t => t.status === 'closed');
+  const avgTime = closedTasks.length > 0 ? Math.round(closedTasks.reduce((s,t) => s + t.sla, 0) / closedTasks.length / 60) : 0;
+  const slaRate = closedTasks.length > 0 ? Math.round(closedTasks.filter(t => getSLARemain(t) >= 0).length / closedTasks.length * 100) : 0;
+  const avgEl = document.getElementById('kpi-avg-time');
+  const rateEl = document.getElementById('kpi-sla-rate');
+  if (avgEl) avgEl.textContent = avgTime > 0 ? avgTime + ' min' : '--';
+  if (rateEl) rateEl.textContent = slaRate > 0 ? slaRate + '%' : '--';
+}
+
+function renderDeskDetail(task) {
+  const container = document.getElementById('desk-content');
+  const slaRemain = getSLARemain(task);
+  const slaUrgent = slaRemain < task.sla * 0.2;
+  const canApprove = task.status === 'pending';
+  const isApproved = task.status === 'dispatched' || task.status === 'verify' || task.status === 'closed';
+  const dataSourceTag = task._channel === 'satellite'
+    ? '<span style="color:#b37feb;font-size:14px;">● 北斗卫星·无网求救</span>'
+    : task._isRealData ? '<span style="color:#52c41a;font-size:14px;">● 实时数据</span>' : '<span style="color:#fa8c16;font-size:14px;">● Mock数据</span>';
+  const t = task._ticket;
+  const ticketHtml = t ? `
+    <div class="detail-section">
+      <div class="detail-label">📡 通讯员 · 救援对接工单</div>
+      <div class="ticket-box">
+        <div class="ticket-head mono">${t.id} · ${t.team}（${t.teamType}）</div>
+        <div class="ticket-meta">对接通道：${t.channel} · 预计抵达 ${t.etaMin}min · 方式：平台双向信息中转</div>
+        <div class="ticket-steps">${ticketStepsHtml(t)}</div>
+        ${task._fieldReport ? `<div class="ticket-report">📥 现场回传：${task._fieldReport}</div>` : ''}
+        <div class="ticket-compliance">🔒 情报包已按最小必要原则脱敏 · 仅限本次救援使用 · 求助人联系方式不直接暴露给第三方</div>
+      </div>
+    </div>` : '';
+  container.innerHTML = `
+    <div class="back-link" onclick="deselectTask()">← 返回总览</div>
+    <div class="detail-section">
+      <div class="detail-label">事件编号 ${dataSourceTag}</div>
+      <div class="detail-value mono">${task.eventId} · ${task.priority} · ${task.extracted?.type || task.type}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">原始情报</div>
+      <div class="detail-source">${task.sourceText}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">萃取字段</div>
+      <div class="detail-value">类型：${task.extracted?.type || '-'}<br>位置：${task.extracted?.location || '-'}<br>坐标：<span class="mono">N${Number(task.lat).toFixed(4)}° E${Number(task.lng).toFixed(4)}°</span>（${task._geoAcc || '城市级 ±5km'}）<br>人数：${task.extracted?.persons || '-'}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">优先级依据</div>
+      <div class="detail-value" style="font-size:15px;color:#8899aa;">${task._prioReason || '规则引擎判定'}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">可信度拆解</div>
+      <div class="credibility-bars">
+        <div class="cred-row"><div class="cred-label">时效性</div><div class="cred-bar-bg"><div class="cred-bar-fill" style="width:${Math.min(task.credibility+5,100)}%;background:#13c2c2;"></div></div></div>
+        <div class="cred-row"><div class="cred-label">定位精度</div><div class="cred-bar-bg"><div class="cred-bar-fill" style="width:${Math.min(task.credibility-5,100)}%;background:#b37feb;"></div></div></div>
+        <div class="cred-row"><div class="cred-label">交叉验证</div><div class="cred-bar-bg"><div class="cred-bar-fill" style="width:${Math.min(task.credibility-10,100)}%;background:#fa8c16;"></div></div></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-label">参谋方案</div>
+      <div class="plan-box recommended">
+        <div class="plan-title">方案A <span class="rec-tag">推荐</span></div>
+        <div class="detail-value" style="margin-bottom:6px;">${task.planA || '-'}</div>
+        <div class="plan-evidence">${(task.planAE||[]).map(e=>'• '+e).join('<br>')}</div>
+      </div>
+      <div class="plan-box">
+        <div class="plan-title">方案B（备选）</div>
+        <div class="detail-value" style="margin-bottom:6px;">${task.planB || '-'}</div>
+        <div class="plan-evidence">${(task.planBE||[]).map(e=>'• '+e).join('<br>')}</div>
+      </div>
+    </div>
+    <div class="sla-countdown mono ${slaUrgent?'urgent':'normal'}" id="desk-sla">⏱ SLA ${formatSLA(slaRemain)}</div>
+    ${ticketHtml}
+    <div class="desk-actions">
+      <button class="desk-btn approve" ${canApprove?'':'disabled'} onclick="approveTask('${task.eventId}')">批准派遣</button>
+      <button class="desk-btn relevel" onclick="alert('改级功能演示：可将${task.priority}调整为其他等级')">改级</button>
+      <button class="desk-btn reject" onclick="alert('驳回功能演示：任务将退回新情报列')">驳回</button>
+    </div>
+    ${isApproved ? '<div class="approval-stamp">✔ 已由指挥长批准 · 决策责任：人</div>' : ''}
+  `;
+}
+
+// ==================== 十四、全局联动 ====================
+function deselectTask() {
+  selectedTaskId = null;
+  document.querySelectorAll('.feed-card,.kanban-card').forEach(c => c.classList.remove('selected','link-highlight'));
+  document.querySelectorAll('.disaster-point').forEach(p => p.classList.remove('selected'));
+  renderDeskOverview();
+}
+
+function selectTask(eventId) {
+  selectedTaskId = eventId;
+  const task = window.tasks.find(t => t.eventId === eventId);
+  if (!task) return;
+  document.querySelectorAll('.feed-card').forEach(c => c.classList.remove('selected','link-highlight'));
+  const feedCard = document.getElementById('feed-' + eventId);
+  if (feedCard) { feedCard.classList.add('selected','link-highlight'); feedCard.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+  document.querySelectorAll('.disaster-point').forEach(p => p.classList.remove('selected'));
+  const mp = document.getElementById('mp-' + eventId);
+  if (mp) mp.classList.add('selected');
+  document.querySelectorAll('.kanban-card').forEach(c => c.classList.remove('selected','link-highlight'));
+  const kc = document.getElementById('kc-' + eventId);
+  if (kc) { kc.classList.add('selected','link-highlight'); kc.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+  renderDeskDetail(task);
+}
+
+// ==================== 十五、SLA倒计时刷新 ====================
+function getSLARemain(task) {
+  if (task.status === 'closed' || task.status === 'intercepted') return 0;
+  const elapsed = clockSeconds - task._slaStart;
+  return Math.max(0, task.sla - elapsed);
+}
+
+function formatSLA(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function updateAllSLA() {
+  window.tasks.forEach(task => {
+    if (task.status === 'intercepted' || task.status === 'closed') return;
+    const remain = getSLARemain(task);
+    const slaEl = document.getElementById('ksla-' + task.eventId);
+    if (slaEl) {
+      slaEl.textContent = '⏱' + formatSLA(remain);
+      slaEl.style.color = remain < task.sla * 0.2 ? '#ff4d4f' : '#13c2c2';
+    }
+    if (selectedTaskId === task.eventId) {
+      const deskSla = document.getElementById('desk-sla');
+      if (deskSla) {
+        deskSla.textContent = '⏱ SLA ' + formatSLA(remain);
+        deskSla.className = 'sla-countdown mono ' + (remain < task.sla * 0.2 ? 'urgent' : 'normal');
+      }
+    }
+  });
+  sortKanbanColumns();
+  updateKPIs();
+}
+
+// ==================== 十六、一键演示 ====================
+function toggleDemo() {
+  const btn = document.getElementById('demo-btn');
+  if (demoPlaying) {
+    stopDemo();
+    btn.textContent = '▶ 一键演示';
+    btn.classList.remove('playing');
+  } else {
+    startDemo();
+    btn.textContent = '⏸ 暂停演示';
+    btn.classList.add('playing');
+  }
+}
+
+function startDemo() {
+  demoPlaying = true;
+  window.tasks = [];
+  enqueuedIds.clear();
+  processedLiveIds.clear();
+  stats.raw = 0; stats.extracted = 0; stats.intercepted = 0;
+  updateStats();
+  document.getElementById('feed-list').innerHTML = '';
+  document.getElementById('intercept-list').innerHTML = '';
+  ['new','pending','dispatched','verify','closed'].forEach(s => document.getElementById('kb-' + s).innerHTML = '');
+  selectedTaskId = null;
+  resetCasualtyEngine();
+  closeDrawer();
+  renderDeskOverview();
+  renderDistTable();
+  initMap();
+  clockSeconds = 0;
+  // 演示使用Mock数据确保可控
+  const data = allMockData[currentMode].filter(t => t.status !== 'intercepted').slice(0, 6);
+  let idx = 0;
+  function nextStep() {
+    if (!demoPlaying) return;
+    if (idx < data.length) {
+      addTask(data[idx]);
+      selectTask(data[idx].eventId);
+      idx++;
+      demoTimer = setTimeout(nextStep, 3000);
+    } else {
+      setTimeout(() => {
+        if (!demoPlaying) return;
+        const pending = window.tasks.find(t => t.status === 'pending');
+        if (pending) {
+          approveTask(pending.eventId);
+          selectTask(pending.eventId);
+        }
+        setTimeout(() => {
+          if (demoPlaying) {
+            demoPlaying = false;
+            document.getElementById('demo-btn').textContent = '▶ 一键演示';
+            document.getElementById('demo-btn').classList.remove('playing');
+          }
+        }, 5000);
+      }, 4000);
+    }
+  }
+  nextStep();
+}
+
+function stopDemo() {
+  demoPlaying = false;
+  clearTimeout(demoTimer);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,210 @@
+{
+  "wb-dlfsfp90elh5": {
+    "damage_type": "人员伤亡",
+    "sentiment": "neutral"
+  },
+  "wb-bfs5zafatko8": {
+    "damage_type": "震感反馈",
+    "sentiment": "neutral"
+  },
+  "wb-bkhqeld7mhnc": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-cklno22eo8lv": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-cbz96a4df39m": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-d1wddqornxuy": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "negative"
+  },
+  "wb-ctkl5nqsef27": {
+    "damage_type": "人员伤亡",
+    "sentiment": "urgent"
+  },
+  "wb-cd2b4oko6198": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-biewflss02ob": {
+    "damage_type": "震感反馈",
+    "sentiment": "negative"
+  },
+  "wb-dubq8w8hxqiv": {
+    "damage_type": "道路中断",
+    "sentiment": "negative"
+  },
+  "wb-b0vszxwql1e8": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-b96p4ufwczqp": {
+    "damage_type": "道路中断",
+    "sentiment": "urgent"
+  },
+  "wb-cw4ycjwtpam7": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-cjk1o2iranht": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-c0wt8v7r7xk8": {
+    "damage_type": "震感反馈",
+    "sentiment": "neutral"
+  },
+  "wb-star80m8z5bk": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "negative"
+  },
+  "wb-bcj8n5vfy1n0": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "negative"
+  },
+  "wb-d0aw7559ksww": {
+    "damage_type": "次生灾害",
+    "sentiment": "negative"
+  },
+  "wb-cowvmo0qzlnn": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-b4u2z56p8hiz": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-dlslw6j7pk53": {
+    "damage_type": "人员伤亡",
+    "sentiment": "urgent"
+  },
+  "wb-1vf2see5dlco": {
+    "damage_type": "次生灾害",
+    "sentiment": "neutral"
+  },
+  "wb-4a31ji36omd0": {
+    "damage_type": "震感反馈",
+    "sentiment": "neutral"
+  },
+  "wb-b4whh3ikhaf9": {
+    "damage_type": "道路中断",
+    "sentiment": "urgent"
+  },
+  "wb-cc3m03h40wd2": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-cuahy6qip92q": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-d2cyytupcv6g": {
+    "damage_type": "震感反馈",
+    "sentiment": "urgent"
+  },
+  "wb-c0ruiwk73xag": {
+    "damage_type": "次生灾害",
+    "sentiment": "urgent"
+  },
+  "wb-18rvoyntr153": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-drxgsrjznd2t": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-dqmom02bm6ac": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-bsair3s1ylsz": {
+    "damage_type": "次生灾害",
+    "sentiment": "urgent"
+  },
+  "wb-ehfjynnq9sto": {
+    "damage_type": "震感反馈",
+    "sentiment": "negative"
+  },
+  "wb-c9197gfc2qyz": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-4xd4b5r8f8f4": {
+    "damage_type": "人员伤亡",
+    "sentiment": "negative"
+  },
+  "wb-c3ex0jzj5wq4": {
+    "damage_type": "人员伤亡",
+    "sentiment": "negative"
+  },
+  "wb-crrkqvtij04i": {
+    "damage_type": "人员伤亡",
+    "sentiment": "negative"
+  },
+  "wb-dr8w129ail8v": {
+    "damage_type": "人员伤亡",
+    "sentiment": "urgent"
+  },
+  "wb-c3gw7y6wuqdh": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-bm1fj36m9w4m": {
+    "damage_type": "人员伤亡",
+    "sentiment": "urgent"
+  },
+  "wb-cv2xhxvc6tko": {
+    "damage_type": "救援进展",
+    "sentiment": "hopeful"
+  },
+  "wb-c6s4re3if7ij": {
+    "damage_type": "人员伤亡",
+    "sentiment": "urgent"
+  },
+  "wb-binlu9642h3g": {
+    "damage_type": "震感反馈",
+    "sentiment": "neutral"
+  },
+  "wb-bq6i9zk9r7o9": {
+    "damage_type": "人员伤亡",
+    "sentiment": "urgent"
+  },
+  "wb-d56w9sus51ig": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-bq7zenye7kdz": {
+    "damage_type": "人员伤亡",
+    "sentiment": "urgent"
+  },
+  "wb-r23or6xvwbti": {
+    "damage_type": "人员伤亡",
+    "sentiment": "negative"
+  },
+  "wb-be56rh29bayw": {
+    "damage_type": "救援进展",
+    "sentiment": "hopeful"
+  },
+  "wb-dpou8sa3kxfh": {
+    "damage_type": "人员伤亡",
+    "sentiment": "urgent"
+  },
+  "wb-d0zyjiq6xsev": {
+    "damage_type": "救援进展",
+    "sentiment": "hopeful"
+  },
+  "wb-bdcy6eoeyet9": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  },
+  "wb-c6p0y6sghase": {
+    "damage_type": "房屋倒塌",
+    "sentiment": "urgent"
+  }
+}

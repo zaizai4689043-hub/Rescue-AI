@@ -1,0 +1,72 @@
+Available Commands:
+
+  attitudes create            发布一条表态
+  attitudes destroy           删除一条表态
+  attitudes show/biz          根据微博ID返回某条微博的赞列表
+  comments by_me/biz          获取当前登录用户发出的评论列表
+  comments by_me/other        获取某个用户发出的评论列表
+  comments create             评论一条微博
+  comments destroy            删除一条评论
+  comments mentions/biz       获取@当前登录用户的评论
+  comments mentions/other     获取@某人的评论
+  comments reply              回复一条评论
+  comments show/all           返回一条微博的全部评论列表
+  comments show/biz           获取当前登录用户发布的微博下的评论列表
+  comments show_batch/biz     批量获取评论内容
+  comments timeline/biz       获取当前登录用户发出及收到的评论列表
+  comments timeline/other     获取某个用户发出和收到的评论列表
+  comments to_me/biz          获取当前登录用户收到的评论列表
+  comments to_me/other        获取某个用户收到的评论列表
+  friendships followers/active_list获取授权用户活跃或互动粉丝TOP20列表
+  friendships followers/age_group_count获取某用户粉丝的年龄段、性别细分数据
+  friendships followers/biz   获取当前登录用户的粉丝列表
+  friendships followers/demographics_day获取用户粉丝的星座、兴趣标签和粉丝量级的细分数据
+  friendships followers/influence_top20获取近7天转发或互动最多的粉丝TOP20（仅蓝V）
+  friendships followers/location_count获取用户粉丝的地区细分数据
+  friendships followers/online_time/biz获取当前登录用户粉丝最近一周在线时段比例分布
+  friendships followers/source获取某用户粉丝的关注来源
+  friendships followers/trend_other/biz获取当前登录用户的粉丝每天增加和减少数量
+  friendships followers/unfollower_count获取最长近90天内每天取消关注该账户的用户数
+  friendships friends/biz     获取当前登录用户的关注列表 （可用: --uid UID | --screen_name 昵称）
+  search hot_word/biz         微博热搜主榜
+  search hot_word_cate/biz    搜索分类榜单
+  search statuses/limited     搜索含某关键词的微博
+  search suggestions/users/biz搜用户搜索建议
+  short_url expand            将一个或多个短链接还原成原始的长链接
+  short_url shorten           将一个或多个长链接转换成短链接
+  statuses count/biz          批量获取指定微博的转发数评论数喜欢数
+  statuses count_sp/biz       批量获取指定授权微博的转发数、评论数、赞数、阅读数
+  statuses destroy            删除微博信息
+  statuses mentions/biz       获取@当前登录用户的微博列表
+  statuses mentions/other     获取@某人的微博
+  statuses queryid/biz        通过微博（评论、私信）MID获取其ID
+  statuses querymid/biz       通过微博（评论、私信）ID获取其MID
+  statuses repost             转发一条微博信息
+  statuses repost_timeline/all返回一条微博的全部转发微博列表
+  statuses repost_timeline/biz获取当前登录用户发布的一条原创微博的最新转发微博
+  statuses show_batch/biz     根据微博ID批量获取微博信息
+  statuses statistic/biz      返回近90天内发布的授权微博每天的被转发数、被评论数、被喜欢数、被点击数（区分短链、图片、视频点击）
+  statuses update             发布一条微博信息
+  statuses upload             上传图片并发布一条微博
+  statuses upload_pic         上传图片，返回图片id
+  statuses upload_url_text    发布一条带单/多图的微博（需要组合上传图片接口）
+  statuses user_timeline/biz  获取当前登录用户发布的微博
+  statuses user_timeline/other获取其他用户发布的微博
+  statuses user_timeline_batch批量获取用户个人微博列表
+  tags biz                    获取当前登录用户的标签
+  tags tags_batch/other       批量获取用户标签
+  users behavior_trend        获取授权用户行为数据每日变化趋势
+  users behavior_trend/biz    获取他人用户行为数据每日变化趋势
+  users counts_batch/other    批量获取用户的粉丝数、关注数、微博数
+  users receive_like_count    获取某用户近90天每天的被喜欢数
+  users show/biz              获取当前登录用户信息 （当前登录用户资料）
+  users show_batch/other      批量获取其他用户的基本信息 （可用: --screen_name 昵称 | --uids UID列表）
+  users statistic/biz         获取当前登录用户近90天每天的被点击数（区分短链、图片点击）、被阅读数、用户去重的被阅读数
+  wbindex ranking/showComing  综艺-待播榜
+  wbindex ranking/showHot     综艺-热播榜
+  wbindex ranking/tvComing    剧集-待播榜
+  wbindex ranking/tvHot       剧集-热播榜
+  wbindex ranking/tvRole      剧集-热议角色榜
+
+Use "weibo-cli commands show <group> <action>" for details.
+Use "weibo-cli commands list --available" or "--all" for plan-based access.

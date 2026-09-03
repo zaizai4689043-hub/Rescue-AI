@@ -1,0 +1,1 @@
+缺少登录令牌。请运行 `weibo-cli auth login`；SSH、远程或无图形界面可显式使用 `weibo-cli auth login --device`。无人值守环境请配置 WEIBO_CLI_TOKEN 或 WEIBO_CLI_REFRESH_TOKEN。

@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RescueAI 商业计划书 · Confidential</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+    background: #030712; color: #d1d5db;
+    line-height: 1.7; overflow-x: hidden;
+  }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  /* 打印优化 */
+  @media print {
+    body { background: #fff; color: #1f2937; }
+    .page-break { page-break-before: always; }
+    .no-print { display: none; }
+    section { break-inside: avoid; }
+  }
+
+  /* 背景 */
+  .bg-grid {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image:
+      linear-gradient(rgba(59,130,246,.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,.02) 1px, transparent 1px);
+    background-size: 80px 80px;
+  }
+
+  /* 面板 */
+  .card {
+    background: rgba(15,23,42,.7);
+    border: 1px solid rgba(51,65,85,.4);
+    border-radius: 1rem; backdrop-filter: blur(12px);
+    transition: all .3s;
+  }
+  .card:hover { border-color: rgba(59,130,246,.3); }
+
+  .card-light {
+    background: rgba(30,41,59,.5);
+    border: 1px solid rgba(71,85,105,.3);
+    border-radius: .75rem;
+  }
+
+  /* 渐变文字 */
+  .text-gradient {
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-gradient-warm {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .text-gradient-green {
+    background: linear-gradient(135deg, #10b981, #06b6d4);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* 数字高亮 */
+  .big-num {
+    font-size: 3rem; font-weight: 900; line-height: 1;
+    background: linear-gradient(180deg, #fff 30%, #64748b);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .big-num-blue {
+    font-size: 2.5rem; font-weight: 800; line-height: 1;
+    background: linear-gradient(180deg, #60a5fa, #3b82f6);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* 进度条 */
+  .bar { height: 6px; border-radius: 3px; background: rgba(51,65,85,.5); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; }
+
+  /* 时间线 */
+  .tl-dot { width: 14px; height: 14px; border-radius: 50%; border: 3px solid; flex-shrink: 0; }
+  .tl-line { width: 3px; min-height: 40px; flex-shrink: 0; }
+
+  /* 表格 */
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: .75rem; font-weight: 600; color: #94a3b8; padding: .75rem 1rem; border-bottom: 1px solid rgba(51,65,85,.5); }
+  td { padding: .75rem 1rem; font-size: .875rem; border-bottom: 1px solid rgba(51,65,85,.2); }
+
+  /* 章节标题 */
+  .section-tag {
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-size: .75rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+    padding: .35rem 1rem; border-radius: 9999px;
+    border: 1px solid; margin-bottom: 1rem;
+  }
+
+  /* 动画 */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+  .fade-up { animation: fadeUp .5s ease both; }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+
+<!-- ==================== COVER ==================== -->
+<section class="relative z-10 min-h-screen flex flex-col justify-center items-center text-center px-6">
+  <div class="max-w-3xl mx-auto">
+    <div class="flex items-center justify-center gap-3 mb-8">
+      <svg width="56" height="56" viewBox="0 0 40 40">
+        <path d="M20 2 36 8v10c0 10-7 17-16 20C11 35 4 28 4 18V8Z" fill="none" stroke="#3b82f6" stroke-width="2"/>
+        <path d="M20 12v16M12 20h16" stroke="#06b6d4" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h1 class="text-6xl md:text-7xl font-black text-white mb-3 tracking-tight">
+      Rescue<span class="text-gradient">AI</span>
+    </h1>
+    <p class="text-lg text-slate-400 mb-2">AI 地震救援智能决策平台</p>
+    <p class="text-sm text-slate-500 mb-12">从「社情感知」到「空中救援」的全链路 AI 决策闭环</p>
+
+    <div class="card p-8 max-w-xl mx-auto mb-10">
+      <p class="text-xs text-slate-500 mb-4 tracking-widest uppercase">商业计划书 · Business Plan</p>
+      <div class="grid grid-cols-3 gap-6 text-center">
+        <div>
+          <div class="big-num-blue">7</div>
+          <div class="text-xs text-slate-400 mt-1">步产品闭环</div>
+        </div>
+        <div>
+          <div class="big-num-blue">5h→5min</div>
+          <div class="text-xs text-slate-400 mt-1">信息时差压缩</div>
+        </div>
+        <div>
+          <div class="big-num-blue">53K+</div>
+          <div class="text-xs text-slate-400 mt-1">真实数据验证</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap justify-center gap-3 text-xs text-slate-500">
+      <span class="px-3 py-1 rounded-full border border-slate-700/50">Confidential</span>
+      <span class="px-3 py-1 rounded-full border border-slate-700/50">2026 年 8 月</span>
+      <span class="px-3 py-1 rounded-full border border-slate-700/50">v1.0</span>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 1. EXECUTIVE SUMMARY ==================== -->
+<section class="relative z-10 max-w-5xl mx-auto px-6 py-20 page-break">
+  <div class="section-tag text-blue-400 border-blue-500/30">01 · Executive Summary</div>
+  <h2 class="text-3xl font-bold text-white mb-6">执行摘要</h2>
+
+  <div class="card p-8 mb-8">
+    <p class="text-slate-300 leading-relaxed text-[15px]">
+      <strong class="text-white">RescueAI</strong> 是一款面向地震应急救援场景的 AI 智能决策平台。产品以<strong class="text-blue-300">「抢回黄金 72 小时」</strong>为核心价值主张，通过七步闭环链路——从 ICL 地震预警触发、社交媒体实时感知、NLP 智能解析、灾情热力图生成、动态优先级排序、AI 决策简报，到无人机空中救援——将震后信息真空期从<strong class="text-white">数小时压缩至分钟级</strong>，为应急指挥提供「一张图」式的全链路决策支持。
+    </p>
+    <div class="mt-6 p-4 rounded-lg bg-blue-500/5 border border-blue-500/20">
+      <p class="text-sm text-blue-300">
+        <strong>核心差异化：</strong>现有应急系统重"报"（数据采集与展示），RescueAI 重"判"（智能研判与决策）。我们是业内首个将社媒噪声实时转化为可行动优先级的 AI 系统，并在官方沉默期抢出关键信息时差。
+      </p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="card-light p-5 text-center">
+      <div class="text-2xl font-black text-white">M7.7</div>
+      <div class="text-xs text-slate-400 mt-1">缅甸地震实战验证</div>
+    </div>
+    <div class="card-light p-5 text-center">
+      <div class="text-2xl font-black text-white">53,340</div>
+      <div class="text-xs text-slate-400 mt-1">条真实微博全链路跑通</div>
+    </div>
+    <div class="card-light p-5 text-center">
+      <div class="text-2xl font-black text-white">&lt;3s</div>
+      <div class="text-xs text-slate-400 mt-1">AI 简报生成耗时</div>
+    </div>
+    <div class="card-light p-5 text-center">
+      <div class="text-2xl font-black text-white">8 案例</div>
+      <div class="text-xs text-slate-400 mt-1">历史知识库 · 10 维匹配</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 2. PROBLEM ==================== -->
+<section class="relative z-10 max-w-5xl mx-auto px-6 py-20 page-break">
+  <div class="section-tag text-red-400 border-red-500/30">02 · Problem</div>
+  <h2 class="text-3xl font-bold text-white mb-6">痛点分析：震后「信息黑洞」</h2>
+
+  <div class="grid md:grid-cols-3 gap-6 mb-8">
+    <div class="card p-6">
+      <div class="text-3xl mb-3">⏰</div>
+      <h4 class="text-lg font-bold text-white mb-2">信息时差致命</h4>
+      <p class="text-sm text-slate-400">2025 缅甸 M7.7 地震：官方首报延迟 <strong class="text-red-300">5 小时</strong>，而社交媒体 5 分钟内已传播伤亡信息。这 5 小时的信息真空，直接延误救援部署。</p>
+    </div>
+    <div class="card p-6">
+      <div class="text-3xl mb-3">🎯</div>
+      <h4 class="text-lg font-bold text-white mb-2">优先级判断缺失</h4>
+      <p class="text-sm text-slate-400">指挥官面对的永远是三个问题：<strong class="text-amber-300">哪里最严重？先救哪里？路怎么走？</strong>层层上报汇总完毕，黄金 72 小时已过大半。</p>
+    </div>
+    <div class="card p-6">
+      <div class="text-3xl mb-3">📡</div>
+      <h4 class="text-lg font-bold text-white mb-2">预警覆盖盲区</h4>
+      <p class="text-sm text-slate-400">ICL 预警覆盖半径约 50km，缅甸震中距中国边境 294km——<strong class="text-cyan-300">全球无任何预警发出</strong>。全球 85% 以上地震发生在无预警体系地区。</p>
+    </div>
+  </div>
+
+  <div class="card p-6">
+    <h4 class="text-sm font-bold text-slate-300 mb-4">生存率与时间的残酷关系</h4>
+    <div class="space-y-3">
+      <div>
+        <div class="flex justify-between text-xs mb-1"><span class="text-green-300">震后 24 小时</span><span class="mono text-slate-400">存活率 ~80%</span></div>
+        <div class="bar"><div class="bar-fill bg-green-500" style="width:80%"></div></div>
+      </div>
+      <div>
+        <div class="flex justify-between text-xs mb-1"><span class="text-amber-300">震后 48 小时</span><span class="mono text-slate-400">存活率 ~50%</span></div>
+        <div class="bar"><div class="bar-fill bg-amber-500" style="width:50%"></div></div>
+      </div>
+      <div>
+        <div class="flex justify-between text-xs mb-1"><span class="text-red-300">震后 72 小时</span><span class="mono text-slate-400">存活率 ~30%</span></div>
+        <div class="bar"><div class="bar-fill bg-red-500" style="width:30%"></div></div>
+      </div>
+    </div>
+    <p class="text-xs text-slate-500 mt-4">救援拼的不是人力，是时间。AI 不替代救援者，它做的只是把时间抢回来。</p>
+  </div>
+</section>
+
+<!-- ==================== 3. SOLUTION ==================== -->
+<section class="relative z-10 max-w-5xl mx-auto px-6 py-20 page-break">
+  <div class="section-tag text-cyan-400 border-cyan-500/30">03 · Solution</div>
+  <h2 class="text-3xl font-bold text-white mb-6">解决方案：七步 AI 决策闭环</h2>
+
+  <div class="space-y-4">
+    <!-- Step 1 -->
+    <div class="card p-5 flex gap-4 items-start">
+      <div class="w-10 h-10 rounded-lg bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-lg flex-shrink-0">📡</div>
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-bold text-cyan-400 mono">STEP 1</span>
+          <span class="text-xs text-slate-500">预警触发</span>
+        </div>
+        <h4 class="text-sm font-bold text-white">ICL 地震预警 → 立即启动社媒监测</h4>
+        <p class="text-xs text-slate-400 mt-1">成都高新减灾研究所 ICL 系统检测到任何地震信号，不论震级，即刻启动微博关键词监测。因为任何一次地震背后都可能有人被困。</p>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="card p-5 flex gap-4 items-start">
+      <div class="w-10 h-10 rounded-lg bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-lg flex-shrink-0">🧠</div>
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-bold text-purple-400 mono">STEP 2</span>
+          <span class="text-xs text-slate-500">NLP 智能解析</span>
+        </div>
+        <h4 class="text-sm font-bold text-white">四层过滤 + Qwen LLM 深度解析</h4>
+        <p class="text-xs text-slate-400 mt-1">去重→辟谣→机器人识别→地理围栏四层噪声过滤；大模型自动完成 NER 地名提取、四维情感分析、六类损毁标签分类。53,340 条数据漏斗：原始→去噪→初筛→AI 甄别→精选。</p>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="card p-5 flex gap-4 items-start">
+      <div class="w-10 h-10 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-lg flex-shrink-0">🗺️</div>
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-bold text-amber-400 mono">STEP 3</span>
+          <span class="text-xs text-slate-500">灾情地图 + 优先级排序</span>
+        </div>
+        <h4 class="text-sm font-bold text-white">NER 聚合热力图 + P0-P3 动态优先级</h4>
+        <p class="text-xs text-slate-400 mt-1">地名按频次×严重程度加权生成热力图；识别「救命」「被困」等呼救信号，输出 P0（立即派遣）到 P3（持续监测）四级优先级。缅甸案例中 Sky Villa 和实皆省精准排列 P0。</p>
+      </div>
+    </div>
+
+    <!-- Step 4-5 -->
+    <div class="card p-5 flex gap-4 items-start">
+      <div class="w-10 h-10 rounded-lg bg-fuchsia-500/15 border border-fuchsia-500/30 flex items-center justify-center text-lg flex-shrink-0">📋</div>
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-bold text-fuchsia-400 mono">STEP 4-5</span>
+          <span class="text-xs text-slate-500">仪表盘 + AI 简报</span>
+        </div>
+        <h4 class="text-sm font-bold text-white">多维分析仪表盘 + Qwen 秒级灾情简报</h4>
+        <p class="text-xs text-slate-400 mt-1">损毁分布、关键词排行、情感时间线三屏洞察；Qwen3.8-Max 几秒生成 ≤200 字应急管理部风格通报，在官方沉默期抢回信息时差。</p>
+      </div>
+    </div>
+
+    <!-- Step 6 -->
+    <div class="card p-5 flex gap-4 items-start">
+      <div class="w-10 h-10 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-lg flex-shrink-0">🧭</div>
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-bold text-emerald-400 mono">STEP 6</span>
+          <span class="text-xs text-slate-500">AI 决策助手</span>
+        </div>
+        <h4 class="text-sm font-bold text-white">10 维历史案例匹配 + 智能行动方案</h4>
+        <p class="text-xs text-slate-400 mt-1">将当前灾情与汶川、鲁甸、泸定、土耳其等 8 个历史案例进行 10 维加权匹配，直接回答「先救哪、依据是什么、怎么行动」，并输出资源调配建议。</p>
+      </div>
+    </div>
+
+    <!-- Step 7 -->
+    <div class="card p-5 flex gap-4 items-start">
+      <div class="w-10 h-10 rounded-lg bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-lg flex-shrink-0">🚁</div>
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-bold text-sky-400 mono">STEP 7</span>
+          <span class="text-xs text-slate-500">无人机空中救援</span>
+        </div>
+        <h4 class="text-sm font-bold text-white">物资投送 + 空中侦察 + 巡逻监视</h4>
+        <p class="text-xs text-slate-400 mt-1">三位一体无人机模块：物资精准投送（15kg/架次）、4K 空中侦察（Qwen-VL 结构研判）、灾情巡逻监视。真机遥测协议已预留，接入大疆 Cloud API 即可飞行。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 4. MARKET ==================== -->
+<section class="relative z-10 max-w-5xl mx-auto px-6 py-20 page-break">
+  <div class="section-tag text-emerald-400 border-emerald-500/30">04 · Market Opportunity</div>
+  <h2 class="text-3xl font-bold text-white mb-6">市场机遇</h2>
+
+  <div class="grid md:grid-cols-3 gap-6 mb-8">
+    <div class="card p-6 text-center">
+      <div class="big-num">$12B+</div>
+      <div class="text-sm text-slate-400 mt-2">全球应急管理技术市场</div>
+      <div class="text-xs text-slate-500 mt-1">2025 年预估 · CAGR 11.2%</div>
+    </div>
+    <div class="card p-6 text-center">
+      <div class="big-num">¥480亿</div>
+      <div class="text-sm text-slate-400 mt-2">中国应急信息化市场</div>
+      <div class="text-xs text-slate-500 mt-1">2025E · 含智慧消防/应急指挥</div>
+    </div>
+    <div class="card p-6 text-center">
+      <div class="big-num">550+</div>
+      <div class="text-sm text-slate-400 mt-2">全球年均破坏性地震</div>
+      <div class="text-xs text-slate-500 mt-1">M6.0 以上 · 影响数千万人</div>
+    </div>
+  </div>
+
+  <div class="card p-6 mb-6">
+    <h4 class="text-sm font-bold text-white mb-4">市场驱动力</h4>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="space-y-3">
+        <div class="flex gap-3 items-start">
+          <span class="text-emerald-400 mt-0.5">▸</span>
+          <div>
+            <div class="text-sm font-bold text-slate-200">政策加速</div>
+            <p class="text-xs text-slate-400">中国「十四五」国家应急体系规划明确 AI + 应急方向；2018 年应急管理部成立后持续推动信息化升级</p>
+          </div>
+        </div>
+        <div class="flex gap-3 items-start">
+          <span class="text-emerald-400 mt-0.5">▸</span>
+          <div>
+            <div class="text-sm font-bold text-slate-200">AI 技术成熟</div>
+            <p class="text-xs text-slate-400">大模型（Qwen 等）NLP 能力达到生产级；多模态视觉模型可完成建筑结构快速研判</p>
+          </div>
+        </div>
+      </div>
+      <div class="space-y-3">
+        <div class="flex gap-3 items-start">
+          <span class="text-emerald-400 mt-0.5">▸</span>
+          <div>
+            <div class="text-sm font-bold text-slate-200">社媒成为灾情第一信源</div>
+            <p class="text-xs text-slate-400">缅甸地震首条涉震微博早于主震 1 分 46 秒；土耳其地震中社媒成为国际救援信息关键通道</p>
+          </div>
+        </div>
+        <div class="flex gap-3 items-start">
+          <span class="text-emerald-400 mt-0.5">▸</span>
+          <div>
+            <div class="text-sm font-bold text-slate-200">无人机救援标配化</div>
+            <p class="text-xs text-slate-400">泸定地震后无人机成为「三断」场景标配；大疆行业应用生态成熟，API 接入即可</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card p-6">
+    <h4 class="text-sm font-bold text-white mb-4">目标客户分层</h4>
+    <table>
+      <thead><tr><th>层级</th><th>客户</th><th>场景</th><th>付费意愿</th></tr></thead>
+      <tbody>
+        <tr><td class="text-blue-300 font-bold">T1</td><td>省/市应急管理局</td><td>震后实时指挥决策</td><td>政府采购 · 年费 SaaS</td></tr>
+        <tr><td class="text-cyan-300 font-bold">T2</td><td>消防救援总队/支队</td><td>现场救援优先级调度</td><td>装备配套 · 项目制</td></tr>
+        <tr><td class="text-emerald-300 font-bold">T3</td><td>国际救援组织 (INSARAG)</td><td>跨境救援协调</td><td>国际组织 · License</td></tr>
+        <tr><td class="text-amber-300 font-bold">T4</td><td>保险公司 / 再保险</td><td>灾后快速定损理赔</td><td>数据服务 · API 调用</td></tr>
+        <tr><td class="text-purple-300 font-bold">T5</td><td>一带一路沿线国家</td><td>无预警体系国家的应急基建</td><td>政府间合作 · 项目输出</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ==================== 5. COMPETITIVE ==================== -->
+<section class="relative z-10 max-w-5xl mx-auto px-6 py-20 page-break">
+  <div class="section-tag text-amber-400 border-amber-500/30">05 · Competitive Landscape</div>
+  <h2 class="text-3xl font-bold text-white mb-6">竞争格局</h2>
+
+  <div class="card p-6 mb-6 overflow-x-auto">
+    <table class="min-w-[700px]">
+      <thead>
+        <tr>
+          <th>能力维度</th>
+          <th class="text-blue-300">RescueAI</th>
+          <th>传统应急平台</th>
+          <th>舆情监测工具</th>
+          <th>无人机厂商</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="text-slate-300">社媒实时感知</td><td class="text-blue-300 font-bold">✅ AI 深度解析</td><td class="text-red-400">❌ 无</td><td class="text-amber-300">⚠️ 仅展示</td><td class="text-red-400">❌</td></tr>
+        <tr><td class="text-slate-300">动态优先级排序</td><td class="text-blue-300 font-bold">✅ P0-P3 自动</td><td class="text-red-400">❌ 人工</td><td class="text-red-400">❌</td><td class="text-red-400">❌</td></tr>
+        <tr><td class="text-slate-300">AI 灾情简报</td><td class="text-blue-300 font-bold">✅ 秒级生成</td><td class="text-red-400">❌ 人工撰写</td><td class="text-red-400">❌</td><td class="text-red-400">❌</td></tr>
+        <tr><td class="text-slate-300">历史案例匹配</td><td class="text-blue-300 font-bold">✅ 10 维 AI</td><td class="text-amber-300">⚠️ 静态知识库</td><td class="text-red-400">❌</td><td class="text-red-400">❌</td></tr>
+        <tr><td class="text-slate-300">无人机集成</td><td class="text-blue-300 font-bold">✅ 全链路闭环</td><td class="text-red-400">❌</td><td class="text-red-400">❌</td><td class="text-amber-300">⚠️ 仅硬件</td></tr>
+        <tr><td class="text-slate-300">地震预警接入</td><td class="text-blue-300 font-bold">✅ ICL + USGS 双源</td><td class="text-amber-300">⚠️ 单一数据源</td><td class="text-red-400">❌</td><td class="text-red-400">❌</td></tr>
+        <tr><td class="text-slate-300">端到端闭环</td><td class="text-blue-300 font-bold">✅ 预警→救援</td><td class="text-red-400">❌ 单点功能</td><td class="text-red-400">❌</td><td class="text-red-400">❌</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card p-6">
+    <h4 class="text-sm font-bold text-white mb-3">核心壁垒</h4>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="flex gap-3 items-start">
+        <span class="text-blue-400 text-lg">🔒</span>
+        <div>
+          <div class="text-sm font-bold text-slate-200">数据飞轮</div>
+          <p class="text-xs text-slate-400">每次地震事件积累社情→灾情→救援映射数据，优先级模型持续优化，后来者无法复制</p>
+        </div>
+      </div>
+      <div class="flex gap-3 items-start">
+        <span class="text-blue-400 text-lg">🔒</span>
+        <div>
+          <div class="text-sm font-bold text-slate-200">领域知识库</div>
+          <p class="text-xs text-slate-400">8+ 地震案例 10 维结构化知识库，持续扩展；通用大模型不具备的专业研判能力</p>
+        </div>
+      </div>
+      <div class="flex gap-3 items-start">
+        <span class="text-blue-400 text-lg">🔒</span>
+        <div>
+          <div class="text-sm font-bold text-slate-200">全链路集成</div>
+          <p class="text-xs text-slate-400">预警→感知→研判→决策→执行七步闭环，非单点工具可替代；系统集成深度构成切换成本</p>
+        </div>
+      </div>
+      <div class="flex gap-3 items-start">
+        <span class="text-blue-400 text-lg">🔒</span>
+        <div>
+          <div class="text-sm font-bold text-slate-200">官方渠道壁垒</div>
+          <p class="text-xs text-slate-400">ICL 预警、微博 API、应急管理部通报风格等官方接入与合规认证构成准入门槛</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 6. BUSINESS MODEL ==================== -->
+<section class="relative z-10 max-w-5xl mx-auto px-6 py-20 page-break">
+  <div class="section-tag text-green-400 border-green-500/30">06 · Business Model</div>
+  <h2 class="text-3xl font-bold text-white mb-6">商业模式</h2>
+
+  <div class="grid md:grid-cols-2 gap-6 mb-8">
+    <div class="card p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-xl">💰</span>
+        <h4 class="text-lg font-bold text-white">收入模型</h4>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <div class="flex justify-between mb-1"><span class="text-sm text-blue-300 font-bold">SaaS 订阅（核心）</span><span class="text-xs text-slate-400">60% 收入</span></div>
+          <p class="text-xs text-slate-400">省/市级应急管理平台年费订阅，按管辖区域与调用量阶梯定价。含平台部署 + AI 调用额度 + 历史案例库更新</p>
+        </div>
+        <div>
+          <div class="flex justify-between mb-1"><span class="text-sm text-cyan-300 font-bold">API 数据服务</span><span class="text-xs text-slate-400">20% 收入</span></div>
+          <p class="text-xs text-slate-400">面向保险公司、研究机构的实时灾情数据 API，按调用量计费；灾后快速定损评估报告</p>
+        </div>
+        <div>
+          <div class="flex justify-between mb-1"><span class="text-sm text-emerald-300 font-bold">项目定制</span><span class="text-xs text-slate-400">15% 收入</span></div>
+          <p class="text-xs text-slate-400">国际组织（INSARAG）、一带一路国家的本地化部署与定制开发</p>
+        </div>
+        <div>
+          <div class="flex justify-between mb-1"><span class="text-sm text-amber-300 font-bold">硬件集成</span><span class="text-xs text-slate-400">5% 收入</span></div>
+          <p class="text-xs text-slate-400">无人机救援套件（软件+协议+培训），与大疆行业应用联合交付</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-6">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-xl">📊</span>
+        <h4 class="text-lg font-bold text-white">定价策略</h4>
+      </div>
+      <div class="space-y-3">
+        <div class="card-light p-4">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-sm font-bold text-blue-300">基础版</span>
+            <span class="mono text-sm text-white font-bold">¥50万/年</span>
+          </div>
+          <p class="text-xs text-slate-400">社情感知 + 灾情地图 + AI 简报 · 适合地市级</p>
+        </div>
+        <div class="card-light p-4 border-blue-500/30">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-sm font-bold text-cyan-300">专业版</span>
+            <span class="mono text-sm text-white font-bold">¥200万/年</span>
+          </div>
+          <p class="text-xs text-slate-400">全七步闭环 + AI 决策助手 + 无人机模块 · 适合省级</p>
+        </div>
+        <div class="card-light p-4">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-sm font-bold text-emerald-300">企业/国际版</span>
+            <span class="mono text-sm text-white font-bold">按需报价</span>
+          </div>
+          <p class="text-xs text-slate-400">定制部署 + 多语言 + 跨境协调 · 适合国际组织</p>
+        </div>
+      </div>
+      <div class="mt-4 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
+        <p class="text-xs text-emerald-300"><strong>LTV/CAC 目标：</strong>应急管理系统切换成本高，一旦部署即深度绑定。目标 LTV/CAC &gt; 5x，客户留存率 &gt; 90%。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 7. TRACTION ==================== -->
+<section class="relative z-10 max-w-5xl mx-auto px-6 py-20 page-break">
+  <div class="section-tag text-purple-400 border-purple-500/30">07 · Traction & Validation</div>
+  <h2 class="text-3xl font-bold text-white mb-6">验证成果</h2>
+
+  <div class="card p-6 mb-6">
+    <h4 class="text-sm font-bold text-white mb-4">缅甸 M7.7 地震 · 全链路真实数据验证</h4>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="space-y-3">
+        <div class="flex items-center gap-3">
+          <span class="w-2 h-2 rounded-full bg-green-400"></span>
+          <span class="text-sm text-slate-300"><strong class="text-white">53,340 条</strong>真实微博全链路跑通</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="w-2 h-2 rounded-full bg-green-400"></span>
+          <span class="text-sm text-slate-300">NER 地名提取：曼德勒 / 实皆省 / 瑞丽 / 曼谷 <strong class="text-white">自动聚合</strong></span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="w-2 h-2 rounded-full bg-green-400"></span>
+          <span class="text-sm text-slate-300">优先级排序 <strong class="text-white">Sky Villa P0</strong>，与真实救援重点吻合</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="w-2 h-2 rounded-full bg-green-400"></span>
+          <span class="text-sm text-slate-300">AI 简报 <strong class="text-white">&lt;3 秒</strong>生成，应急管理部通报风格</span>
+        </div>
+      </div>
+      <div class="space-y-3">
+        <div class="flex items-center gap-3">
+          <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+          <span class="text-sm text-slate-300">ICL 预警数据 <strong class="text-white">实时接入</strong>（成都高新减灾研究所）</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+          <span class="text-sm text-slate-300">USGS ComCat 余震目录 <strong class="text-white">双源校验</strong></span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+          <span class="text-sm text-slate-300">Qwen3.8-Max 文本 + Qwen3.7-Plus 视觉 <strong class="text-white">双模型</strong></span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+          <span class="text-sm text-slate-300">数字孪生沙盘 <strong class="text-white">端到端可演示</strong>（43s 首次救出）</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="card p-5">
+      <div class="text-xs text-slate-500 mb-2">技术验证</div>
+      <div class="text-lg font-bold text-white mb-1">Playwright 自动化回归</div>
+      <p class="text-xs text-slate-400">12 个测试脚本 · 覆盖普通/仿真/重演三模式 · 接口级 + UI 级双重断言</p>
+    </div>
+    <div class="card p-5">
+      <div class="text-xs text-slate-500 mb-2">学术支撑</div>
+      <div class="text-lg font-bold text-white mb-1">12 篇核心论文引用</div>
+      <p class="text-xs text-slate-400">涵盖 ETAS 模型、多模态遥感、LLM 灾害响应等前沿方向</p>
+    </div>
+    <div class="card p-5">
+      <div class="text-xs text-slate-500 mb-2">赛事背书</div>
+      <div class="text-lg font-bold text-white mb-1">Physical AI Hackathon</div>
+      <p class="text-xs text-slate-400">从概念到可演示产品全流程交付，评委认可全链路闭环能力</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 8. TECHNOLOGY ==================== -->
+<section class="relative z-10 max-w-5xl mx-auto px-6 py-20 page-break">
+  <div class="section-tag text-indigo-400 border-indigo-500/30">08 · Technology</div>
+  <h2 class="text-3xl font-bold text-white mb-6">技术架构</h2>
+
+  <div class="card p-6 mb-6">
+    <h4 class="text-sm font-bold text-white mb-4">四层解耦架构</h4>
+    <div class="grid md:grid-cols-4 gap-4">
+      <div class="card-light p-4">
+        <div class="text-xs font-bold text-cyan-300 mb-2">📥 数据采集层</div>
+        <ul class="text-xs text-slate-400 space-y-1.5">
+          <li>· ICL 预警（chinaeew.cn）</li>
+          <li>· USGS ComCat 震情目录</li>
+          <li>· 微博 API（接口已预留）</li>
+          <li>· 高分卫星影像底图</li>
+          <li>· 无人机遥测帧（DJI/MAVLink）</li>
+        </ul>
+      </div>
+      <div class="card-light p-4">
+        <div class="text-xs font-bold text-purple-300 mb-2">🧠 NLP 处理层</div>
+        <ul class="text-xs text-slate-400 space-y-1.5">
+          <li>· 四层噪声过滤引擎</li>
+          <li>· NER 地名提取（LLM+词典）</li>
+          <li>· 四维情感分析标色</li>
+          <li>· 六类损毁标签分类</li>
+          <li>· 可信度评分（0-1）</li>
+        </ul>
+      </div>
+      <div class="card-light p-4">
+        <div class="text-xs font-bold text-amber-300 mb-2">📊 分析决策层</div>
+        <ul class="text-xs text-slate-400 space-y-1.5">
+          <li>· 灾情热点聚合引擎</li>
+          <li>· P0-P3 动态优先级排序</li>
+          <li>· 多维分析仪表盘</li>
+          <li>· Qwen3.8 AI 简报生成</li>
+          <li>· 10 维案例匹配引擎</li>
+        </ul>
+      </div>
+      <div class="card-light p-4">
+        <div class="text-xs font-bold text-sky-300 mb-2">🚁 救援执行层</div>
+        <ul class="text-xs text-slate-400 space-y-1.5">
+          <li>· 物资精准投送</li>
+          <li>· 4K 空中侦察</li>
+          <li>· Qwen-VL 结构研判</li>
+          <li>· 巡逻监视保留</li>
+          <li>· 真机遥测协议</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-6">
+    <div class="card p-6">
+      <h4 class="text-sm font-bold text-white mb-3">技术亮点</h4>
+      <div class="space-y-3">
+        <div class="flex gap-3 items-start">
+          <span class="text-indigo-400 mt-0.5">▸</span>
+          <div>
+            <div class="text-sm font-bold text-slate-200">保险丝降级机制</div>
+            <p class="text-xs text-slate-400">AI 超时/断网自动回落预录结果；三级降级链保障 7×24 可用性</p>
+          </div>
+        </div>
+        <div class="flex gap-3 items-start">
+          <span class="text-indigo-400 mt-0.5">▸</span>
+          <div>
+            <div class="text-sm font-bold text-slate-200">数字孪生仿真</div>
+            <p class="text-xs text-slate-400">同一平台可在真实数据与仿真数据间无缝切换，训练/演示/实战三位一体</p>
+          </div>
+        </div>
+        <div class="flex gap-3 items-start">
+          <span class="text-indigo-400 mt-0.5">▸</span>
+          <div>
+            <div class="text-sm font-bold text-slate-200">真机可替换协议</div>
+            <p class="text-xs text-slate-400">遥测帧格式标准化，DJI Cloud API / MAVLink 接入无需改动画面逻辑</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card p-6">
+      <h4 class="text-sm font-bold text-white mb-3">技术栈</h4>
+      <div class="space-y-2">
+        <div class="flex justify-between text-xs"><span class="text-slate-400">AI 模型</span><span class="text-indigo-300">Qwen3.8-Max · Qwen3.7-Plus (VL)</span></div>
+        <div class="flex justify-between text-xs"><span class="text-slate-400">后端</span><span class="text-indigo-300">Python · FastAPI · ai_proxy</span></div>
+        <div class="flex justify-between text-xs"><span class="text-slate-400">前端</span><span class="text-indigo-300">Vue 3 · Vite · Tailwind CSS</span></div>
+        <div class="flex justify-between text-xs"><span class="text-slate-400">地图</span><span class="text-indigo-300">Canvas 2D · 卫星影像底图</span></div>
+        <div class="flex justify-between text-xs"><span class="text-slate-400">数据源</span><span class="text-indigo-300">ICL · USGS · 微博 API</span></div>
+        <div class="flex justify-between text-xs"><span class="text-slate-400">测试</span><span class="text-indigo-300">Playwright · 12 脚本 · 三模式覆盖</span></div>
+        <div class="flex justify-between text-xs"><span class="text-slate-400">部署</span><span class="text-indigo-300">单机可运行 · 容器化就绪</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 9. ROADMAP ==================== -->
+<section class="relative z-10 max-w-5xl mx-auto px-6 py-20 page-break">
+  <div class="section-tag text-orange-400 border-orange-500/30">09 · Roadmap</div>
+  <h2 class="text-3xl font-bold text-white mb-6">发展路线图</h2>
+
+  <div class="space-y-0">
+    <!-- Phase 1 -->
+    <div class="flex gap-4">
+      <div class="flex flex-col items-center">
+        <div class="tl-dot border-blue-400 bg-blue-400/20"></div>
+        <div class="tl-line bg-gradient-to-b from-blue-500/60 to-cyan-500/60"></div>
+      </div>
+      <div class="pb-8">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-bold text-blue-400 mono">Phase 1 · 已完成</span>
+          <span class="text-xs text-slate-500">MVP 验证</span>
+        </div>
+        <h4 class="text-lg font-bold text-white mb-2">核心产品闭环</h4>
+        <div class="grid md:grid-cols-2 gap-2 text-xs text-slate-400">
+          <div>✅ 七步产品链路全链路实现</div>
+          <div>✅ 缅甸地震 53K 真实数据验证</div>
+          <div>✅ ICL + USGS 双数据源接入</div>
+          <div>✅ 数字孪生沙盘 + 三模式切换</div>
+          <div>✅ Playwright 自动化测试体系</div>
+          <div>✅ 历史案例知识库（8 案例）</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="flex gap-4">
+      <div class="flex flex-col items-center">
+        <div class="tl-dot border-cyan-400 bg-cyan-400/20"></div>
+        <div class="tl-line bg-gradient-to-b from-cyan-500/60 to-emerald-500/60"></div>
+      </div>
+      <div class="pb-8">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-bold text-cyan-400 mono">Phase 2 · 6 个月</span>
+          <span class="text-xs text-slate-500">产品化</span>
+        </div>
+        <h4 class="text-lg font-bold text-white mb-2">生产级部署 + 首个付费客户</h4>
+        <div class="grid md:grid-cols-2 gap-2 text-xs text-slate-400">
+          <div>◻️ 微博企业 API 正式接入</div>
+          <div>◻️ 大疆 DJI Cloud API 真机对接</div>
+          <div>◻️ 多租户 SaaS 平台搭建</div>
+          <div>◻️ 首个省级应急管理局试点部署</div>
+          <div>◻️ 案例库扩展至 20+ 全球案例</div>
+          <div>◻️ 等保三级安全认证</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="flex gap-4">
+      <div class="flex flex-col items-center">
+        <div class="tl-dot border-emerald-400 bg-emerald-400/20"></div>
+        <div class="tl-line bg-gradient-to-b from-emerald-500/60 to-amber-500/60"></div>
+      </div>
+      <div class="pb-8">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-bold text-emerald-400 mono">Phase 3 · 12 个月</span>
+          <span class="text-xs text-slate-500">规模化</span>
+        </div>
+        <h4 class="text-lg font-bold text-white mb-2">全国覆盖 + 多灾种扩展</h4>
+        <div class="grid md:grid-cols-2 gap-2 text-xs text-slate-400">
+          <div>◻️ 10+ 省市应急管理客户</div>
+          <div>◻️ 洪涝/台风/滑坡多灾种模型</div>
+          <div>◻️ 多语种支持（英/阿拉伯/西班牙）</div>
+          <div>◻️ INSARAG 国际认证对接</div>
+          <div>◻️ 保险行业定损 API 上线</div>
+          <div>◻️ 年收入突破 ¥2,000 万</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 4 -->
+    <div class="flex gap-4">
+      <div class="flex flex-col items-center">
+        <div class="tl-dot border-amber-400 bg-amber-400/20"></div>
+        <div class="tl-line bg-gradient-to-b from-amber-500/60 to-transparent" style="min-height:20px"></div>
+      </div>
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-xs font-bold text-amber-400 mono">Phase 4 · 24 个月</span>
+          <span class="text-xs text-slate-500">国际化</span>
+        </div>
+        <h4 class="text-lg font-bold text-white mb-2">全球应急 AI 平台</h4>
+        <div class="grid md:grid-cols-2 gap-2 text-xs text-slate-400">
+          <div>◻️ 一带一路沿线国家部署</div>
+          <div>◻️ Twitter/X 等多社媒数据源</div>
+          <div>◻️ 联合国 OCHA 合作</div>
+          <div>◻️ B 轮融资 · 年收入 ¥1 亿</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 10. FINANCIALS ==================== -->
+<section class="relative z-10 max-w-5xl mx-auto px-6 py-20 page-break">
+  <div class="section-tag text-rose-400 border-rose-500/30">10 · Financial Projections</div>
+  <h2 class="text-3xl font-bold text-white mb-6">财务预测</h2>
+
+  <div class="card p-6 mb-6 overflow-x-auto">
+    <table class="min-w-[600px]">
+      <thead>
+        <tr>
+          <th>指标</th>
+          <th>Y1</th>
+          <th>Y2</th>
+          <th>Y3</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="text-slate-300 font-bold">客户数（SaaS）</td><td class="text-blue-300">3</td><td class="text-blue-300">12</td><td class="text-blue-300">35</td></tr>
+        <tr><td class="text-slate-300 font-bold">年经常性收入 (ARR)</td><td class="text-emerald-300">¥360万</td><td class="text-emerald-300">¥2,400万</td><td class="text-emerald-300">¥8,750万</td></tr>
+        <tr><td class="text-slate-300 font-bold">API + 项目收入</td><td class="text-cyan-300">¥50万</td><td class="text-cyan-300">¥600万</td><td class="text-cyan-300">¥2,500万</td></tr>
+        <tr><td class="text-slate-300 font-bold">总收入</td><td class="text-white font-bold">¥410万</td><td class="text-white font-bold">¥3,000万</td><td class="text-white font-bold">¥1.13亿</td></tr>
+        <tr><td class="text-slate-300 font-bold">毛利率</td><td>55%</td><td>68%</td><td>75%</td></tr>
+        <tr><td class="text-slate-300 font-bold">团队规模</td><td>8 人</td><td>25 人</td><td>50 人</td></tr>
+        <tr><td class="text-slate-300 font-bold">净利润</td><td class="text-red-300">-¥280万</td><td class="text-emerald-300">¥200万</td><td class="text-emerald-300">¥3,200万</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="card p-5 text-center">
+      <div class="text-xs text-slate-500 mb-1">Y1 · 投入期</div>
+      <div class="text-2xl font-black text-red-400">-¥280万</div>
+      <div class="text-xs text-slate-400 mt-1">产品研发 + 首个试点</div>
+    </div>
+    <div class="card p-5 text-center">
+      <div class="text-xs text-slate-500 mb-1">Y2 · 盈亏平衡</div>
+      <div class="text-2xl font-black text-emerald-400">+¥200万</div>
+      <div class="text-xs text-slate-400 mt-1">规模化获客开始</div>
+    </div>
+    <div class="card p-5 text-center">
+      <div class="text-xs text-slate-500 mb-1">Y3 · 高速增长</div>
+      <div class="text-2xl font-black text-emerald-400">+¥3,200万</div>
+      <div class="text-xs text-slate-400 mt-1">净利率 28%</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 11. ASK ==================== -->
+<section class="relative z-10 max-w-5xl mx-auto px-6 py-20 page-break">
+  <div class="section-tag text-amber-400 border-amber-500/30">11 · The Ask</div>
+  <h2 class="text-3xl font-bold text-white mb-6">融资需求</h2>
+
+  <div class="card p-8 mb-8">
+    <div class="flex items-center justify-between flex-wrap gap-6 mb-8">
+      <div>
+        <div class="text-xs text-slate-500 mb-1">天使轮融资</div>
+        <div class="text-5xl font-black text-white">¥500万</div>
+      </div>
+      <div class="text-right">
+        <div class="text-xs text-slate-500 mb-1">出让股权</div>
+        <div class="text-3xl font-bold text-amber-400">10-15%</div>
+      </div>
+    </div>
+
+    <h4 class="text-sm font-bold text-white mb-4">资金用途</h4>
+    <div class="space-y-3">
+      <div>
+        <div class="flex justify-between text-xs mb-1"><span class="text-blue-300">产品研发（AI 模型优化 + 多灾种扩展）</span><span class="mono text-slate-400">45% · ¥225万</span></div>
+        <div class="bar"><div class="bar-fill bg-blue-500" style="width:45%"></div></div>
+      </div>
+      <div>
+        <div class="flex justify-between text-xs mb-1"><span class="text-cyan-300">市场拓展（政府关系 + 试点部署）</span><span class="mono text-slate-400">25% · ¥125万</span></div>
+        <div class="bar"><div class="bar-fill bg-cyan-500" style="width:25%"></div></div>
+      </div>
+      <div>
+        <div class="flex justify-between text-xs mb-1"><span class="text-emerald-300">数据与合规（微博 API + 安全认证）</span><span class="mono text-slate-400">15% · ¥75万</span></div>
+        <div class="bar"><div class="bar-fill bg-emerald-500" style="width:15%"></div></div>
+      </div>
+      <div>
+        <div class="flex justify-between text-xs mb-1"><span class="text-amber-300">运营储备</span><span class="mono text-slate-400">15% · ¥75万</span></div>
+        <div class="bar"><div class="bar-fill bg-amber-500" style="width:15%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card p-6">
+    <h4 class="text-sm font-bold text-white mb-4">里程碑承诺（投后 12 个月）</h4>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="flex items-center gap-3">
+        <span class="text-emerald-400">✓</span>
+        <span class="text-sm text-slate-300">微博企业 API 正式接入，实时数据管道上线</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-emerald-400">✓</span>
+        <span class="text-sm text-slate-300">首个省级应急管理局试点合同签署</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-emerald-400">✓</span>
+        <span class="text-sm text-slate-300">大疆真机对接完成，无人机救援模块实战验证</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-emerald-400">✓</span>
+        <span class="text-sm text-slate-300">ARR 突破 ¥300 万，启动 Pre-A 轮融资</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 12. TEAM ==================== -->
+<section class="relative z-10 max-w-5xl mx-auto px-6 py-20 page-break">
+  <div class="section-tag text-violet-400 border-violet-500/30">12 · Team</div>
+  <h2 class="text-3xl font-bold text-white mb-6">团队</h2>
+
+  <div class="card p-6 mb-6">
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <h4 class="text-sm font-bold text-white mb-3">核心团队能力矩阵</h4>
+        <div class="space-y-3">
+          <div>
+            <div class="flex justify-between text-xs mb-1"><span class="text-blue-300">AI / NLP 算法</span><span class="mono text-slate-400">核心能力</span></div>
+            <div class="bar"><div class="bar-fill bg-blue-500" style="width:92%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1"><span class="text-cyan-300">全栈工程</span><span class="mono text-slate-400">核心能力</span></div>
+            <div class="bar"><div class="bar-fill bg-cyan-500" style="width:88%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1"><span class="text-emerald-300">应急管理领域</span><span class="mono text-slate-400">深度研究</span></div>
+            <div class="bar"><div class="bar-fill bg-emerald-500" style="width:78%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1"><span class="text-amber-300">无人机集成</span><span class="mono text-slate-400">协议预留</span></div>
+            <div class="bar"><div class="bar-fill bg-amber-500" style="width:65%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1"><span class="text-purple-300">政府关系 / BD</span><span class="mono text-slate-400">待补强</span></div>
+            <div class="bar"><div class="bar-fill bg-purple-500" style="width:40%"></div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h4 class="text-sm font-bold text-white mb-3">待招募关键岗位</h4>
+        <div class="space-y-3">
+          <div class="card-light p-3">
+            <div class="text-sm font-bold text-slate-200">政府关系总监</div>
+            <p class="text-xs text-slate-400 mt-1">应急管理体系资源，推动政府采购落地</p>
+          </div>
+          <div class="card-light p-3">
+            <div class="text-sm font-bold text-slate-200">AI 算法工程师（NLP/多模态）</div>
+            <p class="text-xs text-slate-400 mt-1">大模型微调 + 多灾种分类模型开发</p>
+          </div>
+          <div class="card-light p-3">
+            <div class="text-sm font-bold text-slate-200">无人机系统工程师</div>
+            <p class="text-xs text-slate-400 mt-1">DJI SDK 集成 + 真机遥测协议开发</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CLOSING ==================== -->
+<section class="relative z-10 max-w-5xl mx-auto px-6 py-24 text-center">
+  <div class="card p-12 max-w-2xl mx-auto">
+    <svg class="mx-auto mb-6" width="48" height="48" viewBox="0 0 40 40">
+      <path d="M20 2 36 8v10c0 10-7 17-16 20C11 35 4 28 4 18V8Z" fill="none" stroke="#3b82f6" stroke-width="2"/>
+      <path d="M20 12v16M12 20h16" stroke="#06b6d4" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+    <h2 class="text-3xl font-bold text-white mb-4">
+      AI 不替代救援者<br>
+      <span class="text-gradient">它做的，只是把时间抢回来。</span>
+    </h2>
+    <p class="text-sm text-slate-400 mb-8">
+      震后 24 小时存活率 80%，72 小时只剩 30%。<br>
+      每一分钟的信息加速，都可能多救一条生命。
+    </p>
+    <div class="flex flex-wrap justify-center gap-4 text-xs text-slate-500">
+      <span class="px-4 py-2 rounded-full border border-slate-700/50">RescueAI Team</span>
+      <span class="px-4 py-2 rounded-full border border-slate-700/50">confidential@rescueai.tech</span>
+    </div>
+  </div>
+
+  <div class="mt-12 text-xs text-slate-600">
+    <p>本文件为商业机密，未经授权不得复制或传播。</p>
+    <p class="mt-1">© 2026 RescueAI · All Rights Reserved</p>
+  </div>
+</section>
+
+</body>
+</html>
