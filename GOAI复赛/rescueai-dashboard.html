@@ -933,20 +933,21 @@ function scheduleAftershocks() {
 }
 
 // ==================== 四之C、通讯员Agent · 救援对接工单 ====================
-/** 已对接的真实救援力量（国家队+社会救援力量+医疗急救，平台双向中转不暴露求助人） */
+/** 区域真实救援力量（社会救援力量+医疗急救可经平台双向中转；国家专业队仅态势展示——平台与个人无权调用消防/急救指挥通道调度令，不经平台对接） */
 const RESCUE_TEAMS = [
-  { name:'云南消防救援总队·瑞丽大队', short:'瑞丽消防', lng:97.85, lat:24.01, contact:'119指挥中心', type:'重型搜救', org:'国家专业队', channel:'119指挥中心调度令', _status:'值守' },
+  { name:'云南消防救援总队·瑞丽大队', short:'瑞丽消防', lng:97.85, lat:24.01, type:'重型搜救', org:'国家专业队', _status:'值守', noDispatch:true },
   { name:'深圳公益救援队·前置备勤点', short:'深圳公益', lng:98.58, lat:24.43, contact:'公众号值守台', type:'城市搜救', org:'社会救援力量', channel:'微信公众号值守台·电话中转', _status:'值守' },
-  { name:'保山市人民医院急诊科', short:'保山120', lng:99.16, lat:25.12, contact:'120急救中心', type:'医疗急救', org:'医疗急救', channel:'120指挥中心联动', _status:'值守' },
+  { name:'保山市人民医院急诊科', short:'保山120', lng:99.16, lat:25.12, contact:'急诊科值守台', type:'医疗急救', org:'医疗急救', channel:'急诊科公开值守电话', _status:'值守' },
   { name:'蓝天救援队·云南队', short:'云南蓝天', lng:102.73, lat:25.04, contact:'全国值守热线', type:'综合应急', org:'社会救援力量', channel:'值守热线+联络官邮箱', _status:'值守' }
 ];
 let ticketSeq = 0;
 
-/** 按地图距离匹配最近救援队 */
+/** 按地图距离匹配最近可对接救援队（noDispatch 的国家专业队仅态势展示，不参与推送对接） */
 function nearestTeam(task) {
   const p = getTaskSvgPos(task);
-  let best = RESCUE_TEAMS[0], bd = Infinity;
-  RESCUE_TEAMS.forEach(t => {
+  const pool = RESCUE_TEAMS.filter(t => !t.noDispatch);
+  let best = pool[0], bd = Infinity;
+  pool.forEach(t => {
     const q = geoToSvg(t.lng, t.lat);
     const d = Math.hypot(p.x - q.x, p.y - q.y);
     if (d < bd) { bd = d; best = t; }
@@ -987,9 +988,9 @@ function updateForceBoard() {
   const el = document.getElementById('force-board');
   if (!el) return;
   const statusCls = { '值守':'s-onduty', '集结':'s-assembling', '途中':'s-enroute', '作业中':'s-onsite' };
-  el.innerHTML = `<div class="force-title">🚒 已对接救援力量 · 当前状态</div>` + RESCUE_TEAMS.map(t => {
+  el.innerHTML = `<div class="force-title">🚒 区域救援力量 · 当前状态</div>` + RESCUE_TEAMS.map(t => {
     const active = window.tasks.filter(x => x._ticket && x._ticket.team === t.name && x.status !== 'closed').length;
-    return `<div class="force-row"><span class="force-org">${t.org}</span><span class="force-name">${t.name}</span>${active ? `<span style="font-size:12px;color:#5a6a7a;">单${active}</span>` : ''}<span class="force-status ${statusCls[t._status] || 's-onduty'}">${t._status}</span></div>`;
+    return `<div class="force-row"><span class="force-org">${t.org}</span><span class="force-name">${t.name}</span>${t.noDispatch ? '<span style="font-size:12px;color:#8899aa;">仅态势展示</span>' : ''}${active ? `<span style="font-size:12px;color:#5a6a7a;">单${active}</span>` : ''}<span class="force-status ${statusCls[t._status] || 's-onduty'}">${t._status}</span></div>`;
   }).join('');
 }
 

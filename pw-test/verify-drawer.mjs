@@ -59,6 +59,7 @@ check('推送成功展示救援队', /已推送/.test(body3) && /对接通道/.t
 check('追踪反馈时间线启动', /推送至|确认接收/.test(body3.split('4. 追踪反馈')[1] || ''));
 check('产品定位说明存在', /不自建救援队伍/.test(body3));
 check('推送后Mock标注仍在', (await page.locator('#drawer-body .vhead .mock-tag').count()) === 3);
+check('推送通道不含119/120指挥中心调度令宣称', !/119指挥中心|120指挥中心|指挥中心调度令|120急救中心/.test(body3));
 await page.screenshot({ path: path.join(shots, 'drawer_03_pushed.png') });
 
 // 4. 追踪反馈逐步回音 → 闭环

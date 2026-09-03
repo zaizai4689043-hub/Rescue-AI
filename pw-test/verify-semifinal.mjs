@@ -64,6 +64,8 @@ if (await pendingCard.count()) {
     const ticketTag = page.locator('.detail-label .mock-tag');
     check('通讯员工单标题标注(Mock数据)', (await ticketTag.count()) === 1 && /\(Mock数据\)/i.test((await ticketTag.first().innerText()).replace(/\s/g, '')), await page.locator('.detail-label', { hasText: '救援对接工单' }).innerText().catch(() => ''));
     check('工单Mock标注可见未裁切', await ticketTag.first().isVisible().catch(() => false));
+    check('工单不含119/120指挥中心调度令宣称', !/119指挥中心|120指挥中心|指挥中心调度令|120急救中心/.test(ticketText) && !/119指挥中心|指挥中心调度令/.test(await page.locator('#desk-content').innerText()));
+    check('工单承接队非国家专业队', !/国家专业队|消防救援总队/.test(ticketText), ticketText.split('\n')[0]);
     await page.screenshot({ path: shots + '/semifinal_02_ticket.png' });
     // 5. 等待 dispatched(8s)→verify(3s)→closed，看现场回传与闭环
     await page.waitForTimeout(13000);
@@ -77,6 +79,7 @@ if (await pendingCard.count()) {
     const overview = await page.locator('#casualty-card').innerText();
     check('闭环后线索标记已核实', /1 条已现场核实|[1-9]\d* 条已现场核实/.test(overview), overview.match(/\d+ 条已现场核实/)?.[0] || '');
     check('总览含4个Agent卡', (await page.locator('.agent-status-card').count()) === 4);
+    check('国家专业队仅态势展示不承接工单', /仅态势展示/.test(await page.locator('#force-board').innerText()) && !/119指挥中心|指挥中心调度令/.test(await page.locator('#force-board').innerText()));
     await page.screenshot({ path: shots + '/semifinal_04_overview.png' });
   } else {
     check('批准按钮可用', false, '未找到可用批准按钮');

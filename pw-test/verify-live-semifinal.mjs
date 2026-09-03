@@ -24,6 +24,7 @@ check('顶栏仅地震模式+历史案例', JSON.stringify(await page.locator('.
 check('台风模式已彻底移除', (await page.locator('.mode-btn[data-mode="typhoon"]').count()) === 0);
 check('左栏评估/简报面板存在', /快速评估结果|AI灾情简报/.test(await page.locator('#leftcol').innerText()));
 check('全文无台风字样', !/台风/.test(await page.content()));
+check('全文无119/120指挥中心调度令宣称', !/119指挥中心|120指挥中心|指挥中心调度令|120急救中心/.test(await page.content()));
 check('地图震中覆盖层存在', (await page.locator('#map-leaflet, #map-svg').count()) > 0);
 check('社媒情报流有卡片', (await page.locator('.feed-card').count()) > 0, `cards=${await page.locator('.feed-card').count()}`);
 await page.waitForTimeout(12000);
