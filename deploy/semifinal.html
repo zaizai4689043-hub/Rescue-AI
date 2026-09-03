@@ -415,7 +415,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#050810;font-family:
   </div>
 </div>
 
-<!-- ===== 左栏：灾情概览 + 快速评估 + 社媒情报流 ===== -->
+<!-- ===== 左栏：灾情概览 + 快速评估结果 + 社媒情报流 ===== -->
 <div id="leftcol">
   <div class="side-panel brk">
     <div class="sec-title">灾情概览</div>
@@ -431,7 +431,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#050810;font-family:
     <div class="impact-chips"><span>曼德勒</span><span>实皆</span><span>内比都</span><span>马圭</span><span>掸邦</span><span>瑞丽市</span></div>
   </div>
   <div id="feed" class="side-panel brk side-feed">
-    <div class="sec-title">社媒情报流 · 实时</div>
+    <div class="sec-title">社媒情报流</div>
     <div class="feed-stats">
       原始 <b id="stat-raw" class="mono">0</b> ·
       萃取 <b id="stat-extracted" class="mono">0</b> ·
@@ -731,7 +731,7 @@ function satToTask(s) {
   };
 }
 
-/** 在实时数据流中穿插注入卫星求救线索（仅地震模式） */
+/** 在数据流中穿插注入卫星求救线索（仅地震模式） */
 function startSatelliteInjection() {
   if (currentMode !== 'earthquake') return;
   [14000, 36000, 62000].forEach((delay, i) => {
@@ -849,7 +849,7 @@ function openCases() {
 }
 function closeCases() { document.getElementById('cases-modal').classList.remove('open'); }
 
-/** AI灾情简报：基于当前状态自动生成（每15s + 关键事件触发） */
+/** 快速评估结果：基于当前状态自动生成（每15s + 关键事件触发） */
 function genBrief() {
   const el = document.getElementById('brief-card');
   if (!el) return;
@@ -874,7 +874,7 @@ function formatClock(s) {
   return `${String(Math.floor(s / 3600)).padStart(2,'0')}:${String(Math.floor(s % 3600 / 60)).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
 }
 
-/** AI决策助手：基于实时状态的规则问答 */
+/** AI决策助手：基于当前状态的规则问答 */
 function askAssistant(preset) {
   const input = document.getElementById('assistant-q');
   const q = preset || (input && input.value.trim());
@@ -981,12 +981,12 @@ function genFieldReport(task) {
   return `${task._ticket.team}已抵达${loc}，核实“${tp}”属实，确认涉及${p}人员，正按方案A处置，请后方保持信息中转通道畅通。`;
 }
 
-/** 救援力量状态板（真实组织·实时状态） */
+/** 救援力量状态板（真实组织·当前状态） */
 function updateForceBoard() {
   const el = document.getElementById('force-board');
   if (!el) return;
   const statusCls = { '值守':'s-onduty', '集结':'s-assembling', '途中':'s-enroute', '作业中':'s-onsite' };
-  el.innerHTML = `<div class="force-title">🚒 已对接救援力量 · 实时状态</div>` + RESCUE_TEAMS.map(t => {
+  el.innerHTML = `<div class="force-title">🚒 已对接救援力量 · 当前状态</div>` + RESCUE_TEAMS.map(t => {
     const active = window.tasks.filter(x => x._ticket && x._ticket.team === t.name && x.status !== 'closed').length;
     return `<div class="force-row"><span class="force-org">${t.org}</span><span class="force-name">${t.name}</span>${active ? `<span style="font-size:12px;color:#5a6a7a;">单${active}</span>` : ''}<span class="force-status ${statusCls[t._status] || 's-onduty'}">${t._status}</span></div>`;
   }).join('');
@@ -1015,7 +1015,7 @@ function animateTeamTo(task, team) {
 window.tasks = [];
 const enqueuedIds = new Set();
 
-// ==================== 五、数据源检测与实时拉取 ====================
+// ==================== 五、数据源检测与数据拉取 ====================
 /** 更新顶栏数据源状态徽章 */
 function updateDataSourceBadge(status, detail) {
   const el = document.getElementById('data-source-badge');
@@ -1030,7 +1030,7 @@ function updateDataSourceBadge(status, detail) {
   el.style.background = s.bg;
   el.style.color = s.color;
   el.style.borderColor = s.border;
-  const labels = { detecting:'⏳ 检测数据源...', live:'🟢 实时数据', mock:'🟡 Mock回放', offline:'🔴 离线模式' };
+  const labels = { detecting:'⏳ 检测数据源...', live:'🟢 在线数据', mock:'🟡 Mock回放', offline:'🔴 离线模式' };
   el.textContent = (labels[status] || status) + (detail ? ' · ' + detail : '');
 }
 
@@ -1061,15 +1061,15 @@ async function detectAndConnect() {
     }, 3000);
     window._realDataInjector = injectInterval;
   }
-  // 无网求救：在实时流中穿插北斗短报文/卫星求救线索
+  // 无网求救：在数据流中穿插北斗短报文/卫星求救线索
   startSatelliteInjection();
-  // 同时尝试连接 live_feed.py（weibo模式下可获取实时更新）
+  // 同时尝试连接 live_feed.py（weibo模式下可获取更新）
   try {
     const resp = await fetch('http://127.0.0.1:8012/live/social', { signal: AbortSignal.timeout(3000) });
     if (resp.ok) {
       const data = await resp.json();
       if (data.source === 'weibo' && data.posts && data.posts.length > 0) {
-        updateDataSourceBadge('live', `weibo实时 · ${data.posts.length}条`);
+        updateDataSourceBadge('live', `weibo数据 · ${data.posts.length}条`);
         processLivePosts(data.posts);
         startLivePolling();
       } else {
@@ -1907,7 +1907,7 @@ function renderDeskOverview() {
       <div class="kpi-card"><div class="kpi-value orange mono">${interceptCount}</div><div class="kpi-label">误报拦截数</div></div>
       <div class="kpi-card"><div class="kpi-value red mono">${pendingCount}</div><div class="kpi-label">待批准数</div></div>
     </div>
-    <div class="agent-status-card"><div class="emoji">🛰</div><div class="info"><div class="name">哨兵</div><div class="status">监听微博社媒流 + 北斗卫星无网求救通道，实时萃取灾情要素</div></div></div>
+    <div class="agent-status-card"><div class="emoji">🛰</div><div class="info"><div class="name">哨兵</div><div class="status">监听微博社媒流 + 北斗卫星无网求救通道，持续萃取灾情要素</div></div></div>
     <div class="agent-status-card"><div class="emoji">⚖️</div><div class="info"><div class="name">研判</div><div class="status">多源伤亡线索真值发现与趋势投影，输出响应级别建议</div></div></div>
     <div class="agent-status-card"><div class="emoji">🧠</div><div class="info"><div class="name">参谋</div><div class="status">基于多源交叉验证生成处置方案，等待指挥长决策</div></div></div>
     <div class="agent-status-card"><div class="emoji">📡</div><div class="info"><div class="name">通讯员</div><div class="status">生成救援对接工单，双向中转求助人与救援队信息，跟踪闭环</div></div></div>
@@ -1920,7 +1920,7 @@ function renderDeskOverview() {
         <span onclick="askAssistant('救援队如何调度？')">救援队调度？</span>
       </div>
       <div class="assistant-input"><input id="assistant-q" placeholder="询问AI助手…" onkeydown="if(event.key==='Enter')askAssistant()"><button onclick="askAssistant()">发送</button></div>
-      <div class="assistant-answer" id="assistant-answer">点击预设问题或输入问题，助手基于实时灾情作答。</div>
+      <div class="assistant-answer" id="assistant-answer">点击预设问题或输入问题，助手基于当前灾情作答。</div>
     </div>
   `;
   updateKPIs();
@@ -1947,7 +1947,7 @@ function renderDeskDetail(task) {
   const isApproved = task.status === 'dispatched' || task.status === 'verify' || task.status === 'closed';
   const dataSourceTag = task._channel === 'satellite'
     ? '<span style="color:#b37feb;font-size:14px;">● 北斗卫星·无网求救</span>'
-    : task._isRealData ? '<span style="color:#52c41a;font-size:14px;">● 实时数据</span>' : '<span style="color:#fa8c16;font-size:14px;">● Mock数据</span>';
+    : task._isRealData ? '<span style="color:#52c41a;font-size:14px;">● 真实数据</span>' : '<span style="color:#fa8c16;font-size:14px;">● Mock数据</span>';
   const t = task._ticket;
   const ticketHtml = t ? `
     <div class="detail-section">

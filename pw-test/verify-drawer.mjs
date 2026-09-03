@@ -21,7 +21,7 @@ check('预警横幅存在', /地震预警/.test(await page.locator('#quake-banne
 check('居中大标题存在', /地 震 应 急 智 能 指 挥 中 心/.test(await page.locator('#center-title').innerText()));
 check('主震信息面板存在', /M 7.9/.test(await page.locator('#quake-info').innerText()));
 check('底部影响统计三格', (await page.locator('#stats-row .stat-cell').count()) === 3);
-check('灾情概览+快速评估面板', /烈度面积/.test(await page.locator('#leftcol').innerText()) && /快速评估结果/.test(await page.locator('#leftcol').innerText()));
+check('灾情概览+AI灾情简报面板', /烈度面积/.test(await page.locator('#leftcol').innerText()) && /AI灾情简报/.test(await page.locator('#leftcol').innerText()));
 check('震中距离详情面板已移除', !/震中距离详情/.test(await page.locator('#rightcol').innerText()));
 check('地震专题图已移除', (await page.locator('.theme-map').count()) === 0);
 check('台风模式按钮已移除', (await page.locator('.mode-btn[data-mode="typhoon"]').count()) === 0);

@@ -415,7 +415,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#050810;font-family:
   </div>
 </div>
 
-<!-- ===== 左栏：灾情概览 + 快速评估 + 社媒情报流 ===== -->
+<!-- ===== 左栏：灾情概览 + AI灾情简报 + 社媒情报流 ===== -->
 <div id="leftcol">
   <div class="side-panel brk">
     <div class="sec-title">灾情概览</div>
@@ -425,13 +425,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:#050810;font-family:
     <div class="impact-row"><span>影响区县</span><b style="text-align:right;max-width:300px;white-space:normal;line-height:1.5;">曼德勒、实皆、内比都、马圭、掸邦、瑞丽市(有感)</b></div>
   </div>
   <div class="side-panel brk">
-    <div class="sec-title">快速评估结果</div>
+    <div class="sec-title">AI灾情简报</div>
     <div style="font-size:17px;color:#c8d6e5;line-height:1.9;">根据现有数据和模型，本次地震极震区烈度预计达到<b style="color:#fadb14;">IX度</b>，地震影响面积为 <b style="color:#fadb14;">12,400 km²</b>（缅甸中部），受影响人口 <b style="color:#fadb14;">385万人</b>。地震可能造成 <b style="color:#ff4d4f;">1800–3500人</b> 死亡、<b style="color:#ff4d4f;">5000–8000人</b> 受伤，直接经济损失约为 <b style="color:#fadb14;">82亿元</b>。</div>
     <div class="sec-title" style="margin-top:10px;">震区波及区域</div>
     <div class="impact-chips"><span>曼德勒</span><span>实皆</span><span>内比都</span><span>马圭</span><span>掸邦</span><span>瑞丽市</span></div>
   </div>
   <div id="feed" class="side-panel brk side-feed">
-    <div class="sec-title">社媒情报流 · 实时</div>
+    <div class="sec-title">社媒情报流</div>
     <div class="feed-stats">
       原始 <b id="stat-raw" class="mono">0</b> ·
       萃取 <b id="stat-extracted" class="mono">0</b> ·
@@ -696,14 +696,14 @@ function postToTask(post) {
 // ==================== 四、Mock 数据（离线降级用） ====================
 function generateMockData() {
   const eqTasks = [
-    { eventId:'EQ001', type:'坍塌', location:'宁波海曙区·天一广场B栋', lng:35, lat:30, priority:'P0', credibility:95, sla:180, status:'new', sourceText:'救命！天一广场B栋整面墙塌了，里面至少十几个人被埋，灰尘很大什么都看不清！', extracted:{type:'坍塌',location:'海曙·天一广场B栋',persons:'10+',severity:'严重'}, planA:'立即调派重型搜救队+生命探测仪',planAE:['墙体结构评估为部分坍塌','生命探测信号微弱','周边道路可通行'],planB:'先派无人机侦察再进入',planBE:['余震风险高','内部结构不明','需确认安全通道'] },
-    { eventId:'EQ002', type:'埋压', location:'鄞州区·万达广场地下车库', lng:55, lat:45, priority:'P0', credibility:92, sla:150, status:'new', sourceText:'被困在鄞州万达广场地下车库，楼板掉下来了，腿被压住动不了，旁边还有两个人在哭！', extracted:{type:'埋压',location:'鄞州·万达B1',persons:'3',severity:'危重'}, planA:'液压破拆组+医疗急救同步进场',planAE:['地下空间定位明确','伤者意识清醒','通风系统尚存'],planB:'从相邻商铺打通侧向通道',planBE:['正面入口 debris 堆积','侧面墙体较薄','可减少二次伤害'] },
-    { eventId:'EQ003', type:'断裂', location:'江北区·解放桥', lng:40, lat:20, priority:'P0', credibility:88, sla:200, status:'new', sourceText:'解放桥中间断了一截！好几辆车卡在裂缝边上，有人趴在车顶上不敢动！', extracted:{type:'桥梁断裂',location:'江北·解放桥中段',persons:'5+',severity:'极危'}, planA:'封锁两端+水上救援艇接近',planAE:['桥面持续变形','车辆位置不稳定','水面距离8米'],planB:'直升机索降救援',planBE:['风速允许飞行','可快速转移伤员','需协调空域'] },
-    { eventId:'EQ004', type:'坍塌', location:'镇海区·炼化厂宿舍楼', lng:70, lat:25, priority:'P1', credibility:78, sla:300, status:'new', sourceText:'镇海炼化旁边的老宿舍楼裂了好大一条缝，三楼阳台掉下来了，还好没人住。', extracted:{type:'建筑开裂',location:'镇海·炼化厂宿舍',persons:'0',severity:'中等'}, planA:'警戒隔离+结构鉴定',planAE:['无人员伤亡报告','建筑年代久远','可能继续恶化'],planB:'暂不处置持续监测',planBE:['无人受困','资源优先P0','已设警戒线'] },
-    { eventId:'EQ005', type:'埋压', location:'北仑区·新碶街道民房', lng:80, lat:55, priority:'P1', credibility:82, sla:280, status:'new', sourceText:'北仑新碶这边一排老房子倒了两间，有个老人被压在下面，邻居在用手刨！', extracted:{type:'民房倒塌',location:'北仑·新碶街道',persons:'1',severity:'较重'}, planA:'轻型搜救队+担架转运',planAE:['单层砖混结构','被困者有回应','邻居已初步清理'],planB:'调用挖掘机小心作业',planBE:['手动效率低','机械可加速','需精确控制'] },
-    { eventId:'EQ006', type:'断裂', location:'奉化区·溪口公路', lng:25, lat:65, priority:'P1', credibility:75, sla:350, status:'new', sourceText:'溪口往山里去的公路有一段路面拱起来了，车过不去但人可以走，山上好像还有村子。', extracted:{type:'路面隆起',location:'奉化·溪口公路',persons:'0',severity:'中等'}, planA:'开辟临时便道+物资输送',planAE:['非主干道','山村人口约200','可绕行3公里'],planB:'空投应急物资',planBE:['山路修复耗时','天气条件允许','可覆盖基本需求'] },
-    { eventId:'EQ007', type:'坍塌', location:'余姚市·龙泉山公园步道', lng:20, lat:40, priority:'P2', credibility:65, sla:500, status:'new', sourceText:'龙泉山公园的观景台栏杆歪了，步道有几处落石，已经自己跑下来了。', extracted:{type:'设施损坏',location:'余姚·龙泉山公园',persons:'0',severity:'轻微'}, planA:'封闭景区+排险修复',planAE:['无伤亡','属公共设施','游客已撤离'],planB:'设置警示牌暂缓修复',planBE:['优先级较低','人力紧张','风险可控'] },
-    { eventId:'EQ008', type:'坍塌', location:'慈溪市·观海卫古城墙', lng:60, lat:15, priority:'P2', credibility:60, sla:600, status:'new', sourceText:'观海卫那段古城墙震掉了几块砖，看着心疼但没有危险，大家别去围观就行。', extracted:{type:'文物受损',location:'慈溪·观海卫城墙',persons:'0',severity:'轻微'}, planA:'文保单位现场勘查',planAE:['非结构性损伤','无安全风险','文物保护需要'],planB:'拍照记录后续修缮',planBE:['不影响安全','专业修复需排期','已设围挡'] },
+    { eventId:'EQ001', type:'坍塌', location:'曼德勒·Sky Villa 大厦', lng:35, lat:30, priority:'P0', credibility:95, sla:180, status:'new', sourceText:'救命！Sky Villa 大厦整面塌了，11 楼只剩 7 层，4 楼以下全埋在瓦砾里，能听到底下有人喊！', extracted:{type:'坍塌',location:'曼德勒·Sky Villa',persons:'10+',severity:'严重'}, planA:'立即调派重型搜救队+生命探测仪',planAE:['墙体结构评估为部分坍塌','生命探测信号微弱','周边道路可通行'],planB:'先派无人机侦察再进入',planBE:['余震风险高','内部结构不明','需确认安全通道'] },
+    { eventId:'EQ002', type:'埋压', location:'曼德勒·云华师范学院宿舍楼', lng:55, lat:45, priority:'P0', credibility:92, sla:150, status:'new', sourceText:'被困在云华师范学院宿舍楼，楼板掉下来了，腿被压住动不了，旁边还有两个同学在哭！', extracted:{type:'埋压',location:'曼德勒·云华师范',persons:'3',severity:'危重'}, planA:'液压破拆组+医疗急救同步进场',planAE:['地下空间定位明确','伤者意识清醒','通风系统尚存'],planB:'从相邻商铺打通侧向通道',planBE:['正面入口 debris 堆积','侧面墙体较薄','可减少二次伤害'] },
+    { eventId:'EQ003', type:'断裂', location:'实皆省·伊洛瓦底江大桥', lng:40, lat:20, priority:'P0', credibility:88, sla:200, status:'new', sourceText:'伊洛瓦底江大桥中间断了一截！好几辆车卡在裂缝边上，有人趴在车顶上不敢动！', extracted:{type:'桥梁断裂',location:'实皆·江桥中段',persons:'5+',severity:'极危'}, planA:'封锁两端+水上救援艇接近',planAE:['桥面持续变形','车辆位置不稳定','水面距离8米'],planB:'直升机索降救援',planBE:['风速允许飞行','可快速转移伤员','需协调空域'] },
+    { eventId:'EQ004', type:'坍塌', location:'内比都·政府宿舍楼', lng:70, lat:25, priority:'P1', credibility:78, sla:300, status:'new', sourceText:'内比都这边一栋老宿舍楼裂了好大一条缝，三楼阳台掉下来了，还好没人住。', extracted:{type:'建筑开裂',location:'内比都·宿舍楼',persons:'0',severity:'中等'}, planA:'警戒隔离+结构鉴定',planAE:['无人员伤亡报告','建筑年代久远','可能继续恶化'],planB:'暂不处置持续监测',planBE:['无人受困','资源优先P0','已设警戒线'] },
+    { eventId:'EQ005', type:'埋压', location:'皎施·村镇民房', lng:80, lat:55, priority:'P1', credibility:82, sla:280, status:'new', sourceText:'皎施这边一排老房子倒了两间，有个老人被压在下面，邻居在用手刨！', extracted:{type:'民房倒塌',location:'皎施·村镇民房',persons:'1',severity:'较重'}, planA:'轻型搜救队+担架转运',planAE:['单层砖混结构','被困者有回应','邻居已初步清理'],planB:'调用挖掘机小心作业',planBE:['手动效率低','机械可加速','需精确控制'] },
+    { eventId:'EQ006', type:'断裂', location:'曼德勒-仰光公路·路面隆起', lng:25, lat:65, priority:'P1', credibility:75, sla:350, status:'new', sourceText:'曼德勒往仰光方向的公路有一段路面拱起来了，车过不去但人可以走，前面好像还有村子。', extracted:{type:'路面隆起',location:'曼德勒-仰光公路',persons:'0',severity:'中等'}, planA:'开辟临时便道+物资输送',planAE:['非主干道','山村人口约200','可绕行3公里'],planB:'空投应急物资',planBE:['山路修复耗时','天气条件允许','可覆盖基本需求'] },
+    { eventId:'EQ007', type:'坍塌', location:'仰光·高层酒店外墙', lng:20, lat:40, priority:'P2', credibility:65, sla:500, status:'new', sourceText:'仰光一家高层酒店外墙脱落了，步道有几处落石，客人已经自己跑下来了。', extracted:{type:'设施损坏',location:'仰光·高层酒店',persons:'0',severity:'轻微'}, planA:'封闭周边+排险修复',planAE:['无伤亡','属公共设施','人员已撤离'],planB:'设置警示牌暂缓修复',planBE:['优先级较低','人力紧张','风险可控'] },
+    { eventId:'EQ008', type:'坍塌', location:'曼德勒·古城佛塔', lng:60, lat:15, priority:'P2', credibility:60, sla:600, status:'new', sourceText:'曼德勒古城那段佛塔震掉了几块砖，看着心疼但没有危险，大家别去围观就行。', extracted:{type:'文物受损',location:'曼德勒·古城佛塔',persons:'0',severity:'轻微'}, planA:'文保单位现场勘查',planAE:['非结构性损伤','无安全风险','文物保护需要'],planB:'拍照记录后续修缮',planBE:['不影响安全','专业修复需排期','已设围挡'] },
     { eventId:'EQ009', type:'其他', location:'未知', lng:50, lat:50, priority:'P2', credibility:20, sla:999, status:'intercepted', sourceText:'地震了地震了！！世界末日要来了！！！快跑啊！！！', extracted:null, interceptReason:'疑似谣言：情绪煽动无实质灾情信息' },
     { eventId:'EQ010', type:'其他', location:'未知', lng:50, lat:50, priority:'P2', credibility:15, sla:999, status:'intercepted', sourceText:'今天天气真好，中午吃了碗面条哈哈', extracted:null, interceptReason:'无灾情要素：日常闲聊内容' }
   ];
@@ -731,7 +731,7 @@ function satToTask(s) {
   };
 }
 
-/** 在实时数据流中穿插注入卫星求救线索（仅地震模式） */
+/** 在数据流中穿插注入卫星求救线索（仅地震模式） */
 function startSatelliteInjection() {
   if (currentMode !== 'earthquake') return;
   [14000, 36000, 62000].forEach((delay, i) => {
@@ -874,7 +874,7 @@ function formatClock(s) {
   return `${String(Math.floor(s / 3600)).padStart(2,'0')}:${String(Math.floor(s % 3600 / 60)).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
 }
 
-/** AI决策助手：基于实时状态的规则问答 */
+/** AI决策助手：基于当前状态的规则问答 */
 function askAssistant(preset) {
   const input = document.getElementById('assistant-q');
   const q = preset || (input && input.value.trim());
@@ -981,12 +981,12 @@ function genFieldReport(task) {
   return `${task._ticket.team}已抵达${loc}，核实“${tp}”属实，确认涉及${p}人员，正按方案A处置，请后方保持信息中转通道畅通。`;
 }
 
-/** 救援力量状态板（真实组织·实时状态） */
+/** 救援力量状态板（真实组织·当前状态） */
 function updateForceBoard() {
   const el = document.getElementById('force-board');
   if (!el) return;
   const statusCls = { '值守':'s-onduty', '集结':'s-assembling', '途中':'s-enroute', '作业中':'s-onsite' };
-  el.innerHTML = `<div class="force-title">🚒 已对接救援力量 · 实时状态</div>` + RESCUE_TEAMS.map(t => {
+  el.innerHTML = `<div class="force-title">🚒 已对接救援力量 · 当前状态</div>` + RESCUE_TEAMS.map(t => {
     const active = window.tasks.filter(x => x._ticket && x._ticket.team === t.name && x.status !== 'closed').length;
     return `<div class="force-row"><span class="force-org">${t.org}</span><span class="force-name">${t.name}</span>${active ? `<span style="font-size:12px;color:#5a6a7a;">单${active}</span>` : ''}<span class="force-status ${statusCls[t._status] || 's-onduty'}">${t._status}</span></div>`;
   }).join('');
@@ -1015,7 +1015,7 @@ function animateTeamTo(task, team) {
 window.tasks = [];
 const enqueuedIds = new Set();
 
-// ==================== 五、数据源检测与实时拉取 ====================
+// ==================== 五、数据源检测与数据拉取 ====================
 /** 更新顶栏数据源状态徽章 */
 function updateDataSourceBadge(status, detail) {
   const el = document.getElementById('data-source-badge');
@@ -1030,7 +1030,7 @@ function updateDataSourceBadge(status, detail) {
   el.style.background = s.bg;
   el.style.color = s.color;
   el.style.borderColor = s.border;
-  const labels = { detecting:'⏳ 检测数据源...', live:'🟢 实时数据', mock:'🟡 Mock回放', offline:'🔴 离线模式' };
+  const labels = { detecting:'⏳ 检测数据源...', live:'🟢 在线数据', mock:'🟡 Mock回放', offline:'🔴 离线模式' };
   el.textContent = (labels[status] || status) + (detail ? ' · ' + detail : '');
 }
 
@@ -1061,15 +1061,15 @@ async function detectAndConnect() {
     }, 3000);
     window._realDataInjector = injectInterval;
   }
-  // 无网求救：在实时流中穿插北斗短报文/卫星求救线索
+  // 无网求救：在数据流中穿插北斗短报文/卫星求救线索
   startSatelliteInjection();
-  // 同时尝试连接 live_feed.py（weibo模式下可获取实时更新）
+  // 同时尝试连接 live_feed.py（weibo模式下可获取更新）
   try {
     const resp = await fetch('http://127.0.0.1:8012/live/social', { signal: AbortSignal.timeout(3000) });
     if (resp.ok) {
       const data = await resp.json();
       if (data.source === 'weibo' && data.posts && data.posts.length > 0) {
-        updateDataSourceBadge('live', `weibo实时 · ${data.posts.length}条`);
+        updateDataSourceBadge('live', `weibo数据 · ${data.posts.length}条`);
         processLivePosts(data.posts);
         startLivePolling();
       } else {
@@ -1907,7 +1907,7 @@ function renderDeskOverview() {
       <div class="kpi-card"><div class="kpi-value orange mono">${interceptCount}</div><div class="kpi-label">误报拦截数</div></div>
       <div class="kpi-card"><div class="kpi-value red mono">${pendingCount}</div><div class="kpi-label">待批准数</div></div>
     </div>
-    <div class="agent-status-card"><div class="emoji">🛰</div><div class="info"><div class="name">哨兵</div><div class="status">监听微博社媒流 + 北斗卫星无网求救通道，实时萃取灾情要素</div></div></div>
+    <div class="agent-status-card"><div class="emoji">🛰</div><div class="info"><div class="name">哨兵</div><div class="status">监听微博社媒流 + 北斗卫星无网求救通道，持续萃取灾情要素</div></div></div>
     <div class="agent-status-card"><div class="emoji">⚖️</div><div class="info"><div class="name">研判</div><div class="status">多源伤亡线索真值发现与趋势投影，输出响应级别建议</div></div></div>
     <div class="agent-status-card"><div class="emoji">🧠</div><div class="info"><div class="name">参谋</div><div class="status">基于多源交叉验证生成处置方案，等待指挥长决策</div></div></div>
     <div class="agent-status-card"><div class="emoji">📡</div><div class="info"><div class="name">通讯员</div><div class="status">生成救援对接工单，双向中转求助人与救援队信息，跟踪闭环</div></div></div>
@@ -1920,7 +1920,7 @@ function renderDeskOverview() {
         <span onclick="askAssistant('救援队如何调度？')">救援队调度？</span>
       </div>
       <div class="assistant-input"><input id="assistant-q" placeholder="询问AI助手…" onkeydown="if(event.key==='Enter')askAssistant()"><button onclick="askAssistant()">发送</button></div>
-      <div class="assistant-answer" id="assistant-answer">点击预设问题或输入问题，助手基于实时灾情作答。</div>
+      <div class="assistant-answer" id="assistant-answer">点击预设问题或输入问题，助手基于当前灾情作答。</div>
     </div>
   `;
   updateKPIs();
@@ -1947,7 +1947,7 @@ function renderDeskDetail(task) {
   const isApproved = task.status === 'dispatched' || task.status === 'verify' || task.status === 'closed';
   const dataSourceTag = task._channel === 'satellite'
     ? '<span style="color:#b37feb;font-size:14px;">● 北斗卫星·无网求救</span>'
-    : task._isRealData ? '<span style="color:#52c41a;font-size:14px;">● 实时数据</span>' : '<span style="color:#fa8c16;font-size:14px;">● Mock数据</span>';
+    : task._isRealData ? '<span style="color:#52c41a;font-size:14px;">● 真实数据</span>' : '<span style="color:#fa8c16;font-size:14px;">● Mock数据</span>';
   const t = task._ticket;
   const ticketHtml = t ? `
     <div class="detail-section">
