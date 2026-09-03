@@ -61,6 +61,9 @@ if (await pendingCard.count()) {
     const ticketText = await page.locator('.ticket-box').innerText().catch(() => '');
     check('批准后生成救援对接工单', /TK-\d+/.test(ticketText) && /对接通道/.test(ticketText), ticketText.split('\n')[0]);
     check('工单含合规脱敏说明', /脱敏/.test(ticketText));
+    const ticketTag = page.locator('.detail-label .mock-tag');
+    check('通讯员工单标题标注(Mock数据)', (await ticketTag.count()) === 1 && /\(Mock数据\)/i.test((await ticketTag.first().innerText()).replace(/\s/g, '')), await page.locator('.detail-label', { hasText: '救援对接工单' }).innerText().catch(() => ''));
+    check('工单Mock标注可见未裁切', await ticketTag.first().isVisible().catch(() => false));
     await page.screenshot({ path: shots + '/semifinal_02_ticket.png' });
     // 5. 等待 dispatched(8s)→verify(3s)→closed，看现场回传与闭环
     await page.waitForTimeout(13000);

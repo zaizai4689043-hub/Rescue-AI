@@ -89,6 +89,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#050810;font-family:
 .vstatus.done{background:rgba(82,196,26,.15);color:#52c41a;}
 .vstatus.doing{background:rgba(250,140,22,.15);color:#fa8c16;}
 .vstatus.wait{background:rgba(90,106,122,.15);color:#8899aa;}
+.mock-tag{display:inline-block;font-size:13px;font-weight:600;color:#fa8c16;background:rgba(250,140,22,.12);border:1px solid rgba(250,140,22,.38);border-radius:4px;padding:1px 7px;margin-left:8px;letter-spacing:0;text-transform:none;white-space:nowrap;vertical-align:middle;}
 .vgrid{display:flex;gap:10px;margin:8px 0;}
 .vbox{flex:1;background:#111a2e;border:1px solid #1e2630;padding:8px 10px;}
 .vbox .l{font-size:14px;color:#5a6a7a;}
@@ -1449,7 +1450,7 @@ function renderDrawer() {
     </div>
   </div>
   <div class="dw-sec brk">
-    <div class="vhead"><span>2. 多源核实（值班人员）</span><span class="vstatus ${allDone ? 'done' : 'doing'}">${allDone ? '核实完成 100%' : '核实中 ' + pct + '%'}</span></div>
+    <div class="vhead"><span>2. 多源核实（值班人员）<span class="mock-tag">(Mock数据)</span></span><span class="vstatus ${allDone ? 'done' : 'doing'}">${allDone ? '核实完成 100%' : '核实中 ' + pct + '%'}</span></div>
     <div class="vring-row">
       <div class="vring" style="--p:${pct}%">${pct}%</div>
       <div><div style="font-size:17px;color:#c8d6e5;">⏳ 值班人员正在通过以下方式逐一核实线索真实性</div><div style="font-size:15px;color:#8899aa;margin-top:4px;">已完成 <b style="color:#52c41a;">${doneN}</b> / 5 项核实</div></div>
@@ -1458,13 +1459,13 @@ function renderDrawer() {
     <button class="vpush ${allDone && !drawerState.pushed ? 'ready' : ''}" ${allDone && !drawerState.pushed ? '' : 'disabled'} onclick="pushClue()">✓ 确认核实完成，推送至救援队</button>
   </div>
   <div class="dw-sec brk">
-    <div class="vhead"><span>3. 线索推送至属地公益救援队</span>${drawerState.pushed ? '<span class="vstatus done">已推送</span>' : ''}</div>
+    <div class="vhead"><span>3. 线索推送至属地公益救援队<span class="mock-tag">(Mock数据)</span></span>${drawerState.pushed ? '<span class="vstatus done">已推送</span>' : ''}</div>
     ${drawerState.pushed
       ? `<div class="dw-team"><div class="tn">🚒 ${drawerState.pushed.team}<span class="tg">${drawerState.pushed.org}</span></div>对接通道：${drawerState.pushed.channel} · 预计抵达 ${drawerState.pushed.eta} min<br><span style="color:#8899aa;font-size:12px;">合规说明：平台双向信息中转，不向救援队外暴露求助人隐私；推送内容为经核实的灾情描述与坐标</span></div>`
       : '<div class="dw-lock">⚠ 需先完成多源核实</div>'}
   </div>
   <div class="dw-sec brk">
-    <div class="vhead"><span>4. 追踪反馈（每条线索有回音）</span>${drawerState.pushed && drawerState.track.length >= 5 ? '<span class="vstatus done">已闭环</span>' : ''}</div>
+    <div class="vhead"><span>4. 追踪反馈（每条线索有回音）<span class="mock-tag">(Mock数据)</span></span>${drawerState.pushed && drawerState.track.length >= 5 ? '<span class="vstatus done">已闭环</span>' : ''}</div>
     ${drawerState.pushed
       ? drawerState.track.map(k => `<div class="track-item"><span class="tt">${k.t}</span><span class="tx">${k.tx}</span></div>`).join('')
       : '<div class="dw-lock">⚠ 需先推送至救援队</div>'}
@@ -1951,7 +1952,7 @@ function renderDeskDetail(task) {
   const t = task._ticket;
   const ticketHtml = t ? `
     <div class="detail-section">
-      <div class="detail-label">📡 通讯员 · 救援对接工单</div>
+      <div class="detail-label">📡 通讯员 · 救援对接工单 <span class="mock-tag">(Mock数据)</span></div>
       <div class="ticket-box">
         <div class="ticket-head mono">${t.id} · ${t.team}（${t.teamType}）</div>
         <div class="ticket-meta">对接通道：${t.channel} · 预计抵达 ${t.etaMin}min · 方式：平台双向信息中转</div>

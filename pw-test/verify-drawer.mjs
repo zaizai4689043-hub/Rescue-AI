@@ -38,6 +38,10 @@ check('抽屉含原始线索+AI初筛', /原始线索/.test(bodyTxt) && /AI 智�
 check('抽屉含5项多源核实', /1\. 私信联系发帖人/.test(bodyTxt) && /5\. 同区域多源交叉印证/.test(bodyTxt));
 check('推送按钮初始禁用', await page.locator('.vpush[disabled]').count() === 1);
 check('推送/追踪区初始锁定', /需先完成多源核实/.test(bodyTxt) && /需先推送至救援队/.test(bodyTxt));
+const mockTags = page.locator('#drawer-body .vhead .mock-tag');
+check('抽屉2/3/4节均标注(Mock数据)', (await mockTags.count()) === 3, `实际${await mockTags.count()}处`);
+check('Mock标注文本为(Mock数据)', (await mockTags.first().innerText()).replace(/\s/g, '') === '(Mock数据)', await mockTags.first().innerText());
+check('Mock标注可见且未撑破标题行', await page.evaluate(() => [...document.querySelectorAll('#drawer-body .vhead')].every(h => h.getBoundingClientRect().height < 45) && [...document.querySelectorAll('#drawer-body .mock-tag')].every(t => { const b = t.getBoundingClientRect(); return b.width > 0 && b.height > 0; })));
 await page.screenshot({ path: path.join(shots, 'drawer_01_open.png') });
 
 // 2. 等待核实推进完成（5项×3.2s）
@@ -54,6 +58,7 @@ const body3 = await page.locator('#drawer-body').innerText();
 check('推送成功展示救援队', /已推送/.test(body3) && /对接通道/.test(body3));
 check('追踪反馈时间线启动', /推送至|确认接收/.test(body3.split('4. 追踪反馈')[1] || ''));
 check('产品定位说明存在', /不自建救援队伍/.test(body3));
+check('推送后Mock标注仍在', (await page.locator('#drawer-body .vhead .mock-tag').count()) === 3);
 await page.screenshot({ path: path.join(shots, 'drawer_03_pushed.png') });
 
 // 4. 追踪反馈逐步回音 → 闭环

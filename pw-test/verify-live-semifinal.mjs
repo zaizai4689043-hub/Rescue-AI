@@ -33,8 +33,12 @@ await page.screenshot({ path: path.join(shots, 'deploy_semifinal_01_full.png') }
 
 await page.locator('.feed-card').first().click();
 await page.waitForTimeout(800);
-check('线上抽屉可打开', await page.locator('#drawer.open').count() === 1);
+check('线上抽屉可打开', (await page.locator('#drawer.open').count()) === 1);
 await page.screenshot({ path: path.join(shots, 'deploy_semifinal_02_drawer.png') });
+const liveTags = page.locator('#drawer-body .vhead .mock-tag');
+check('线上抽屉2/3/4节标注(Mock数据)', (await liveTags.count()) === 3, `实际${await liveTags.count()}处`);
+check('线上Mock标注文本正确', (await liveTags.first().innerText()).replace(/\s/g, '') === '(Mock数据)');
+check('线上源码含工单Mock标注', /通讯员 · 救援对接工单 <span class="mock-tag">\(Mock数据\)<\/span>/.test(await page.content()));
 check('线上无页面JS错误', errors.length === 0, errors.slice(0, 2).join(' | '));
 
 // 首页（v4.0）未被破坏
